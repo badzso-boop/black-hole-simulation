@@ -1,0 +1,11 @@
+[package]
+name    = "black-hole-bevy"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+black-hole-core = { path = "../core" }
+bevy            = { version = "0.15", features = ["dynamic_linking"] }
+
+[features]
+default = []

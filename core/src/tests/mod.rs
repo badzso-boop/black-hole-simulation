@@ -1,0 +1,12 @@
+mod test_schwarzschild;
+mod test_hawking;
+mod test_lqc;
+mod test_interior;
+mod test_spectrum;
+mod test_edge_cases;
+mod test_validation;
+mod test_model_comparison;
+mod test_baby_universe;
+mod test_checkpoint;
+mod test_integrator;
+mod test_norbi_eta;

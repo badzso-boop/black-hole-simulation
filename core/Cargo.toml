@@ -1,0 +1,31 @@
+[package]
+name    = "black-hole-core"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name    = "black_hole_core"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde            = { workspace = true }
+serde_json       = { workspace = true }
+rmp-serde        = { workspace = true }
+thiserror        = { workspace = true }
+pyo3             = { workspace = true, optional = true }
+approx           = { workspace = true }
+uuid             = { workspace = true }
+tracing          = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[dev-dependencies]
+approx    = { workspace = true }
+criterion = { workspace = true }
+
+[features]
+default     = []
+python-ext  = ["pyo3"]
+
+[[bench]]
+name    = "simulation_bench"
+harness = false

@@ -1,0 +1,43 @@
+name: Rust Core Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths: ['core/**']
+  pull_request:
+    branches: [main]
+    paths: ['core/**']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: core
+
+      - name: Formátum ellenorzés
+        run: cargo fmt --manifest-path core/Cargo.toml -- --check
+
+      - name: Clippy
+        run: cargo clippy --manifest-path core/Cargo.toml -- -D warnings
+
+      - name: Unit tesztek
+        run: cargo test --manifest-path core/Cargo.toml --verbose
+
+      - name: Tarpaulin lefedettség
+        run: |
+          cargo install cargo-tarpaulin
+          cargo tarpaulin --manifest-path core/Cargo.toml --out Xml
+
+      - name: Codecov feltöltés
+        uses: codecov/codecov-action@v3

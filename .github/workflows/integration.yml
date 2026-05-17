@@ -1,0 +1,43 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Python telepítés
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Teljes projekt build
+        run: |
+          pip install maturin
+          maturin develop --manifest-path core/Cargo.toml --features python-ext
+          pip install -e '.[dev]'
+
+      - name: Standard szimuláció (Planck-tömeg)
+        run: python -m python.main --mass 2.176e-8 --norbi-mode false --no-ui --output ci_standard.json
+
+      - name: Norbi szimuláció
+        run: python -m python.main --mass 2.176e-8 --norbi-mode true --no-ui --output ci_norbi.json
+
+      - name: Eredmény validáció
+        run: python scripts/validate_results.py ci_standard.json ci_norbi.json
+
+      - name: Artifact mentés
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulation-results
+          path: ci_results_*.json
+          retention-days: 30

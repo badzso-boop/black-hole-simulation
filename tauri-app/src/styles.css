@@ -1,0 +1,257 @@
+:root {
+  --bg: #080818;
+  --bg-panel: #0e0e22;
+  --border: #1e2040;
+  --accent: #ff8c00;
+  --accent2: #4488ff;
+  --text: #dde;
+  --text-muted: #778;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+
+.header h1 {
+  font-size: 18px;
+  color: var(--accent);
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+}
+
+.sidebar {
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 12px;
+  background: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.content {
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Config Panel */
+.config-panel h3 {
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.field {
+  margin-bottom: 10px;
+}
+
+.field label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.field input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.field .value {
+  font-size: 11px;
+  color: var(--accent);
+  display: block;
+  margin-top: 2px;
+}
+
+.field.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.field.toggle label {
+  margin-bottom: 0;
+}
+
+.hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  width: 100%;
+}
+
+.presets {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.preset-btn {
+  background: #14143a;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.preset-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.run-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.run-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Charts */
+.spectrum-chart, .entropy-plot, .kruskal-diagram, .interior-view {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.spectrum-chart h4, .entropy-plot h4, .kruskal-diagram h4, .interior-view h4 {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.chart-placeholder {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Results */
+.results-panel {
+  padding: 10px;
+  background: #0a0a1e;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.results-panel h4 {
+  font-size: 12px;
+  color: var(--accent2);
+  margin-bottom: 8px;
+}
+
+.results-panel.error pre {
+  color: #ff5555;
+  font-size: 11px;
+  white-space: pre-wrap;
+}
+
+.results-panel.empty p {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.result-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-item .label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.result-item .value {
+  font-size: 11px;
+  color: var(--text);
+}
+
+.norbi-note {
+  margin-top: 8px;
+  padding: 6px;
+  background: rgba(68, 136, 255, 0.1);
+  border-left: 2px solid var(--accent2);
+  font-size: 10px;
+  color: #aac;
+}
+
+/* Footer */
+.footer {
+  padding: 6px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  display: flex;
+  gap: 20px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.footer code {
+  background: #111130;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--accent);
+}
