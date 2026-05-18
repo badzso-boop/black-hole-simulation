@@ -10,3 +10,4 @@ mod test_baby_universe;
 mod test_checkpoint;
 mod test_integrator;
 mod test_norbi_eta;
+mod test_information_tracking;

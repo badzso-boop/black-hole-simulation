@@ -96,6 +96,7 @@ impl InteriorModel for NorbiInterior {
                 intensities,
                 temperature: 0.0,
                 total_power: 0.0,
+                ..Default::default()
             }
         } else {
             Spectrum::default()

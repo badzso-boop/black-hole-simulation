@@ -62,3 +62,37 @@ class Comparator:
             "agreement_steps": agreed_until,
             "diverge_at_step": agreed_until if agreed_until < len(standard_trajectory) else -1,
         }
+
+    @staticmethod
+    def compare_information_content(
+        std_timeline: list[dict],
+        norbi_timeline: list[dict],
+        input_packet_entropy: float,
+    ) -> dict:
+        """Teljes információ-tartalom összehasonlítás InformationTracker segítségével."""
+        from python.information_tracker import InformationTracker
+        tracker = InformationTracker()
+        std_result   = tracker.process_timeline(std_timeline,   input_packet_entropy)
+        norbi_result = tracker.process_timeline(norbi_timeline, input_packet_entropy)
+        comparison   = InformationTracker.compare_models(std_result, norbi_result)
+        return {
+            "standard":   std_result,
+            "norbi":      norbi_result,
+            "comparison": comparison,
+        }
+
+    @staticmethod
+    def compute_spectral_divergence(
+        spectrum: list[float] | NDArray[np.float64],
+        temperature: float,
+    ) -> float:
+        """KL divergencia a spektrum és a legjobb Planck-illesztés között.
+
+        0.0 = tökéletesen termális (Standard Hawking, greybody nélkül)
+        > 0 = nem-termális komponens van (Norbi él-sugárzás)
+        """
+        from python.reverse_engineer import ReverseEngineer
+        return ReverseEngineer.compute_thermality_score(
+            np.asarray(spectrum, dtype=np.float64),
+            temperature,
+        )

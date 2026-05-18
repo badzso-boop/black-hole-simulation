@@ -28,9 +28,9 @@ dev = [
 ]
 
 [tool.maturin]
-python-source = "python"
 module-name   = "black_hole_core"
 features      = ["python-ext"]
+manifest-path = "core/Cargo.toml"
 
 [tool.ruff]
 line-length = 100

@@ -42,7 +42,7 @@ pub fn build_spectrum(temp: f64, total_power: f64, greybody_fn: impl Fn(f64) -> 
         intensities.push(planck * gamma);
     }
 
-    Spectrum { frequencies, intensities, temperature: temp, total_power }
+    Spectrum { frequencies, intensities, temperature: temp, total_power, ..Default::default() }
 }
 
 impl Spectrum {

@@ -50,8 +50,9 @@ pub fn run_simulation(mass: f64, config: SimulationConfig, _payload_json: &str) 
     let mut bh = SchwarzschildBlackHole::new(mass)?;
     let engine = HawkingEngine::new();
     let mut results = SimulationResults::new(config);
-    let dt = 1e-10_f64;
-    let steps = 100;
+    let steps = 100_usize;
+    // dt = t_evap / steps — így minden futtatás lefedi a teljes elpárlást
+    let dt = (bh.evaporation_time() / steps as f64).max(1e-100);
 
     for _ in 0..steps {
         let temp = bh.hawking_temperature()?;
@@ -80,27 +81,53 @@ pub fn run_simulation(mass: f64, config: SimulationConfig, _payload_json: &str) 
 /// Egyszerűsített szimulációs futtatás — CLI és Python számára
 #[allow(dead_code)]
 fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, SimulationError> {
+    use interior::norbi::NorbiInterior;
+    use interior::standard::StandardInterior;
     use radiation::hawking_engine::HawkingEngine;
 
     let mut bh = SchwarzschildBlackHole::new(mass)?;
-    let engine = HawkingEngine::new();
-    let config = if norbi_mode {
-        SimulationConfig::standard()
-    } else {
+    let engine = if norbi_mode { HawkingEngine::norbi() } else { HawkingEngine::standard() };
+    let config = {
         let mut c = SimulationConfig::standard();
-        c.norbi_mode = false;
+        c.norbi_mode = norbi_mode;
         c
     };
 
     let mut results = SimulationResults::new(config);
-    let dt = 1e-10_f64;
-    let steps = 100;
+    let steps = 100_usize;
+    let dt = (bh.evaporation_time() / steps as f64).max(1e-100);
+
+    // Belső modell: Norbi vagy Standard
+    let mut norbi_interior = NorbiInterior::new();
+    let mut std_interior   = StandardInterior::new();
+
+    // Reprezentatív részecske a belső szimulációhoz
+    let particle = types::Particle {
+        mass: mass * 0.001,          // beeső részecske tömege (BH tömegének 0.1%-a)
+        energy: mass * 0.001 * 9e16, // E = mc²
+        angular_momentum: 0.0,
+        initial_radius: bh.schwarzschild_radius() * 10.0,
+        particle_type: types::ParticleType::Proton,
+    };
 
     for _ in 0..steps {
-        let temp = bh.hawking_temperature()?;
+        let temp    = bh.hawking_temperature()?;
         let entropy = bh.bekenstein_entropy();
         let spectrum = engine.compute_spectrum(&bh)?;
-        let interior = InteriorState::default();
+
+        // Belső fizika lépés + Norbi spektrum bekötése
+        let (spectrum, interior) = if norbi_mode {
+            let interior = norbi_interior.simulate_step(&particle, &bh, dt).unwrap_or_default();
+            let spectrum = match &interior.baby_universe {
+                Some(bu_state) => engine.compute_spectrum_norbi(&bh, bu_state)
+                    .unwrap_or(spectrum),
+                None => spectrum,
+            };
+            (spectrum, interior)
+        } else {
+            let interior = std_interior.simulate_step(&particle, &bh, dt).unwrap_or_default();
+            (spectrum, interior)
+        };
 
         results.timeline.push(TimeStep {
             time: bh.age(),

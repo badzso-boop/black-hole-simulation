@@ -44,6 +44,12 @@ pub struct Spectrum {
     pub intensities: Vec<f64>,
     pub temperature: f64,
     pub total_power: f64,
+    /// Mekkora hányad jön a termális Hawking-mechanizmusból [0,1]
+    pub hawking_fraction: f64,
+    /// Mekkora hányad jön a Norbi él-szétszakadásból [0,1]
+    pub edge_fraction: f64,
+    /// KL divergencia a legjobb Planck-illesztéstől (0 = tökéletesen termális)
+    pub thermality_score: f64,
 }
 
 
