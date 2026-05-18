@@ -15,7 +15,7 @@ A **Norbi-hipotézis** szerint:
 3. A visszapattanás egy új, tágul **bébiuniverzumot** hoz létre a fekete lyuk belsejében
 4. A bébiuniverzum tágulásának szélén az anyag **szétszakad** (tidal erő > kötési energia)
 5. A szétszakadó anyag **sugároz** — ez az, amit kívülről Hawking-sugárzásként érzékelünk
-6. Az információ nem vész el, hanem a bébiuniverzumba kerül
+6. A sugárzás **nem teljesen termális** — a beeső anyag ujjlenyomata részben megőrződik
 
 ```
 Fekete lyuk
@@ -23,7 +23,8 @@ Fekete lyuk
             └─► LQC: H² = (8πG/3)·ρ·(1 - ρ/ρ_P) = 0  → kvantumvisszapattanás
                     └─► BabyUniverse: a(t) = a₀·e^(H_inf·t)
                             └─► e_tidal > e_bind → szétszakadás + sugárzás
-                                    └─► Hawking-spektrum (külső megfigyelőnek)
+                                    └─► Nem-termális spektrum (edge_fraction > 0)
+                                            └─► Információ részben visszanyerhető
 ```
 
 ---
@@ -33,10 +34,10 @@ Fekete lyuk
 | Réteg | Technológia | Szerep |
 |---|---|---|
 | Fizikai mag | **Rust** (core/) | Minden számítás, OOP trait-ek |
-| Python elemzés | **Python 3.12** + numpy/scipy/sklearn | PCA, FFT, hash rekonstrukció |
+| Python elemzés | **Python 3.11–3.13** + numpy/scipy/sklearn | PCA, FFT, KL divergencia, Page-görbe |
 | 3D vizualizáció | **Bevy 0.15** (ECS) | Valós idejű 3D szimuláció |
 | Asztali UI | **Tauri 2** + React + TypeScript | Vezérlőpult, grafikonok |
-| Python↔Rust híd | **PyO3 0.21** + maturin | Natív Python modul |
+| Python↔Rust híd | **PyO3 0.22** + maturin | Natív Python modul |
 | CI/CD | **GitHub Actions** | Automatikus tesztelés |
 
 ---
@@ -53,7 +54,8 @@ black-hole-simulator/
 │   ├── src/
 │   │   ├── constants.rs            # G, c, ħ, k_B, l_P, ρ_Planck, M_Planck, M_Sun
 │   │   ├── error.rs                # SimulationError enum (thiserror)
-│   │   ├── types.rs                # Adatsémák (Particle, Spectrum, TimeStep, ...)
+│   │   ├── types.rs                # Adatsémák: Spectrum (hawking_fraction, edge_fraction,
+│   │   │                           #   thermality_score mezőkkel), TimeStep, BabyUniverseState, ...
 │   │   ├── lib.rs                  # Publikus API + PyO3 binding
 │   │   │
 │   │   ├── black_hole/
@@ -63,38 +65,40 @@ black-hole-simulator/
 │   │   │   └── kerr.rs             # Kerr stub (v3)
 │   │   │
 │   │   ├── interior/
-│   │   │   ├── baby_universe.rs    # BabyUniverse: tágulás, szétszakadás detekció
+│   │   │   ├── baby_universe.rs    # BabyUniverse: tágulás, szétszakadás detekció, él-spektrum
 │   │   │   ├── norbi.rs            # NorbiInterior: kvantumvisszapattanás + bébiuniverzum
 │   │   │   ├── standard.rs         # StandardInterior: geodézia, Planck-határnál megáll
 │   │   │   └── cauchy.rs           # Cauchy-horizont stub (v3)
 │   │   │
 │   │   ├── radiation/
-│   │   │   ├── hawking_engine.rs   # HawkingEngine: 1000-bines Planck-spektrum, greybody
+│   │   │   ├── hawking_engine.rs   # HawkingEngine: compute_spectrum() + compute_spectrum_norbi()
+│   │   │   │                       #   KL divergencia (thermality_score), él-spektrum keverés
 │   │   │   ├── spectrum.rs         # Planck-spektrum számítás, normálás, csúcs frekvencia
 │   │   │   └── soft_hair.rs        # Hawking soft hair stub (v3)
 │   │   │
 │   │   ├── quantum/
 │   │   │   ├── lqc.rs              # LQCEquation: H²=(8πG/3)·ρ·(1-ρ/ρ_P), bounce detekció
-│   │   │   ├── island.rs           # IslandFormula: Page-görbe (generalizált entrópia)
+│   │   │   ├── island.rs           # IslandFormula stub (v3)
 │   │   │   └── complexity.rs       # Holografikus komplexitás stub (v3)
 │   │   │
 │   │   ├── time_evolution/
 │   │   │   ├── integrator.rs       # RK45 adaptív integrátor
 │   │   │   └── checkpoint.rs       # Atomikus checkpoint mentés (MessagePack)
 │   │   │
-│   │   └── tests/                  # 12 tesztfájl, 53 teszt
+│   │   └── tests/                  # 13 tesztfájl, 58 teszt
 │   │       ├── test_schwarzschild.rs
 │   │       ├── test_hawking.rs
 │   │       ├── test_lqc.rs
 │   │       ├── test_interior.rs
 │   │       ├── test_spectrum.rs
 │   │       ├── test_edge_cases.rs
-│   │       ├── test_validation.rs   # 7 irodalmi validáció (val_01..val_07)
+│   │       ├── test_validation.rs       # 7 irodalmi validáció (val_01..val_07)
 │   │       ├── test_model_comparison.rs
 │   │       ├── test_baby_universe.rs
 │   │       ├── test_checkpoint.rs
 │   │       ├── test_integrator.rs
-│   │       └── test_norbi_eta.rs
+│   │       ├── test_norbi_eta.rs
+│   │       └── test_information_tracking.rs  # 5 teszt: edge_fraction, thermality (INFO-01..05)
 │   │
 │   └── benches/
 │       └── simulation_bench.rs     # Criterion benchmarkok
@@ -102,26 +106,29 @@ black-hole-simulator/
 ├── python/                         # Python elemző réteg
 │   ├── config.py                   # SimulationConfig (lite/standard/research gyárak)
 │   ├── information_packet.py       # SHA3-256 hash, qubit kódolás, Von Neumann entrópia
-│   ├── reverse_engineer.py         # PCA, FFT, hash rekonstrukció kísérlet
-│   ├── comparator.py               # Standard vs Norbi spektrum/evolúció összehasonlítás
+│   ├── reverse_engineer.py         # PCA, FFT, KL divergencia, spektrális jellemzők,
+│   │                               #   estimate_information_content(), similarity_score()
+│   ├── information_tracker.py      # InformationTracker: Page-görbe, compare_models()
+│   ├── comparator.py               # Standard vs Norbi összehasonlítás + information content
 │   ├── quantum_sim.py              # Qiskit kvantum áramkör szimuláció
 │   ├── qec_model.py                # HKLL rekonstrukció stub (v3)
 │   ├── logging_config.py           # JSON logging inicializálás
-│   ├── __main__.py                 # CLI belépési pont (argparse)
+│   ├── __main__.py                 # CLI belépési pont (kimenet: output/)
 │   └── tests/
-│       ├── test_information.py     # 7 teszt: hash, qubit, entrópia
-│       ├── test_reverse_eng.py     # 4 teszt: PCA, FFT, similarity
-│       └── test_comparator.py      # 6 teszt: spektrum SNR, evolúció összehasonlítás
+│       ├── test_information.py          # 7 teszt: hash, qubit, entrópia
+│       ├── test_reverse_eng.py          # 4 teszt: PCA, FFT, similarity
+│       ├── test_comparator.py           # 6 teszt: spektrum SNR, evolúció összehasonlítás
+│       └── test_information_tracker.py  # 10 teszt: Page-görbe, compare_models, KL divergencia
 │
 ├── bevy-app/                       # Bevy 3D vizualizáció
 │   └── src/
-│       ├── main.rs                 # App belépési pont, Startup + Update rendszerek
+│       ├── main.rs
 │       ├── components.rs           # ECS komponensek
 │       ├── cameras.rs              # Osztott képernyő (külső orbit + belső fly kamera)
-│       ├── materials.rs            # PBR anyagok (fekete lyuk, Hawking pont, bolygó)
+│       ├── materials.rs            # PBR anyagok
 │       ├── bridge.rs               # SimulationState (Arc<Mutex<...>>)
 │       └── systems/
-│           ├── external.rs         # Gravitációs tér gizmos, pályavonalak, eltűnő sugárzás
+│           ├── external.rs         # Gravitációs tér gizmos, pályavonalak
 │           ├── internal.rs         # N-test gravitáció, bébiuniverzum tágulás
 │           ├── hawking.rs          # Hawking emissziós pontok spawnolása
 │           ├── breakup.rs          # Szétszakadás animáció (GPU-részecske spray)
@@ -129,36 +136,33 @@ black-hole-simulator/
 │
 ├── tauri-app/                      # Tauri asztali vezérlőpult
 │   ├── src/
-│   │   ├── main.tsx                # React belépési pont
-│   │   ├── styles.css              # Sötét téma (space aesthetic)
-│   │   ├── hooks/
-│   │   │   └── useSimulation.ts    # Szimuláció állapotkezelés (invoke API)
+│   │   ├── main.tsx
+│   │   ├── hooks/useSimulation.ts
 │   │   └── components/
-│   │       ├── Dashboard.tsx       # Főképernyő, teljes layout
-│   │       ├── ConfigPanel.tsx     # Tömeg csúszka, Norbi kapcsoló, presetek
-│   │       ├── SpectrumChart.tsx   # Hawking-sugárzás spektrum SVG
-│   │       ├── EntropyPlot.tsx     # Bekenstein-Hawking entrópia + Page-görbe
-│   │       ├── KruskalDiagram.tsx  # Interaktív Kruskal–Szekeres diagram SVG
-│   │       ├── InteriorView.tsx    # Belső állapot animált vizualizáció
-│   │       └── ResultsPanel.tsx    # Számszerű eredmények, Norbi-magyarázat
+│   │       ├── Dashboard.tsx
+│   │       ├── ConfigPanel.tsx
+│   │       ├── SpectrumChart.tsx
+│   │       ├── EntropyPlot.tsx
+│   │       ├── KruskalDiagram.tsx
+│   │       ├── InteriorView.tsx
+│   │       └── ResultsPanel.tsx
 │   └── src-tauri/
-│       ├── src/
-│       │   ├── main.rs             # Tauri app belépési pont
-│       │   ├── commands.rs         # #[tauri::command]: run_simulation, get_state, toggle_norbi
-│       │   └── python_bridge.rs    # subprocess JSON kommunikáció Python elemzővel
-│       ├── build.rs                # tauri_build::build()
-│       └── tauri.conf.json         # App konfiguráció (1400×900, identifier)
+│       └── src/
+│           ├── commands.rs         # run_simulation, get_current_state, toggle_norbi_mode
+│           └── python_bridge.rs    # subprocess JSON kommunikáció
 │
 ├── scripts/
-│   ├── setup_dev.sh                # Fejlesztői környezet egy lépésben
-│   ├── validate_results.py         # CI validátor (monoton tömeg, entrópia, NaN/Inf)
-│   ├── benchmark_compare.py        # Két szimuláció összehasonlítása
-│   ├── checkpoint_inspect.py       # MessagePack checkpoint megtekintése
-│   └── export_csv.py               # Timeline CSV export
+│   ├── setup_dev.sh
+│   ├── validate_results.py         # CI validátor
+│   ├── benchmark_compare.py
+│   ├── checkpoint_inspect.py
+│   └── export_csv.py
+│
+├── output/                         # Szimuláció kimenetek (gitignore-olt)
 │
 └── .github/workflows/
-    ├── rust-tests.yml              # fmt + clippy + cargo test + tarpaulin
-    ├── python-tests.yml            # maturin develop + ruff + mypy + pytest (3.11, 3.12)
+    ├── rust-tests.yml              # fmt + clippy -D warnings + cargo test + tarpaulin
+    ├── python-tests.yml            # venv + pip install + ruff + mypy + pytest (3.11, 3.12, 3.13)
     └── integration.yml             # E2E Planck-tömeg szimuláció + validáció (nightly)
 ```
 
@@ -168,13 +172,13 @@ black-hole-simulator/
 
 ### Schwarzschild fekete lyuk (`core/src/black_hole/schwarzschild.rs`)
 
-| Mennyiség | Képlet | Fájl |
+| Mennyiség | Képlet | Forrás |
 |---|---|---|
-| Schwarzschild-sugár | r_s = 2GM/c² | schwarzschild.rs:21 |
-| Hawking-hőmérséklet | T_H = ħc³ / (8πGMk_B) | schwarzschild.rs:28 |
-| Bekenstein-Hawking entrópia | S = A / (4·l_P²), ahol A = 4πr_s² | schwarzschild.rs:36 |
-| Hawking-teljesítmény | P = ħc⁶ / (15360πG²M²) | schwarzschild.rs:44 |
-| Elpárlási idő | t_evap = 5120πG²M₀³ / (ħc⁴) | schwarzschild.rs:51 |
+| Schwarzschild-sugár | r_s = 2GM/c² | [SCH16] |
+| Hawking-hőmérséklet | T_H = ħc³ / (8πGMk_B) | [HAW74] |
+| Bekenstein-Hawking entrópia | S = A / (4·l_P²), ahol A = 4πr_s² | [BEK73] |
+| Hawking-teljesítmény | P = ħc⁶ / (15360πG²M²) | [HAW75] |
+| Elpárlási idő | t_evap = 5120πG²M₀³ / (ħc⁴) | [HAW75] |
 
 ### Loop Quantum Cosmology (`core/src/quantum/lqc.rs`)
 
@@ -185,7 +189,7 @@ Módosított Friedmann-egyenlet:
 ```
 
 - Ha ρ = ρ_Planck → H² = 0 → kvantumvisszapattanás (nem szingularitás)
-- Ha ρ << ρ_Planck → klasszikus Friedmann egyenletbe tér vissza
+- Ha ρ << ρ_Planck → klasszikus Friedmann-egyenletbe tér vissza
 
 ### Bébiuniverzum szétszakadási feltétel (`core/src/interior/baby_universe.rs`)
 
@@ -196,13 +200,64 @@ e_bind  = 3·G·m² / (5·R)          (kötési energia)
 Ha e_tidal > e_bind → BreakupEvent → sugárzás
 ```
 
-### Planck-spektrum greybody faktorral (`core/src/radiation/hawking_engine.rs`)
+### Hawking-spektrum greybody faktorral + Norbi él-keverés
 
+**Standard (`compute_spectrum`):**
 ```
-B(ν, T) = (2hν³/c²) / (exp(hν/k_BT) - 1)   [Planck]
-γ(ν)    = 1 - exp(-ν / ν_c)                   [greybody faktor]
-I(ν)    = γ(ν) · B(ν, T)                      [effektív spektrum]
+B(ν, T) = (2hν³/c²) / (exp(hν/k_BT) - 1)     [Planck]
+γ(ν)    = 1 - exp(-ν / ν_c)                     [greybody faktor]
+I(ν)    = γ(ν) · B(ν, T)                        [effektív spektrum]
+
+hawking_fraction = 1.0,  edge_fraction = 0.0
+thermality_score = KL(I || Planck(T))  ≈ 0.10   [kis greybody-eltérés]
 ```
+
+**Norbi (`compute_spectrum_norbi`):**
+```
+α = E_baby / (E_baby + M_bh · c²)               [energia-arány csatolás]
+
+I_blended(ν) = (1-α)·I_hawk(ν) + α·I_edge(ν)   [L1-normált keverés]
+
+hawking_fraction = 1-α,  edge_fraction = α
+thermality_score = KL(I_blended || Planck(T_H))  >> Standard
+```
+
+Planck-tömegű fekete lyuknál: `α ≈ 0.52 → 0.81` (növekszik ahogy a bébiuniverzum energiája nő).
+
+---
+
+## Információ-nyomkövetés
+
+### A három kulcsmező a `Spectrum` struktúrában
+
+| Mező | Standard | Norbi | Értelmezés |
+|---|---|---|---|
+| `hawking_fraction` | 1.0 (végig) | 0.19–0.48 | Termális Hawking-sugárzás aránya |
+| `edge_fraction` | 0.0 (végig) | 0.52–0.81 | Bébiuniverzum él-sugárzás aránya |
+| `thermality_score` | ~0.10 | 3.9–6.4 | KL divergencia a Planck-elosztástól |
+
+### Page-görbe és visszanyert bitek
+
+Az `InformationTracker` osztály kiszámolja a kumulatív sugárzási entrópiát és becsüli a visszanyerhető biteket:
+
+```python
+from python.information_tracker import InformationTracker
+
+tracker = InformationTracker()
+std_result   = tracker.process_timeline(std_timeline, input_entropy=5.0)
+norbi_result = tracker.process_timeline(norbi_timeline, input_entropy=5.0)
+cmp = InformationTracker.compare_models(std_result, norbi_result)
+
+# Eredmény:
+# cmp["thermality_ratio"]        → 46.3×  (Norbi sokkal nem-termálisabb)
+# cmp["norbi_avg_edge_fraction"] → 0.61   (átlagosan 61% él-sugárzás)
+# std_result["total_recovered_bits"]   → 0.95 bit
+# norbi_result["total_recovered_bits"] → 9.85 bit
+```
+
+### Fontos megjegyzés
+
+A csatolási formula (`α = E_baby / E_total`) fizikailag motivált, de **nem levezetett** — az első elvekből való levezetés a következő fejlesztési fázis feladata.
 
 ---
 
@@ -211,7 +266,6 @@ I(ν)    = γ(ν) · B(ν, T)                      [effektív spektrum]
 A projekt a Rust trait rendszerét használja objektumorientált interfészként:
 
 ```rust
-// Interfészek (black_hole/mod.rs)
 pub trait BlackHoleTrait {
     fn mass(&self) -> f64;
     fn schwarzschild_radius(&self) -> f64;
@@ -235,10 +289,10 @@ pub trait RadiationEngine {
 ```
 
 **Implementációk:**
-- `SchwarzschildBlackHole` → `BlackHoleTrait` (standard + Norbi módban)
+- `SchwarzschildBlackHole` → `BlackHoleTrait`
 - `StandardInterior` → `InteriorModel` (megáll ρ ≥ ρ_Planck-nál)
-- `NorbiInterior` → `InteriorModel` (folytatja, kvantumvisszapattanással)
-- `HawkingEngine` → `RadiationEngine` (Standard és Norbi variáns)
+- `NorbiInterior` → `InteriorModel` (folytatja kvantumvisszapattanással)
+- `HawkingEngine` → `RadiationEngine` + `compute_spectrum_norbi()` Norbi-módhoz
 
 ---
 
@@ -246,22 +300,23 @@ pub trait RadiationEngine {
 
 ### Rust tesztek (`cargo test --manifest-path core/Cargo.toml`)
 
-**53 teszt, mind zöld.**
+**58 teszt, mind zöld.**
 
 | Tesztfájl | Tesztek | Mit validál |
 |---|---|---|
 | test_schwarzschild.rs | 6 | r_s(M_Nap)≈2954 m, T_H, entrópia, elpárlási idő arányok |
 | test_hawking.rs | 4 | Tömegcsökkenés, energiamegmaradás, Wien-törvény, greybody |
 | test_lqc.rs | 4 | H²=0 ha ρ=ρ_P, LQC≈Friedmann kis ρ-nál, bounce trigger |
-| test_interior.rs | 4 | Standard megáll, Norbi folytat, mindkettő egyezik Planck előtt |
+| test_interior.rs | 4 | Standard megáll, Norbi folytat, egyezés Planck előtt |
 | test_spectrum.rs | 3 | Bin szám, nem-negatív intenzitás, hőmérséklet tárolás |
 | test_edge_cases.rs | 4 | Nulla/negatív/NaN tömeg → hiba, tömeg sosem negatív |
 | test_validation.rs | 7 | Irodalmi referenciák (SCH16, HAW74, HAW75, PLA00, BEK73, PAG93, ASH06) |
 | test_model_comparison.rs | 5 | Standard vs Norbi összehasonlítás |
 | test_baby_universe.rs | 6 | Tágulás, szétszakadás logika, sugárzási spektrum |
 | test_checkpoint.rs | 4 | Mentés/betöltés körforgás, MessagePack formátum |
-| test_integrator.rs | 3 | RK45 konvergencia, gyorsulás iránya |
+| test_integrator.rs | 3 | RK45 konvergencia |
 | test_norbi_eta.rs | 3 | η hatásfok számítás |
+| test_information_tracking.rs | 5 | hawking_fraction, edge_fraction, thermality_score (INFO-01..05) |
 
 ### Kulcs validációs számok (test_validation.rs)
 
@@ -275,15 +330,16 @@ Page-görbe: emelkedik, majd csökken        [Page 1993]
 LQC: H²=0 ha ρ=ρ_P (tol: 1×10⁻¹⁰)       [Ashtekar 2006]
 ```
 
-### Python tesztek (`.venv/bin/python -m pytest python/tests/`)
+### Python tesztek (`pytest python/tests/ -v`)
 
-**17 teszt, mind zöld.**
+**27 teszt, mind zöld.**
 
 | Tesztfájl | Tesztek | Mit validál |
 |---|---|---|
 | test_information.py | 7 | SHA3-256 hash, qubit normálás, Von Neumann entrópia |
 | test_reverse_eng.py | 4 | PCA főkomponensek, FFT csúcs, similarity score |
 | test_comparator.py | 6 | Spektrum SNR, detektálhatóság, evolúció divergencia |
+| test_information_tracker.py | 10 | Page-görbe, compare_models, KL divergencia, Norbi előny |
 
 ---
 
@@ -295,10 +351,10 @@ LQC: H²=0 ha ρ=ρ_P (tol: 1×10⁻¹⁰)       [Ashtekar 2006]
 # Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Python virtuális környezet
+# Python virtuális környezet + teljes build
 python3 -m venv .venv
 source .venv/bin/activate
-pip install numpy scipy scikit-learn pytest
+pip install -e '.[dev]'   # Rust mag fordítása + Python függőségek egyszerre
 
 # Ubuntu/WSL2 rendszerfüggőségek (Bevy + Tauri)
 sudo apt install libudev-dev libasound2-dev libdbus-1-dev libgtk-3-dev libwebkit2gtk-4.1-dev
@@ -324,21 +380,27 @@ cargo test --manifest-path core/Cargo.toml validation -- --nocapture
 ### Python tesztek
 
 ```bash
-.venv/bin/python -m pytest python/tests/ -v
+source .venv/bin/activate
+pytest python/tests/ -v
 ```
 
 ### CLI headless szimuláció
 
 ```bash
 # Standard Hawking-modell
-python -m python.main --mass 2.176e-8 --norbi-mode false --no-ui --output standard.json
+python -m python.main --mass 2.176e-8 --norbi-mode false --no-ui
 
 # Norbi-hipotézis
-python -m python.main --mass 2.176e-8 --norbi-mode true --no-ui --output norbi.json
+python -m python.main --mass 2.176e-8 --norbi-mode true --no-ui
+
+# Egyedi kimeneti fájl
+python -m python.main --mass 1e15 --norbi-mode true --no-ui --output output/nagytomeg.json
 
 # Eredmény validáció
-python scripts/validate_results.py standard.json norbi.json
+python scripts/validate_results.py output/results.json
 ```
+
+A kimenetek az `output/` mappába kerülnek (gitignore-olt).
 
 ### Bevy 3D vizualizáció
 
@@ -374,71 +436,31 @@ Elvárt teljesítmény:
 
 ---
 
-## Bevy 3D megjelenítés részletei
-
-Az alkalmazás **osztott képernyőt** alkalmaz (1600×900):
-
-- **Bal panel** — Külső nézet: orbit kamera a fekete lyuk körül
-  - Eseményhorizont (emissive narancssárga gyűrű)
-  - Gravitációs tér vonalak (8 irányban, távolságfüggő átlátszóság)
-  - Hawking-sugárzás pontok (narancssárga gömbök, lifetime alapú eltűnés)
-  - Pályavonalak (trail renderer, 200 pont)
-  - Szétszakadás animáció (részecske spray, energiaarányos darabszám)
-
-- **Jobb panel** — Belső nézet: szabad repülős kamera
-  - 5 belső objektum N-test gravitációval
-  - BabyUniverse mag (kék, félig átlátszó gömb)
-  - 80 háttércsillag (fibonacci spirál elrendezés)
-  - Szétszakadt objektumok piros Gizmos jelzéssel
-  - Tidal erő alapú automatikus szétszakadás detekció
-
----
-
-## Tauri UI komponensek
-
-| Komponens | Funkció |
-|---|---|
-| `Dashboard.tsx` | Főlayout, állapotkezelés összefogója |
-| `ConfigPanel.tsx` | Tömeg logaritmikus csúszka (10⁻¹⁰ – 10⁴⁰ kg), 3 preset, Norbi kapcsoló |
-| `SpectrumChart.tsx` | Hawking-spektrum SVG polyline, valós idejű hőmérséklet felirat |
-| `EntropyPlot.tsx` | Bekenstein-Hawking entrópia görbéje + Page-idő jelzővonal |
-| `KruskalDiagram.tsx` | Kruskal–Szekeres téridő diagram, Norbi-módban bébiuniverzum jelzéssel |
-| `InteriorView.tsx` | Animált belső állapot: horizont, sugárzási részecskék, bU mag |
-| `ResultsPanel.tsx` | Számszerű eredmények táblázata, Norbi-magyarázat szöveg |
-
-**Tauri parancsok:**
-```typescript
-invoke("run_simulation", { mass, norbi_mode, payload_json })
-invoke("get_current_state")
-invoke("toggle_norbi_mode", { enabled })
-```
-
----
-
 ## CI/CD (GitHub Actions)
 
 ### `rust-tests.yml` — Minden push a `core/**`-ra
 
-1. `cargo fmt -- --check` (formátum)
-2. `cargo clippy -- -D warnings` (lint, warning = hiba)
-3. `cargo test --verbose` (53 unit teszt)
-4. `cargo tarpaulin` (kódlefedettség → Codecov)
+1. `cargo fmt -- --check`
+2. `cargo clippy -- -D warnings` (warning = hiba)
+3. `cargo test --verbose` (58 unit teszt)
+4. `cargo tarpaulin --locked` (kódlefedettség → Codecov)
 
-### `python-tests.yml` — Minden push a `python/**`-ra
+### `python-tests.yml` — Minden push a `python/**` vagy `core/**`-ra
 
-Matrix: Python 3.11 + 3.12
+Matrix: **Python 3.11 + 3.12 + 3.13**
 
-1. `maturin develop` (Rust mag fordítása Python modulnak)
-2. `ruff check` (lint)
-3. `mypy` (típusellenőrzés)
-4. `pytest --cov` (17 teszt + lefedettség)
+1. `.venv` létrehozása, `$GITHUB_PATH`-ba írás
+2. `pip install -e '.[dev]'` (maturin Rust build + Python függőségek)
+3. `ruff check python/`
+4. `mypy python/`
+5. `pytest python/tests/ --cov` (27 teszt)
 
 ### `integration.yml` — Push main-re + nightly 02:00
 
-1. Teljes build (maturin + pip)
-2. Planck-tömeg szimuláció Standard módban → `ci_standard.json`
-3. Planck-tömeg szimuláció Norbi módban → `ci_norbi.json`
-4. `python scripts/validate_results.py` — monoton tömeg, nem-negatív entrópia, nincs NaN/Inf, schema v2.0
+1. Teljes build
+2. Planck-tömeg szimuláció Standard → `output/ci_standard.json`
+3. Planck-tömeg szimuláció Norbi → `output/ci_norbi.json`
+4. `python scripts/validate_results.py` — monoton tömeg, entrópia ≥ 0, nincs NaN/Inf, schema v2.0
 5. Artifact mentés (30 nap)
 
 ---
@@ -461,20 +483,6 @@ pub const SPECTRUM_BINS: usize = 1000;   // spektrum felbontás
 
 ---
 
-## Checkpoint rendszer
-
-A szimulációs állapotok **MessagePack** formátumban kerülnek mentésre (rmp-serde), atomikus fájlírással (temp fájl → rename), schema verzió: `"2.0"`.
-
-```bash
-# Checkpoint megtekintése
-python scripts/checkpoint_inspect.py checkpoint.rmp
-
-# CSV export
-python scripts/export_csv.py simulation.json output.csv
-```
-
----
-
 ## Python elemzési pipeline
 
 ```
@@ -485,12 +493,69 @@ SHA3-256 hash(payload)
             └─► ReverseEngineer(spektrum, original_hash)
                     ├─► run_pca() → sklearn PCA (n_components=3)
                     ├─► run_fft() → numpy FFT, csúcs frekvencia
-                    ├─► reconstruct_hash() → bit-szintű egyezés
-                    └─► similarity_score() → [0, 1] skálán
+                    ├─► compute_thermality_score() → KL(P || Planck(T))
+                    ├─► extract_spectral_features() → 8 fizikai jellemző
+                    ├─► estimate_information_content() → visszanyert bitek
+                    └─► similarity_score() → [0,1]: él-arány + termality
 
-Comparator.compare_spectra(standard, norbi)
-    └─► SNR = RMS(delta) / noise_floor
-        detectable = SNR > 3.0
+InformationTracker.process_timeline(timeline, input_entropy)
+    └─► compute_page_curve() → kumulatív S_rad minden lépésnél
+            └─► compare_models(std, norbi)
+                    ├─► thermality_ratio: ~46×
+                    ├─► norbi_avg_edge_fraction: ~0.61
+                    └─► total_recovered_bits: std ~0.95 vs norbi ~9.85
+```
+
+---
+
+## JSON kimenet struktúrája
+
+```json
+{
+  "schema_version": "2.0",
+  "config": { "norbi_mode": true, "mode": "Norbi" },
+  "timeline": [
+    {
+      "time": 0.0,
+      "mass": 2.176e-8,
+      "temperature": 5.64e30,
+      "entropy": 12.56,
+      "spectrum": {
+        "frequencies": [...],
+        "intensities": [...],
+        "temperature": 5.64e30,
+        "total_power": 7.53e47,
+        "hawking_fraction": 0.476,
+        "edge_fraction": 0.524,
+        "thermality_score": 3.91
+      },
+      "interior": {
+        "at_planck_scale": true,
+        "bounce_occurred": true,
+        "baby_universe": {
+          "scale_factor": 667.7,
+          "expansion_rate": 1.14e41,
+          "internal_density": 8.05e-17,
+          "edge_breakup_rate": 8.70e84,
+          "total_energy": 2.15e9,
+          "age": 8.66e-42
+        }
+      }
+    }
+  ],
+  "evaporation_complete": false
+}
+```
+
+---
+
+## Checkpoint rendszer
+
+A szimulációs állapotok **MessagePack** formátumban kerülnek mentésre (rmp-serde), atomikus fájlírással (temp fájl → rename), schema verzió: `"2.0"`.
+
+```bash
+python scripts/checkpoint_inspect.py checkpoint.rmp
+python scripts/export_csv.py output/results.json output/timeline.csv
 ```
 
 ---
@@ -500,8 +565,8 @@ Comparator.compare_spectra(standard, norbi)
 | Azonosító | Hivatkozás |
 |---|---|
 | [SCH16] | Schwarzschild, K. (1916). Über das Gravitationsfeld eines Massenpunktes. |
-| [HAW74] | Hawking, S.W. (1974). Black hole explosions? Nature, 248, 30-31. |
-| [HAW75] | Hawking, S.W. (1975). Particle creation by black holes. Commun. Math. Phys. 43, 199-220. |
+| [HAW74] | Hawking, S.W. (1974). Black hole explosions? Nature, 248, 30–31. |
+| [HAW75] | Hawking, S.W. (1975). Particle creation by black holes. Commun. Math. Phys. 43, 199–220. |
 | [BEK73] | Bekenstein, J.D. (1973). Black holes and entropy. Phys. Rev. D, 7, 2333. |
 | [PLA00] | Planck, M. (1900). Zur Theorie des Gesetzes der Energieverteilung im Normalspektrum. |
 | [PAG93] | Page, D.N. (1993). Information in black hole radiation. Phys. Rev. Lett. 71, 3743. |
@@ -513,7 +578,7 @@ Comparator.compare_spectra(standard, norbi)
 
 - Az összes fizikai számítás `f64` pontossággal történik
 - A `SimulationError` enum `thiserror`-al a hibakezelés biztonságos és exhaustive
-- A Rust pánik-kezelés (`std::panic::catch_unwind`) megvédi a Python és Tauri réteget
-- A Bevy ECS rendszer lehetővé teszi, hogy az entitások és komponensek lazán kapcsolódnak
-- A Python venv a projekt gyökerében (`.venv/`) kerül létrehozásra — nem globális telepítés
-- A Tauri `generate_context!()` makró a `build.rs`-ben lévő `tauri_build::build()` függvényt igényli
+- Rust pánik-kezelés (`std::panic::catch_unwind`) védi a Python és Tauri réteget
+- Az adaptív `dt = t_evap / steps` biztosítja, hogy a szimuláció ne lépi túl az elpárlási időt
+- A `compute_spectrum_norbi()` metódus a `RadiationEngine` traitre épül, de nem tagja — a Norbi-specifikus logika el van különítve
+- Szimuláció kimenetek az `output/` mappába kerülnek (gitignore-olt, automatikusan létrejön)
