@@ -1,7 +1,7 @@
-use crate::constants::{C, G, L_P, SPECTRUM_BINS};
+use crate::constants::{C, G, HBAR, K_B, L_P, PI, SPECTRUM_BINS};
+use crate::quantum::lqc::LQCEquation;
+use crate::radiation::spectrum::{peak_frequency, planck_spectrum};
 use crate::types::{BabyUniverseState, BreakupEvent, InternalObjectData};
-
-const H_INF_DEFAULT: f64 = 1e43; // inflációs Hubble-paraméter (1/s)
 
 #[derive(Debug, Clone)]
 pub struct BabyUniverse {
@@ -11,12 +11,15 @@ pub struct BabyUniverse {
     pub total_energy: f64,    // J
     pub age: f64,             // s
     pub absorbed_energy: f64, // beeső anyagból
+    h_inf: f64,               // a visszapattanáskori csúcs-Hubble-ráta (1/s), rögzítve
 }
 
 impl BabyUniverse {
-    /// Kvantumvisszapattanás után azonnal létrejön
+    /// Kvantumvisszapattanás után azonnal létrejön.
+    /// Az inflációs Hubble-ráta (H_inf) nem szabadon választott konstans, hanem
+    /// az LQC-egyenlet saját maximuma — lásd `LQCEquation::max_bounce_hubble_rate`.
     pub fn new(initial_density: f64) -> Self {
-        let h_inf = H_INF_DEFAULT;
+        let h_inf = LQCEquation::new().max_bounce_hubble_rate();
         Self {
             scale_factor: L_P,
             expansion_rate: h_inf,
@@ -24,6 +27,7 @@ impl BabyUniverse {
             total_energy: initial_density * L_P.powi(3) * C * C,
             age: 0.0,
             absorbed_energy: 0.0,
+            h_inf,
         }
     }
 
@@ -34,8 +38,8 @@ impl BabyUniverse {
         // Sűrűség csökken a tágulással: ρ ∝ a⁻³
         let volume_ratio = (self.expansion_rate * dt * 3.0).exp();
         self.internal_density /= volume_ratio;
-        // Hubble-paraméter csökken (standard kozmológia)
-        self.expansion_rate = H_INF_DEFAULT / (1.0 + self.age * H_INF_DEFAULT);
+        // Hubble-paraméter csökken (standard kozmológia: H(t) = H_inf / (1 + t·H_inf))
+        self.expansion_rate = self.h_inf / (1.0 + self.age * self.h_inf);
     }
 
     /// Beeső anyag energiájának integrálása a belső univerzumba
@@ -61,6 +65,20 @@ impl BabyUniverse {
         self.expansion_rate.powi(2) * self.scale_factor
     }
 
+    /// Közös tidal-energia / önkötési-energia számítás.
+    /// E_tidal = 0.5 · m · H² · r²  (a tágulási szélen ható árapály-energia)
+    /// E_bind  = 3Gm² / (5R)         (a tömeg saját gravitációs kötési energiája,
+    ///                                homogén gömbre — Newton-i közelítés)
+    fn tidal_and_binding(&self, mass: f64, obj_radius: f64, r: f64) -> (f64, f64) {
+        let e_tidal = 0.5 * mass * self.expansion_rate.powi(2) * r.powi(2);
+        let e_bind = if obj_radius > 0.0 {
+            3.0 * G * mass.powi(2) / (5.0 * obj_radius)
+        } else {
+            f64::MAX
+        };
+        (e_tidal, e_bind)
+    }
+
     /// Szétszakadás feltételének ellenőrzése egy belső objektumra
     pub fn check_breakup(
         &self,
@@ -70,15 +88,7 @@ impl BabyUniverse {
         let r = (obj.position[0].powi(2) + obj.position[1].powi(2) + obj.position[2].powi(2))
             .sqrt();
 
-        // Tidal energia: E_tidal = 0.5 * m * H² * r²
-        let e_tidal = 0.5 * obj.mass * self.expansion_rate.powi(2) * r.powi(2);
-
-        // Kötési energia: E_bind = 3GM²/(5R)
-        let e_bind = if obj.radius > 0.0 {
-            3.0 * G * obj.mass.powi(2) / (5.0 * obj.radius)
-        } else {
-            f64::MAX
-        };
+        let (e_tidal, e_bind) = self.tidal_and_binding(obj.mass, obj.radius, r);
 
         if e_tidal > e_bind {
             // A belső pozíciót az eseményhorizonton lévő pontra vetítjük
@@ -97,19 +107,77 @@ impl BabyUniverse {
         }
     }
 
-    /// A belső tágulás szélén szétszakadó anyag sugárzási spektruma
-    pub fn edge_radiation_spectrum(&self) -> Vec<f64> {
-        let mut spectrum = vec![0.0_f64; SPECTRUM_BINS];
-        // Egyszerűsített: a szétszakadási rátával arányos emissziós spektrum
-        let rate = self.edge_breakup_rate();
-        if rate > 0.0 {
-            for (i, val) in spectrum.iter_mut().enumerate() {
-                let x = i as f64 / SPECTRUM_BINS as f64;
-                // Módosított Planck-szerű spektrum a belső hőmérsékletre
-                *val = rate * x * x / (x.exp() - 1.0 + 1e-100);
-            }
+    /// A bébiuniverzum teljes tömegtartalmának (E_total/c²) [0,1] hányada, ami
+    /// a jelenlegi tágulási szélen ténylegesen szétszakad: e_tidal / (e_tidal + e_bind).
+    /// A tömeg saját sugarát a jelenlegi belső sűrűségből becsüljük
+    /// (R = (3m / 4πρ)^(1/3)) — ez adja a csatolási arányt (α) a kevert
+    /// Hawking/él-spektrumhoz, a korábbi, le nem vezetett energiaarány helyett.
+    pub fn breakup_fraction(&self) -> f64 {
+        let mass = (self.total_energy / (C * C)).max(0.0);
+        if mass <= 0.0 || self.internal_density <= 0.0 {
+            return 0.0;
         }
-        spectrum
+        let obj_radius = (3.0 * mass / (4.0 * PI * self.internal_density)).cbrt();
+        let (e_tidal, e_bind) = self.tidal_and_binding(mass, obj_radius, self.scale_factor);
+        if e_tidal + e_bind > 0.0 {
+            (e_tidal / (e_tidal + e_bind)).clamp(0.0, 1.0)
+        } else {
+            0.0
+        }
+    }
+
+    /// A bébiuniverzum de Sitter-szerű (exponenciális) tágulásának
+    /// Gibbons–Hawking-hőmérséklete: T = ħH / (2πk_B).
+    /// [GH77] Gibbons & Hawking (1977): kozmológiai eseményhorizontnak is van
+    /// sugárzási hőmérséklete, pontosan úgy, mint a fekete lyuk horizontjának.
+    pub fn edge_temperature(&self) -> f64 {
+        HBAR * self.expansion_rate / (2.0 * PI * K_B)
+    }
+
+    /// A belső tágulás szélén szétszakadó anyag sugárzási spektruma —
+    /// valódi Planck-spektrum az `edge_temperature()` hőmérsékleten,
+    /// a hozzá tartozó (Wien-törvény szerinti) frekvenciatengelyen.
+    pub fn edge_radiation_spectrum(&self) -> Vec<f64> {
+        let temp = self.edge_temperature();
+        self.edge_radiation_frequencies()
+            .iter()
+            .map(|&freq| planck_spectrum(freq, temp).unwrap_or(0.0))
+            .collect()
+    }
+
+    /// Az `edge_radiation_spectrum()` bin-jeihez tartozó frekvenciák (Hz).
+    pub fn edge_radiation_frequencies(&self) -> Vec<f64> {
+        let temp = self.edge_temperature();
+        let freq_max = peak_frequency(temp) * 10.0;
+        let df = freq_max / SPECTRUM_BINS as f64;
+        (0..SPECTRUM_BINS).map(|i| (i as f64 + 0.5) * df).collect()
+    }
+
+    /// A visszapattanás utáni tranziens finom (Planck-idő nagyságrendű) felbontásban.
+    ///
+    /// A külső Hawking-elpárlás szemiklasszikus közelítése (`t_evap ∝ M³`) csak addig
+    /// érvényes, amíg a görbület távol van a Planck-skálától — pont a visszapattanásnál
+    /// lép ki ebből az érvényességi tartományból. A bébiuniverzum saját tágulása ezért
+    /// nem a külső elpárlási óra (`dt = t_evap/lépésszám`) szerint, hanem a saját,
+    /// Planck-idő nagyságrendű óráján halad — ez a kettő időskála szétválasztása
+    /// (proper time vs. külső koordináta-idő) általános relativitáselméleti alapokon
+    /// áll, nem a Norbi-hipotézis specifikus feltevése.
+    ///
+    /// Visszaadja az állapotok sorozatát: index 0 = közvetlenül a visszapattanás után,
+    /// mielőtt bármilyen tágulás történt volna.
+    pub fn post_bounce_transient(
+        initial_density: f64,
+        n_steps: usize,
+        dt_internal: f64,
+    ) -> Vec<BabyUniverseState> {
+        let mut bu = BabyUniverse::new(initial_density);
+        let mut trace = Vec::with_capacity(n_steps + 1);
+        trace.push(bu.to_state());
+        for _ in 0..n_steps {
+            bu.evolve(dt_internal);
+            trace.push(bu.to_state());
+        }
+        trace
     }
 
     pub fn to_state(&self) -> BabyUniverseState {
@@ -120,6 +188,7 @@ impl BabyUniverse {
             edge_breakup_rate: self.edge_breakup_rate(),
             total_energy: self.total_energy,
             age: self.age,
+            breakup_fraction: self.breakup_fraction(),
         }
     }
 }

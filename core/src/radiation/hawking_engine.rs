@@ -47,7 +47,7 @@ impl HawkingEngine {
             if f <= 0.0 { return 1e-300; }
             let x = HBAR * 2.0 * PI * f / (K_B * temp);
             let x_clamped = x.min(700.0);
-            f.powi(3) / (x_clamped.exp() - 1.0 + 1e-300)
+            f.powi(3) / (x_clamped.exp_m1() + 1e-300)
         }).collect();
         let sum_q: f64 = q_raw.iter().sum();
         if sum_q <= 0.0 { return 0.0; }
@@ -85,23 +85,20 @@ impl HawkingEngine {
             hawk_int.push(planck * gamma);
         }
 
-        // --- Él-spektrum a bébiuniverzum állapotából ---
-        let rate = baby_state.edge_breakup_rate;
-        let mut edge_int: Vec<f64> = (0..SPECTRUM_BINS).map(|i| {
-            let x = (i as f64 + 0.5) / SPECTRUM_BINS as f64;
-            rate * x * x / (x.exp() - 1.0 + 1e-100)
-        }).collect();
+        // --- Él-spektrum a bébiuniverzum tágulási széléről ---
+        // Valódi Planck-spektrum a bébiuniverzum Gibbons–Hawking-hőmérsékletén
+        // (T = ħH/2πk_B, [GH77]), a Hawking-spektrummal AZONOS frekvenciatengelyen,
+        // hogy a kettő ténylegesen összevethető/összekeverhető legyen.
+        let temp_edge = HBAR * baby_state.expansion_rate / (2.0 * PI * K_B);
+        let mut edge_int: Vec<f64> = hawk_freq.iter()
+            .map(|&f| planck_spectrum(f, temp_edge).unwrap_or(0.0))
+            .collect();
 
-        // Keverési arány: bébiuniverzum tárolt energiája vs. BH tömeg-energia
-        // Fizikai értelmezés: alpha = mekkora hányad jön az él-szétszakadásból
-        // alpha→0: nincs bébiuniverzum (Standard), alpha→1: BU domináns (Planck-skála)
-        let bh_energy = bh.mass() * C * C;
-        let baby_energy = baby_state.total_energy.max(0.0);
-        let alpha = if bh_energy + baby_energy > 0.0 {
-            (baby_energy / (baby_energy + bh_energy)).clamp(0.0, 1.0)
-        } else {
-            0.0
-        };
+        // Keverési arány: mekkora hányada szakad ténylegesen szét a bébiuniverzum
+        // tömegtartalmának a jelenlegi tágulási szélen (e_tidal vs. e_bind —
+        // lásd BabyUniverse::breakup_fraction). alpha→0: nincs/gyenge tágulás,
+        // alpha→1: a tidal erő teljesen legyűri az önkötést.
+        let alpha = baby_state.breakup_fraction.clamp(0.0, 1.0);
 
         // L1-normalizálás mindkét spektrumra
         let sum_hawk: f64 = hawk_int.iter().sum();

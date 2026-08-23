@@ -81,9 +81,16 @@ pub fn run_simulation(mass: f64, config: SimulationConfig, _payload_json: &str) 
 /// Egyszerűsített szimulációs futtatás — CLI és Python számára
 #[allow(dead_code)]
 fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, SimulationError> {
+    use constants::T_PLANCK;
+    use interior::baby_universe::BabyUniverse;
     use interior::norbi::NorbiInterior;
     use interior::standard::StandardInterior;
     use radiation::hawking_engine::HawkingEngine;
+
+    const BOUNCE_TRANSIENT_STEPS: usize = 80;
+    const BOUNCE_TRANSIENT_DT: f64 = T_PLANCK; // a bébiuniverzum saját, Planck-idő
+                                                // nagyságrendű órája — lásd
+                                                // BabyUniverse::post_bounce_transient
 
     let mut bh = SchwarzschildBlackHole::new(mass)?;
     let engine = if norbi_mode { HawkingEngine::norbi() } else { HawkingEngine::standard() };
@@ -110,6 +117,8 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
         particle_type: types::ParticleType::Proton,
     };
 
+    let mut bounce_transient_recorded = false;
+
     for _ in 0..steps {
         let temp    = bh.hawking_temperature()?;
         let entropy = bh.bekenstein_entropy();
@@ -118,6 +127,20 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
         // Belső fizika lépés + Norbi spektrum bekötése
         let (spectrum, interior) = if norbi_mode {
             let interior = norbi_interior.simulate_step(&particle, &bh, dt).unwrap_or_default();
+
+            // A visszapattanás pillanatában rögzítjük a bébiuniverzum saját,
+            // Planck-idő nagyságrendű órája szerinti finom tranzienst —
+            // a külső `dt` (a teljes elpárlási idő százada) sok nagyságrenddel
+            // durvább annál, mint amin a bounce dinamikája ténylegesen lezajlik.
+            if interior.bounce_occurred && !bounce_transient_recorded {
+                results.bounce_transient = BabyUniverse::post_bounce_transient(
+                    interior.density,
+                    BOUNCE_TRANSIENT_STEPS,
+                    BOUNCE_TRANSIENT_DT,
+                );
+                bounce_transient_recorded = true;
+            }
+
             let spectrum = match &interior.baby_universe {
                 Some(bu_state) => engine.compute_spectrum_norbi(&bh, bu_state)
                     .unwrap_or(spectrum),

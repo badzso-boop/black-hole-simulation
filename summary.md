@@ -201,26 +201,74 @@ A `standard.json` és `norbi.json` a repo gyökerében volt. Létrehoztuk az `ou
 - `thermality_score ≈ 0.10` (csak greybody eltérés)
 - Teljesen termális sugárzás → az információ elveszik
 
-**Norbi-hipotézis:**
-- `edge_fraction`: 52% → 81% (növekszik ahogy a BU energiája nő)
-- `thermality_score`: 3.91 → 6.42 (erősen nem-termális)
-- `thermality_ratio`: 46×-os különbség a Standard-hoz képest
-- `total_recovered_bits`: ~9.85 bit (Standard: ~0.95 bit)
+**Norbi-hipotézis (lásd 7-8. fázis — fizikailag levezetett `alpha` és `H_inf`):**
+- `edge_fraction` a `timeline`-on (külső, Hawking-elpárlási órán mintavételezve): ≈1.0 gyakorlatilag az első lépéstől
+- `bounce_transient`-en (saját, Planck-idő nagyságrendű órán mintavételezve): fokozatos 0,496→0,999+ átmenet ~80 Planck-idő alatt
+- `thermality_score`: 8.61 → 13.97 (erősen nem-termális)
+- `thermality_ratio`: ~138×-os különbség a Standard-hoz képest
+- `total_recovered_bits`: ~9.97 bit (Standard: ~0.95 bit)
 
 ### A becsületes összefoglalás
 
 A szimuláció megmutatja, hogy a Norbi-hipotézis **belső konzisztencián** képes működni — a matematika nem omlik össze. Az LQC visszapattanás, a bébiuniverzum tágulása, és a nem-termális él-sugárzás együtt egy összefüggő fizikai képet adnak.
 
-Azonban a Norbi-specifikus csatolási formula (`alpha = baby_E / total_E`) **nem következik első elvekből** — mi döntöttük el, hogy ilyen alakú legyen. Ahhoz, hogy a szimuláció valódi tudományos alátámasztást adjon, le kell vezeti az él-spektrum alakját az LQC egyenletekből, és a csatolási arányt is levezetett képlettel kell helyettesíteni.
+A modell mára minden korábban azonosított szabad/le nem vezetett paraméterét elvesztette a Norbi-ágban: a csatolási formula (`alpha = e_tidal/(e_tidal+e_bind)`) a tidal-fizikából, az él-spektrum hőmérséklete (Gibbons-Hawking) a bébiuniverzum tágulási rátájából, maga a tágulási ráta (`H_inf`) pedig az LQC-egyenlet analitikus maximumából adódik. Ami megmaradt "kényelmi" feltevés: a `particle.mass = BH tömegének 0,1%-a` — egy reprezentatív, tetszőlegesen választott beeső anyagmennyiség, ez nem ered semmilyen egyenletből.
+
+---
+
+## 7. fázis — az `alpha` és az él-spektrum levezetése (v3)
+
+### Amit korrigáltunk
+
+A 4. fázisban bevezetett `alpha = E_baby / E_total` csatolás — bár helyes nagyságrendet adott — **nem következett a modell saját fizikájából**: a `BabyUniverse`-ben már meglévő tidal-számítás (`e_tidal` vs. `e_bind`, LQC-Hubble-ráta) ki volt számolva, de a normalizálás miatt hatástalanul kiesett, és a `check_breakup()` esemény-detekció csak tesztben létezett, a fő szimulációs ciklusba sosem volt bekötve.
+
+**A javítás:**
+- `BabyUniverse::breakup_fraction()` — az `alpha` immár közvetlenül `e_tidal / (e_tidal + e_bind)`-ból adódik, a bébiuniverzum teljes tömegtartalmára (`E_total/c²`) és a jelenlegi belső sűrűségből becsült önkötési sugárra alkalmazva. Ez a *tényleges* tidal-fizikát viszi be a csatolásba, nem egy külön kitalált energiaarányt.
+- Az él-spektrum (`edge_radiation_spectrum`) valódi Planck-spektrum lett a bébiuniverzum **Gibbons–Hawking-hőmérsékletén** (`T = ħH/2πk_B` — egy de Sitter-szerű táguló téridő eseményhorizontjának ismert sugárzási hőmérséklete, [GH77]), és ugyanazon a frekvenciatengelyen fut, mint a Hawking-spektrum — korábban a két spektrum dimenziótlanul, egymással össze nem vethető skálán volt kiszámolva, és csak bin-indexenként keveredett.
+
+### Az új eredmény (Planck-tömegű fekete lyuk)
+
+| Lépés | edge_fraction | thermality_score |
+|---|---|---|
+| 0  | 1.000 | 8.61  |
+| 10 | 1.000 | 13.97 |
+| 99 | 1.000 | 13.97 |
+
+A Standard végig: `edge_fraction = 0.0`, `thermality_score = 0.10` (változatlan).
+
+`thermality_ratio ≈ 138×`, `total_recovered_bits`: Standard ~0.95 bit, Norbi ~9.97 bit.
+
+### A becsületes összefoglalás — most is
+
+Az `alpha` most már fizikailag levezetett a modellen belül, de ez leleplezett egy másik szabad paramétert: a bébiuniverzum inflációs Hubble-rátáját (korábban `H_INF_DEFAULT = 10⁴³ s⁻¹` hardcode). Ezzel az értékkel a tidal szétszakadás gyakorlatilag azonnal, teljesen (`alpha ≈ 1.0`) bekövetkezik a `timeline` felbontásán nézve — a korábbi, szemléletesebb "52% → 81%" növekvő görbe egy le nem vezetett formula műterméke volt, nem valódi fizikai jelenség.
+
+## 8. fázis — H_inf levezetése és a két időskála szétválasztása
+
+**H_inf levezetése:** a `H_INF_DEFAULT` konstanst lecseréltük a saját LQC-egyenlet analitikus maximumára: `H²(ρ)=(8πG/3)ρ(1-ρ/ρ_P)` deriváltját nullázva `ρ=ρ_P/2`-nél, ahonnan `H_inf = √((8πG/3)·ρ_P/4) ≈ 2,68×10⁴³ 1/s` — ez immár nem szabad paraméter, hanem a bounce-dinamika saját csúcsértéke (`LQCEquation::max_bounce_hubble_rate`).
+
+Eközben egy valódi lebegőpontos hibát is találtunk: a `planck_spectrum()` `exp(x)-1` kifejezése extrém kicsi `x`-re (mély Rayleigh-Jeans tartomány, ami az él-spektrumnál a Gibbons-Hawking-hőmérséklet miatt előfordul) katasztrofális kioltással pontosan 0-t adott. Javítás: `exp_m1(x)`.
+
+**A két időskála szétválasztása:** kiderült, hogy az "azonnali telítődés" nem hibás paraméterválasztás jele, hanem abból fakad, hogy a `timeline` a *külső* Hawking-elpárlási órán (`dt = t_evap/100`) mintavételez, miközben a bébiuniverzum bounce-dinamikája a *saját*, Planck-idő nagyságrendű óráján fut — ez a szemiklasszikus (Hawking) és a kvantumgravitációs (LQC-bounce) leírás érvényességi tartományának általános relativitáselméleti/standard fizikai különbsége, nem a Norbi-hipotézis extra feltevése.
+
+Bevezettük a `BabyUniverse::post_bounce_transient()`-et és a `SimulationResults.bounce_transient` mezőt: a visszapattanás pillanatában 80, Planck-idő (`T_PLANCK`) nagyságrendű finom lépésben újra lejátsszuk a bébiuniverzum korai fejlődését, függetlenül a külső `dt`-től. Az eredmény:
+
+| finom lépés | kor (s, a visszapattanástól) | breakup_fraction |
+|---|---|---|
+| 0  | 0            | 0,496 |
+| 1  | 5,4×10⁻⁴⁴    | 0,927 |
+| 3  | 1,6×10⁻⁴³    | 0,979 |
+| 8  | 4,3×10⁻⁴³    | 0,993 |
+| 20 | 1,1×10⁻⁴²    | 0,997 |
+| 79 | 4,3×10⁻⁴²    | 0,999 |
+
+Ez most már **valódi, fokozatos átmenetet** mutat (50%→99,9%+), csak épp néhány Planck-idő (~10⁻⁴³ s) alatt zajlik le — utólag visszatekintve a "52%→81%" régi görbe emlékeztet erre, csak rossz okból (formula-hibából) adódott, most viszont ugyanez a kép a tényleges fizikából (H, tidal energia, önkötés, helyes időfelbontás) jön ki.
 
 ---
 
 ## Ami következik
 
-1. **Az él-spektrum levezetése** LQC + Hawking-sugárzás kombinációjából
-2. **A csatolási arány (`alpha`) levezetése** az energiamegmaradásból és a bébiuniverzum termodinamikájából
-3. **Megfigyelési jóslat** — mit kellene mérni (gravitációs hullám visszhangjainak módosulása, analóg fekete lyukak laboratóriumi spektruma)
-4. **Peer review** — a fizikai egyenletek külső ellenőrzése
+1. **Megfigyelési jóslat** — mit kellene mérni (gravitációs hullám visszhangjainak módosulása, analóg fekete lyukak laboratóriumi spektruma)
+2. **Peer review** — a fizikai egyenletek külső ellenőrzése
 
 ---
 

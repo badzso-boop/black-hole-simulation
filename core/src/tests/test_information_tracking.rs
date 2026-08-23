@@ -7,8 +7,14 @@ mod tests {
     use crate::radiation::hawking_engine::HawkingEngine;
 
     fn active_baby_state() -> crate::types::BabyUniverseState {
+        // Mérsékelt, Planck-energia nagyságrendű abszorpció: ha itt túl nagy
+        // energiát adnánk hozzá, a törésponti (breakup_fraction) formulában az
+        // önkötési energia (∝m²) sokkal gyorsabban nőne mint a tidal energia
+        // (∝m), és a bébiuniverzum fizikailag *ellenállóbbá* válna a
+        // szétszakadással szemben — ahogy egy valódi, kompakt, nagy tömegű
+        // objektum is nehezebben szakad szét árapályerővel.
         let mut bu = BabyUniverse::new(RHO_PLANCK);
-        bu.absorb_energy(1e40);
+        bu.absorb_energy(1e9);
         bu.to_state()
     }
 

@@ -41,6 +41,18 @@ impl LQCEquation {
         let h = if h_sq >= 0.0 { h_sq.sqrt() } else { 0.0 };
         Ok(h * scale_factor)
     }
+
+    /// A módosított Friedmann-egyenlet H²(ρ) = (8πG/3)·ρ·(1-ρ/ρ_P) analitikus maximuma.
+    /// dH²/dρ = 0 ⟹ 1 - 2ρ/ρ_P = 0 ⟹ ρ_max = ρ_P/2, ahol
+    /// H²_max = (8πG/3)·(ρ_P/2)·(1/2) = classical_hubble_squared(ρ_P) / 4.
+    ///
+    /// Ez a bébiuniverzum visszapattanás utáni inflációs Hubble-rátája (H_inf):
+    /// a visszapattanás pillanatában (ρ=ρ_P) H=0, utána a sűrűség csökkenni kezd,
+    /// és H a fenti maximumon át tér vissza a klasszikus tágulásba. Ez a maximum
+    /// magából a mozgásegyenletből adódik, nem szabadon választott konstans.
+    pub fn max_bounce_hubble_rate(&self) -> f64 {
+        (self.classical_hubble_squared(RHO_PLANCK) / 4.0).sqrt()
+    }
 }
 
 impl Default for LQCEquation {

@@ -12,7 +12,11 @@ pub fn planck_spectrum(freq: f64, temp: f64) -> Result<f64, SimulationError> {
         return Ok(0.0);
     }
     let x = HBAR * 2.0 * std::f64::consts::PI * freq / (K_B * temp);
-    let denominator = x.exp() - 1.0;
+    // exp_m1(x) = e^x - 1 pontosan számolva — sima `x.exp() - 1.0` nagyon kis
+    // x-re (mély Rayleigh-Jeans tartomány, pl. Gibbons-Hawking-hőmérsékletű
+    // él-spektrum a sokkal alacsonyabb Hawking-frekvenciákon) katasztrofális
+    // kioltással pontosan 0-t adna, mert exp(x)≈1.0 lebegőpontosan kerekítve.
+    let denominator = x.exp_m1();
     if denominator <= 0.0 || denominator.is_nan() {
         return Ok(0.0);
     }

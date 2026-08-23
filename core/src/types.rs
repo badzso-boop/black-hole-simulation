@@ -65,6 +65,10 @@ pub struct BabyUniverseState {
     pub edge_breakup_rate: f64,
     pub total_energy: f64,
     pub age: f64,
+    /// A bébiuniverzum tömegtartalmának [0,1] hányada, ami a jelenlegi
+    /// tágulási szélen ténylegesen szétszakad (e_tidal / (e_tidal + e_bind)).
+    /// Ez hajtja a Hawking-spektrum és az él-spektrum kevert arányát.
+    pub breakup_fraction: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -168,6 +172,12 @@ pub struct SimulationResults {
     pub config: SimulationConfig,
     pub timeline: Vec<TimeStep>,
     pub evaporation_complete: bool,
+    /// A bébiuniverzum visszapattanás utáni tranziense, saját (Planck-idő
+    /// nagyságrendű) időfelbontásban — függetlenül a `timeline` külső,
+    /// Hawking-elpárlási óra szerinti (sokkal durvább) lépésközétől.
+    /// Csak Norbi módban, a visszapattanás pillanatában töltődik fel egyszer.
+    #[serde(default)]
+    pub bounce_transient: Vec<BabyUniverseState>,
 }
 
 impl SimulationResults {
@@ -177,6 +187,7 @@ impl SimulationResults {
             config,
             timeline: Vec::new(),
             evaporation_complete: false,
+            bounce_transient: Vec::new(),
         }
     }
 }

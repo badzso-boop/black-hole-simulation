@@ -214,15 +214,33 @@ thermality_score = KL(I || Planck(T))  ≈ 0.10   [kis greybody-eltérés]
 
 **Norbi (`compute_spectrum_norbi`):**
 ```
-α = E_baby / (E_baby + M_bh · c²)               [energia-arány csatolás]
+T_edge = ħ·H / (2π·k_B)                          [Gibbons–Hawking-hőmérséklet, GH77]
+I_edge(ν) = B(ν, T_edge)                          [valódi Planck-spektrum, ugyanazon a
+                                                    frekvenciatengelyen mint I_hawk]
 
-I_blended(ν) = (1-α)·I_hawk(ν) + α·I_edge(ν)   [L1-normált keverés]
+α = e_tidal / (e_tidal + e_bind)                  [BabyUniverse::breakup_fraction]
+    e_tidal = 0.5·m·H²·a²      (m = E_total/c², a bébiuniverzum teljes tömege)
+    e_bind  = 3·G·m² / (5·R)   (R = (3m / 4πρ)^(1/3), a jelenlegi belső sűrűségből)
+
+I_blended(ν) = (1-α)·I_hawk(ν) + α·I_edge(ν)     [L1-normált keverés]
 
 hawking_fraction = 1-α,  edge_fraction = α
 thermality_score = KL(I_blended || Planck(T_H))  >> Standard
 ```
 
-Planck-tömegű fekete lyuknál: `α ≈ 0.52 → 0.81` (növekszik ahogy a bébiuniverzum energiája nő).
+`α` tehát nem egy külön kitalált energiaarány, hanem közvetlenül a tényleges tidal-fizikából
+(H, a bébiuniverzum tágulási rátája, és e_bind, az önkötési energia) adódik — ha a tágulás
+elég erőszakos ahhoz, hogy a tidal energia felülmúlja az önkötést, `α → 1` (a sugárzás
+majdnem teljesen az él-komponensből jön).
+
+A bébiuniverzum inflációs Hubble-rátája (`H_inf`) sem szabad paraméter: a módosított
+Friedmann-egyenlet `H²(ρ)=(8πG/3)ρ(1-ρ/ρ_P)` analitikus maximuma (`ρ=ρ_P/2`-nél,
+`LQCEquation::max_bounce_hubble_rate`), `H_inf ≈ 2,68×10⁴³ 1/s`. Planck-tömegű fekete
+lyuknál ez azt jelenti, hogy a `timeline` (a *külső*, Hawking-elpárlási óra szerinti,
+`dt = t_evap/100` felbontású) mintavételezésben `α` már az első lépésben ≈1.0-ra ugrik —
+ez azonban **nem** azt jelenti, hogy a szétszakadás fizikailag pillanatszerű: a bounce
+dinamikája a bébiuniverzum *saját*, Planck-idő nagyságrendű óráján zajlik, ami sok
+nagyságrenddel finomabb, mint a külső `dt`. Lásd lejjebb: `bounce_transient`.
 
 ---
 
@@ -232,9 +250,9 @@ Planck-tömegű fekete lyuknál: `α ≈ 0.52 → 0.81` (növekszik ahogy a béb
 
 | Mező | Standard | Norbi | Értelmezés |
 |---|---|---|---|
-| `hawking_fraction` | 1.0 (végig) | 0.19–0.48 | Termális Hawking-sugárzás aránya |
-| `edge_fraction` | 0.0 (végig) | 0.52–0.81 | Bébiuniverzum él-sugárzás aránya |
-| `thermality_score` | ~0.10 | 3.9–6.4 | KL divergencia a Planck-elosztástól |
+| `hawking_fraction` | 1.0 (végig) | ≈0.0 | Termális Hawking-sugárzás aránya |
+| `edge_fraction` | 0.0 (végig) | ≈1.0 | Bébiuniverzum él-sugárzás aránya |
+| `thermality_score` | ~0.10 | 8.6–14.0 | KL divergencia a Planck-elosztástól |
 
 ### Page-görbe és visszanyert bitek
 
@@ -248,16 +266,45 @@ std_result   = tracker.process_timeline(std_timeline, input_entropy=5.0)
 norbi_result = tracker.process_timeline(norbi_timeline, input_entropy=5.0)
 cmp = InformationTracker.compare_models(std_result, norbi_result)
 
-# Eredmény:
-# cmp["thermality_ratio"]        → 46.3×  (Norbi sokkal nem-termálisabb)
-# cmp["norbi_avg_edge_fraction"] → 0.61   (átlagosan 61% él-sugárzás)
+# Eredmény (Planck-tömegű fekete lyuk, v3 — fizikailag levezetett α):
+# cmp["thermality_ratio"]        → 138.5×  (Norbi sokkal nem-termálisabb)
+# cmp["norbi_avg_edge_fraction"] → 1.0     (a tidal energia felülmúlja az önkötést egész úton)
 # std_result["total_recovered_bits"]   → 0.95 bit
-# norbi_result["total_recovered_bits"] → 9.85 bit
+# norbi_result["total_recovered_bits"] → 9.97 bit
 ```
 
 ### Fontos megjegyzés
 
-A csatolási formula (`α = E_baby / E_total`) fizikailag motivált, de **nem levezetett** — az első elvekből való levezetés a következő fejlesztési fázis feladata.
+A csatolási formula (`α = e_tidal / (e_tidal + e_bind)`) immár közvetlenül a tidal-szétszakadás
+fizikájából (`BabyUniverse::breakup_fraction`) adódik, a bébiuniverzum inflációs Hubble-rátája
+pedig (`H_inf`) az LQC-egyenlet analitikus maximumából (`LQCEquation::max_bounce_hubble_rate`) —
+a Norbi-ágnak jelenleg nincs több szabad, le nem vezetett paramétere.
+
+### Két időskála: külső elpárlás vs. belső bounce (`bounce_transient`)
+
+A szemiklasszikus Hawking-elpárlás (`t_evap ∝ M³`) csak addig érvényes közelítés, amíg a
+görbület távol van a Planck-skálától — pont a visszapattanás pillanatában lép ki ebből az
+érvényességi tartományból. A bébiuniverzum bounce-dinamikája ezért nem a `timeline` külső,
+`dt = t_evap/100` felbontású óráján, hanem a saját, Planck-idő (`T_PLANCK`) nagyságrendű
+óráján zajlik — ez a proper time / külső koordináta-idő megkülönböztetés általános
+relativitáselméleti alap, nem a Norbi-hipotézis specifikus feltevése.
+
+A `SimulationResults.bounce_transient` mező a visszapattanás pillanatában, 80 finom
+(Planck-idő nagyságrendű) lépésben újrajátssza a bébiuniverzum korai fejlődését,
+függetlenül a `timeline` durvább mintavételezésétől:
+
+| finom lépés | kor (s, a visszapattanástól) | `breakup_fraction` |
+|---|---|---|
+| 0  | 0            | 0.496 |
+| 1  | 5.4×10⁻⁴⁴    | 0.927 |
+| 3  | 1.6×10⁻⁴³    | 0.979 |
+| 8  | 4.3×10⁻⁴³    | 0.993 |
+| 20 | 1.1×10⁻⁴²    | 0.997 |
+| 79 | 4.3×10⁻⁴²    | 0.999 |
+
+Ez már **valódi, fokozatos átmenetet** mutat (50% → 99,9%+) — csak épp néhány Planck-idő
+(~10⁻⁴³ s) alatt zajlik le, ezért a `timeline` durvább (Hawking-elpárlási időskálájú)
+mintavételezésén nézve pillanatszerűnek látszik.
 
 ---
 
@@ -501,9 +548,9 @@ SHA3-256 hash(payload)
 InformationTracker.process_timeline(timeline, input_entropy)
     └─► compute_page_curve() → kumulatív S_rad minden lépésnél
             └─► compare_models(std, norbi)
-                    ├─► thermality_ratio: ~46×
-                    ├─► norbi_avg_edge_fraction: ~0.61
-                    └─► total_recovered_bits: std ~0.95 vs norbi ~9.85
+                    ├─► thermality_ratio: ~138×
+                    ├─► norbi_avg_edge_fraction: ~1.0
+                    └─► total_recovered_bits: std ~0.95 vs norbi ~9.97
 ```
 
 ---
@@ -525,9 +572,9 @@ InformationTracker.process_timeline(timeline, input_entropy)
         "intensities": [...],
         "temperature": 5.64e30,
         "total_power": 7.53e47,
-        "hawking_fraction": 0.476,
-        "edge_fraction": 0.524,
-        "thermality_score": 3.91
+        "hawking_fraction": 0.0,
+        "edge_fraction": 1.0,
+        "thermality_score": 8.61
       },
       "interior": {
         "at_planck_scale": true,
@@ -538,7 +585,8 @@ InformationTracker.process_timeline(timeline, input_entropy)
           "internal_density": 8.05e-17,
           "edge_breakup_rate": 8.70e84,
           "total_energy": 2.15e9,
-          "age": 8.66e-42
+          "age": 8.66e-42,
+          "breakup_fraction": 1.0
         }
       }
     }
@@ -571,6 +619,22 @@ python scripts/export_csv.py output/results.json output/timeline.csv
 | [PLA00] | Planck, M. (1900). Zur Theorie des Gesetzes der Energieverteilung im Normalspektrum. |
 | [PAG93] | Page, D.N. (1993). Information in black hole radiation. Phys. Rev. Lett. 71, 3743. |
 | [ASH06] | Ashtekar, A. & Pawlowski, T. (2006). Quantum nature of the Big Bang. Phys. Rev. Lett. 96, 141301. |
+| [GH77] | Gibbons, G.W. & Hawking, S.W. (1977). Cosmological event horizons, thermodynamics, and particle creation. Phys. Rev. D, 15, 2738. |
+
+---
+
+## Konklúzió — mire jutottunk
+
+A 2026-08-23-i revízió óta a Norbi-ágnak **nincs több szabad, le nem vezetett paramétere**: a csatolási arány (`α`), az él-spektrum hőmérséklete és a bébiuniverzum tágulási rátája (`H_inf`) mind a modell saját egyenleteiből adódik (lásd fent). Ez azt jelenti, hogy a szimuláció **belsőleg konzisztens** — a matematika nem omlik össze, és a bemutatott számok (nem-termalitás, ~10 bit visszanyert információ, a szétszakadás fokozatos, Planck-idő nagyságrendű lefutása) helyesen következnek a beépített fizikából.
+
+Ez **nem** jelenti, hogy a hipotézis igaz vagy validált:
+
+- **A legkritikusabb, továbbra is megoldatlan pont: a kauzalitás.** A modell azt állítja, hogy a horizonton *belüli* szétszakadás sugárzása valahogy megjelenik *kívül*, Hawking-sugárzásként — ezt sosem vezettük le, csak posztuláltuk (a kód matematikailag keveri a két oldalt, fizikai mechanizmus nélkül, ami áthidalná a horizontot).
+- Csak a szélsőséges, Planck-tömegű végállapotot teszteltük (ez fizikailag releváns, mert minden fekete lyuk elpárlása ezen megy át a végén, de más tömegskálán sosem lett kipróbálva).
+- Egy tetszőleges bemenet megmaradt: a reprezentatív beeső részecske tömege (a BH tömegének 0,1%-a) — modellezési kényelem, nem egyenletből jön.
+- Nincs peer review, nincs kísérleti visszaigazolás; maga az LQC is csak egy a versengő kvantumgravitációs jelöltek közül.
+
+**Összefoglalva:** egy **belsőleg konzisztens, de tudományosan igazolatlan gondolatkísérletet** építettünk fel — ugyanabba a családba tartozik, mint Rovelli–Vidotto "Planck-csillag" modellje vagy más fekete lyuk-maradvány elméletek. Nem bizonyítottunk semmit a valóságról, de bebizonyítottuk, hogy a hipotézis matematikailag életképes — ez a következő lépés (a horizonton át történő kauzális kapcsolat levezetése, vagy a hipotézis elvetése) szempontjából már önmagában használható kiindulópont.
 
 ---
 

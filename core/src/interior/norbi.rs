@@ -89,12 +89,10 @@ impl InteriorModel for NorbiInterior {
         let baby_state = self.baby_universe.as_ref().map(|bu| bu.to_state());
 
         let radiation = if let Some(ref bu) = self.baby_universe {
-            let intensities = bu.edge_radiation_spectrum();
-            let n = intensities.len();
             Spectrum {
-                frequencies: (0..n).map(|i| i as f64 * 1e10).collect(),
-                intensities,
-                temperature: 0.0,
+                frequencies: bu.edge_radiation_frequencies(),
+                intensities: bu.edge_radiation_spectrum(),
+                temperature: bu.edge_temperature(),
                 total_power: 0.0,
                 ..Default::default()
             }
