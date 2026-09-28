@@ -106,7 +106,7 @@ mod model_comparison {
     fn payload_passes_through_and_mass_gap_is_error() {
         let r = run_simulation(&cfg(1e12, true), serde_json::json!({"uzenet": "szia"})).unwrap();
         assert_eq!(r.payload["uzenet"], "szia");
-        assert_eq!(r.schema_version, "3.1");
+        assert_eq!(r.schema_version, "3.2");
         assert!(matches!(
             run_simulation(&cfg(0.5 * M_PLANCK, true), serde_json::json!({})),
             Err(SimulationError::MassGap { .. })

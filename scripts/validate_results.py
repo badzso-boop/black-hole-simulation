@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CI validátor — szimulációs eredmények (schema 3.1) ellenőrzése."""
+"""CI validátor — szimulációs eredmények (schema 3.2) ellenőrzése."""
 from __future__ import annotations
 
 import json
@@ -9,7 +9,7 @@ from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "3.1"
+SCHEMA = "3.2"
 RHO_CRIT_LQC = 2.1102600051408844e96
 
 
@@ -55,6 +55,8 @@ def validate(data: dict[str, Any]) -> list[str]:
         errors.append("HIBA: az idő csökkent")
     if any(s["entropy"] < 0 for s in tl):
         errors.append("HIBA: negatív entrópia")
+    if any(not (0.0 <= s["spin"] < 1.0) for s in tl):
+        errors.append("HIBA: a spin kívül esik a [0, 1) tartományon")
 
     if data.get("evaporation_complete"):
         # az utolsó beesés utáni párolgó szakaszon a hátralévő idő szigorúan csökken

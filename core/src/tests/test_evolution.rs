@@ -20,7 +20,7 @@ mod tests {
 
     #[test]
     fn vacuum_reproduces_pure_hawking_evaporation() {
-        let h = evolve_mass(MG, &Environment::vacuum(), 1e12, M_MIN_LMY, None, 150).unwrap();
+        let h = evolve_mass(MG, &Environment::vacuum(), 1e12, 0.0, M_MIN_LMY, None, 150).unwrap();
         let reference = evaporation_history(MG, 1e12, M_MIN_LMY, 150).unwrap();
         assert!(h.evaporated);
         assert_relative_eq!(
@@ -33,8 +33,26 @@ mod tests {
 
     #[test]
     fn cmb_is_negligible_for_primordial_black_holes() {
-        let vac = evolve_mass(MG, &Environment::vacuum(), 5.1e11, M_MIN_LMY, None, 100).unwrap();
-        let cmb = evolve_mass(MG, &Environment::default(), 5.1e11, M_MIN_LMY, None, 100).unwrap();
+        let vac = evolve_mass(
+            MG,
+            &Environment::vacuum(),
+            5.1e11,
+            0.0,
+            M_MIN_LMY,
+            None,
+            100,
+        )
+        .unwrap();
+        let cmb = evolve_mass(
+            MG,
+            &Environment::default(),
+            5.1e11,
+            0.0,
+            M_MIN_LMY,
+            None,
+            100,
+        )
+        .unwrap();
         assert!(cmb.evaporated);
         assert_relative_eq!(cmb.end_time, vac.end_time, max_relative = 1e-9);
         assert!(cmb.energy.background_absorbed < 1e-12 * cmb.energy.hawking_radiated);
@@ -44,7 +62,7 @@ mod tests {
     fn solar_mass_hole_grows_in_the_cmb_by_a_tiny_exact_amount() {
         // Ṁ = (P_abs − P_H)/c² állandó (a változás 1e-26 relatív): a CMB-ből
         // elnyelt energia ~ P_abs·t_U — M-ben f64-ben nem is látszana, δ-ban igen
-        let h = evolve_mass(MG, &Environment::default(), M_SUN, M_MIN_LMY, None, 60).unwrap();
+        let h = evolve_mass(MG, &Environment::default(), M_SUN, 0.0, M_MIN_LMY, None, 60).unwrap();
         assert!(!h.evaporated);
         assert_relative_eq!(h.end_time, AGE_OF_UNIVERSE, max_relative = 1e-12);
         let p_abs = background_absorption_power(M_SUN, T_CMB_TODAY);
@@ -73,10 +91,11 @@ mod tests {
             cmb_temperature: 0.0,
             accretion: AccretionModel::Constant { rate: 1e10 },
             radiative_efficiency: 0.1,
+            disk_accretion: false,
             infall_events: vec![],
         };
         let t = 1e10;
-        let h = evolve_mass(MG, &env, 1e30, M_MIN_LMY, Some(t), 50).unwrap();
+        let h = evolve_mass(MG, &env, 1e30, 0.0, M_MIN_LMY, Some(t), 50).unwrap();
         assert_relative_eq!(h.end_mass - 1e30, 0.9 * 1e10 * t, max_relative = 1e-6);
         assert_relative_eq!(
             h.energy.accretion_luminosity,
@@ -96,11 +115,12 @@ mod tests {
                 eddington_limited: true,
             },
             radiative_efficiency: 0.1,
+            disk_accretion: false,
             infall_events: vec![],
         };
         let t_s = salpeter_time(0.1);
         let m0 = 10.0 * M_SUN;
-        let h = evolve_mass(MG, &env, m0, M_MIN_LMY, Some(5.0 * t_s), 80).unwrap();
+        let h = evolve_mass(MG, &env, m0, 0.0, M_MIN_LMY, Some(5.0 * t_s), 80).unwrap();
         assert_relative_eq!(h.end_mass, m0 * 5f64.exp(), max_relative = 1e-7);
         assert!(ledger_error(&h, m0) < 1e-8);
     }
@@ -115,16 +135,25 @@ mod tests {
                 eddington_limited: false,
             },
             radiative_efficiency: 0.0,
+            disk_accretion: false,
             infall_events: vec![],
         };
-        let err =
-            evolve_mass(MG, &env, 10.0 * M_SUN, M_MIN_LMY, Some(AGE_OF_UNIVERSE), 50).unwrap_err();
+        let err = evolve_mass(
+            MG,
+            &env,
+            10.0 * M_SUN,
+            0.0,
+            M_MIN_LMY,
+            Some(AGE_OF_UNIVERSE),
+            50,
+        )
+        .unwrap_err();
         assert!(err.to_string().contains("divergál"), "{err}");
     }
 
     #[test]
     fn infall_event_makes_the_hole_heavier_and_longer_lived() {
-        let vac = evolve_mass(MG, &Environment::vacuum(), 1e12, M_MIN_LMY, None, 100).unwrap();
+        let vac = evolve_mass(MG, &Environment::vacuum(), 1e12, 0.0, M_MIN_LMY, None, 100).unwrap();
         let env = Environment {
             infall_events: vec![InfallEvent {
                 time: 1e17,
@@ -133,7 +162,7 @@ mod tests {
             }],
             ..Environment::vacuum()
         };
-        let h = evolve_mass(MG, &env, 1e12, M_MIN_LMY, None, 100).unwrap();
+        let h = evolve_mass(MG, &env, 1e12, 0.0, M_MIN_LMY, None, 100).unwrap();
         assert!(h.evaporated);
         assert_eq!(h.applied_infalls.len(), 1);
         let a = &h.applied_infalls[0];
@@ -166,7 +195,7 @@ mod tests {
             }],
             ..Environment::vacuum()
         };
-        let h = evolve_mass(MG, &env, 1e9, M_MIN_LMY, None, 50).unwrap();
+        let h = evolve_mass(MG, &env, 1e9, 0.0, M_MIN_LMY, None, 50).unwrap();
         assert!(h.evaporated);
         assert!(h.applied_infalls.is_empty());
         assert_eq!(h.skipped_infalls.len(), 1);
@@ -174,12 +203,14 @@ mod tests {
 
     #[test]
     fn max_time_truncates_evaporation_consistently() {
-        let full = evolve_mass(MG, &Environment::vacuum(), 1e12, M_MIN_LMY, None, 100).unwrap();
+        let full =
+            evolve_mass(MG, &Environment::vacuum(), 1e12, 0.0, M_MIN_LMY, None, 100).unwrap();
         let t_max = 0.5 * full.end_time;
         let h = evolve_mass(
             MG,
             &Environment::vacuum(),
             1e12,
+            0.0,
             M_MIN_LMY,
             Some(t_max),
             100,

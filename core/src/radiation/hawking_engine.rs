@@ -69,7 +69,7 @@ impl RadiationEngine for HawkingEngine {
     fn compute_spectrum(&self, bh: &dyn BlackHoleTrait) -> Result<Spectrum, SimulationError> {
         let temp = bh.hawking_temperature()?;
         let total_power = bh.hawking_power()?;
-        let photon_power = total_power * bh.emission_model().photon_fraction(bh.mass());
+        let photon_power = total_power * bh.photon_fraction();
         let (frequencies, intensities) = Self::photon_spectrum(bh.mass(), temp, photon_power);
         let (kl, t_fit) = spectral_nonthermality(&frequencies, &intensities, temp);
         Ok(Spectrum {

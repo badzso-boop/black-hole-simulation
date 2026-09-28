@@ -2,6 +2,7 @@
 mod tests;
 
 pub mod black_hole;
+pub mod catalog;
 pub mod constants;
 pub mod error;
 pub mod geometry;
@@ -23,6 +24,7 @@ pub use radiation::hawking_engine::HawkingEngine;
 pub use types::*;
 
 use black_hole::evolution::evolve_mass;
+use black_hole::kerr::{self, KerrBlackHole};
 use constants::{C, M_MIN_LMY, SEMICLASSICAL_MIN_MASS};
 use interior::baby_universe::baby_universe_states;
 use interior::collapse::OSCollapse;
@@ -59,19 +61,22 @@ pub fn run_simulation(
         config.emission_model,
         env,
         mass,
+        config.spin,
         M_MIN_LMY,
         config.max_time,
         config.steps,
     )?;
-    let mut bh = SchwarzschildBlackHole::with_emission(mass, config.emission_model)?;
+    let mut bh = KerrBlackHole::new(mass, config.spin, config.emission_model)?;
     let engine = HawkingEngine::new();
     let mut timeline = Vec::with_capacity(history.samples.len());
     for sample in &history.samples {
         bh.set_state(sample.mass, sample.time)?;
+        bh.set_spin(sample.spin);
         timeline.push(TimeStep {
             time: sample.time,
             time_to_evaporation: sample.time_to_evaporation,
             mass: sample.mass,
+            spin: sample.spin,
             temperature: bh.hawking_temperature()?,
             entropy: bh.bekenstein_entropy(),
             semiclassical_valid: sample.mass > SEMICLASSICAL_MIN_MASS,
@@ -114,6 +119,46 @@ pub fn run_simulation(
             ev.time, ev.mass
         ));
     }
+
+    // --- Kerr-jellemzők ---
+    let (r_plus, r_minus) = kerr::horizons(mass, config.spin);
+    let kerr_summary = KerrSummary {
+        initial_spin: config.spin,
+        final_spin: history.end_spin,
+        r_plus,
+        r_minus,
+        isco_radius: kerr::isco_radius_m(config.spin) * kerr::gravitational_radius(mass),
+        disk_efficiency: kerr::radiative_efficiency(config.spin),
+        horizon_angular_velocity: kerr::horizon_angular_velocity(mass, config.spin),
+    };
+    if config.spin > 0.0 {
+        warnings.push(
+            "Spin > 0: a belső összeomlás és a kauzalitás-elemzés gömbszimmetrikus (a* = 0) \
+             modellel készül — forgó LQC-összeomlásra nincs publikált effektív modell. A \
+             klasszikus Kerr-megoldásnak szintén van belső (Cauchy-)horizontja (r−), így a \
+             kauzális következtetés minőségileg ugyanaz."
+                .into(),
+        );
+    }
+
+    // --- Valódi objektum: megfigyelhető mennyiségek ---
+    let object = match &config.object {
+        Some(key) => {
+            let obj =
+                catalog::lookup(key).ok_or_else(|| SimulationError::InvalidPhysicalState {
+                    reason: format!(
+                        "Ismeretlen objektum: {key} (ismert: {})",
+                        catalog::CATALOG
+                            .iter()
+                            .map(|o| o.key)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ),
+                })?;
+            Some(catalog::observables(obj, mass, config.spin))
+        }
+        None => None,
+    };
 
     // --- Energiamérleg ---
     let e = &history.energy;
@@ -226,6 +271,8 @@ pub fn run_simulation(
         causal_channel,
         energy,
         interior_feeding,
+        kerr: kerr_summary,
+        object,
         warnings,
         payload,
     })
@@ -259,10 +306,38 @@ fn run_simulation_py(config_json: &str, payload_json: &str) -> PyResult<String> 
     }
 }
 
+/// A valódi fekete lyukak katalógusa JSON-ben
+#[cfg(feature = "python-ext")]
+#[pyfunction]
+fn catalog_json() -> PyResult<String> {
+    serde_json::to_string(catalog::CATALOG)
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
+}
+
+/// Egy katalógus-objektum kiinduló szimulációs konfigurációja JSON-ben
+#[cfg(feature = "python-ext")]
+#[pyfunction]
+fn object_config_json(key: &str) -> PyResult<String> {
+    let obj = catalog::lookup(key).ok_or_else(|| {
+        pyo3::exceptions::PyValueError::new_err(format!(
+            "Ismeretlen objektum: {key} (ismert: {})",
+            catalog::CATALOG
+                .iter()
+                .map(|o| o.key)
+                .collect::<Vec<_>>()
+                .join(", ")
+        ))
+    })?;
+    serde_json::to_string(&obj.config())
+        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))
+}
+
 #[cfg(feature = "python-ext")]
 #[pymodule]
 fn black_hole_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(run_simulation_py, m)?)?;
+    m.add_function(wrap_pyfunction!(catalog_json, m)?)?;
+    m.add_function(wrap_pyfunction!(object_config_json, m)?)?;
     m.add("SCHEMA_VERSION", SCHEMA_VERSION)?;
     Ok(())
 }

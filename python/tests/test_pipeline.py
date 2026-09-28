@@ -32,7 +32,7 @@ def _run(tmp_path: Path, norbi: bool, mass: float = 1e12) -> dict[str, Any]:
 def test_norbi_and_standard_end_to_end(tmp_path: Path) -> None:
     std = _run(tmp_path, False)
     norbi = _run(tmp_path, True)
-    assert std["schema_version"] == norbi["schema_version"] == "3.1"
+    assert std["schema_version"] == norbi["schema_version"] == "3.2"
     assert norbi["payload"] == {"uzenet": "teszt"}
 
     spectra = compare_exterior_spectra(std, norbi)
@@ -106,3 +106,35 @@ def test_solar_mass_hole_grows_in_the_cmb(tmp_path: Path) -> None:
 def test_bad_infall_spec_is_rejected(tmp_path: Path) -> None:
     assert main(["--mass", "1e12", "--infall", "csak-egy-szam",
                  "--output", str(tmp_path / "x.json")]) == 2
+
+
+def test_catalog_objects_and_overrides(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["--list-objects"]) == 0
+    listed = capsys.readouterr().out
+    for key in ("sgr-a", "m87", "cyg-x1", "gw250114", "pbh-today"):
+        assert key in listed
+
+    sgr = _run_args(tmp_path, "sgr", "--object", "sgr-a")
+    obj = sgr["object"]
+    assert obj["key"] == "sgr-a" and abs(obj["ring_deviation"] + 0.08) < 0.09
+    assert sgr["config"]["spin"] == 0.9 and sgr["kerr"]["initial_spin"] == 0.9
+    assert sgr["config"]["environment"]["accretion"]["type"] == "constant"
+    # a kapcsolók felülírják a katalógust
+    light = _run_args(tmp_path, "sgr_light", "--object", "sgr-a", "--mass", "8e36",
+                      "--spin", "0.1", "--accretion", "none")
+    assert light["config"]["mass"] == 8e36 and light["config"]["spin"] == 0.1
+    assert light["config"]["environment"]["accretion"]["type"] == "none"
+    assert main(["--object", "andromeda", "--output", str(tmp_path / "x.json")]) == 2
+
+
+def test_spinning_primordial_hole_evaporates_faster(tmp_path: Path) -> None:
+    still = _run_args(tmp_path, "still", "--mass", "1e12")
+    fast = _run_args(tmp_path, "fast", "--mass", "1e12", "--spin", "0.99")
+    ratio = fast["end_time"] / still["end_time"]
+    assert 0.3 < ratio < 0.6, ratio
+    spins = [s["spin"] for s in fast["timeline"]]
+    assert spins[0] == 0.99 and spins[-1] < 0.01
+
+
+def test_mass_or_object_is_required(tmp_path: Path) -> None:
+    assert main(["--output", str(tmp_path / "x.json")]) == 2

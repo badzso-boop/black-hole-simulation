@@ -6,6 +6,7 @@ use crate::types::{InteriorKind, InteriorTrajectory, Spectrum};
 pub mod environment;
 pub mod evaporation;
 pub mod evolution;
+pub mod kerr;
 pub mod schwarzschild;
 pub mod thermodynamics;
 
@@ -27,6 +28,10 @@ pub trait BlackHoleTrait: Send + Sync {
     fn evaporation_time(&self) -> f64;
     fn age(&self) -> f64;
     fn emission_model(&self) -> EmissionModel;
+    /// A kisugárzott teljesítmény fotonokban lévő hányada
+    fn photon_fraction(&self) -> f64 {
+        self.emission_model().photon_fraction(self.mass())
+    }
     /// Állapot beállítása a párolgási történet egy mintapontjára
     fn set_state(&mut self, mass: f64, age: f64) -> Result<(), SimulationError>;
 }

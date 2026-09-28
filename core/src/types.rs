@@ -4,7 +4,7 @@ use crate::black_hole::environment::Environment;
 use crate::geometry::CausalChannel;
 use crate::radiation::emission::EmissionModel;
 
-pub const SCHEMA_VERSION: &str = "3.1";
+pub const SCHEMA_VERSION: &str = "3.2";
 
 // ---------------------------------------------------------------------------
 // Sugárzási spektrum (külső megfigyelő)
@@ -137,6 +137,8 @@ pub struct BabyUniverseState {
 pub struct SimulationConfig {
     /// Kezdeti fekete lyuk tömeg (kg)
     pub mass: f64,
+    /// Kezdeti dimenziótlan spin a* = Jc/(GM²), 0 ≤ a* < 1
+    pub spin: f64,
     /// Norbi-mód: LQC visszapattanás + bébiuniverzum a belsőben
     pub norbi_mode: bool,
     /// Hawking-emissziós modell (részecskefajták)
@@ -154,12 +156,17 @@ pub struct SimulationConfig {
     /// a fekete lyuk nem párolog, az Univerzum koráig (13.787 Gyr)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_time: Option<f64>,
+    /// Valódi objektum a katalógusból (pl. "sgr-a", "m87") — a megfigyelhető
+    /// mennyiségek (árnyék, EHT-gyűrű) kiszámításához
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object: Option<String>,
 }
 
 impl Default for SimulationConfig {
     fn default() -> Self {
         Self {
             mass: 1e12,
+            spin: 0.0,
             norbi_mode: false,
             emission_model: EmissionModel::MacGibbon,
             steps: 100,
@@ -167,6 +174,7 @@ impl Default for SimulationConfig {
             initial_radius_rs: 10.0,
             environment: Environment::default(),
             max_time: None,
+            object: None,
         }
     }
 }
@@ -184,6 +192,8 @@ pub struct TimeStep {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub time_to_evaporation: Option<f64>,
     pub mass: f64,
+    /// Dimenziótlan spin a*
+    pub spin: f64,
     pub temperature: f64,
     /// Bekenstein–Hawking entrópia (k_B egységben)
     pub entropy: f64,
@@ -199,6 +209,22 @@ pub struct TimeStep {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub after_infall: Option<String>,
     pub spectrum: Spectrum,
+}
+
+/// A forgó fekete lyuk jellemzői a kezdeti és a végállapotban
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct KerrSummary {
+    pub initial_spin: f64,
+    pub final_spin: f64,
+    /// Külső / belső horizont a kezdeti állapotban (m)
+    pub r_plus: f64,
+    pub r_minus: f64,
+    /// Prográd ISCO-sugár (m)
+    pub isco_radius: f64,
+    /// Novikov–Thorne hatásfok 1 − E_isco a kezdeti spinnel
+    pub disk_efficiency: f64,
+    /// A horizont szögsebessége (rad/s)
+    pub horizon_angular_velocity: f64,
 }
 
 /// A külső energiamérleg:  E0 + E_beesés + E_elnyelt + (E_beáramlás − L_akkr) = E_vég + E_Hawking
@@ -269,6 +295,9 @@ pub struct SimulationResults {
     pub causal_channel: CausalChannel,
     pub energy: EnergyLedger,
     pub interior_feeding: InteriorFeeding,
+    pub kerr: KerrSummary,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub object: Option<crate::catalog::ObjectObservables>,
     pub warnings: Vec<String>,
     /// A bemeneti payload változatlanul (nyomon követhetőség)
     pub payload: serde_json::Value,

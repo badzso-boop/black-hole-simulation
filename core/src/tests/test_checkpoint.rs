@@ -23,7 +23,7 @@ mod tests {
             "Nem maradhat .tmp fájl"
         );
         let loaded = Checkpoint::load(&tmp).unwrap();
-        assert_eq!(loaded.schema_version, "3.1");
+        assert_eq!(loaded.schema_version, "3.2");
         assert_eq!(loaded.results.timeline.len(), results.timeline.len());
         assert_eq!(
             loaded.results.baby_universe.len(),

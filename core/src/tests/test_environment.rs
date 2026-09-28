@@ -130,6 +130,7 @@ mod tests {
                 eddington_limited: true,
             },
             radiative_efficiency: 0.1,
+            disk_accretion: false,
             infall_events: vec![],
         };
         let m = 10.0 * M_SUN;

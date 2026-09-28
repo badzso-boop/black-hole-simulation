@@ -1,4 +1,5 @@
 mod test_baby_universe;
+mod test_catalog;
 mod test_checkpoint;
 mod test_constants;
 mod test_edge_cases;
@@ -7,6 +8,7 @@ mod test_evolution;
 mod test_geometry;
 mod test_hawking;
 mod test_interior;
+mod test_kerr;
 mod test_lqc;
 mod test_model_comparison;
 mod test_schwarzschild;

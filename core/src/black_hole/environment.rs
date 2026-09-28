@@ -32,6 +32,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::black_hole::kerr;
 use crate::constants::{C, G, HBAR, H_PLANCK, K_B, PI};
 use crate::radiation::emission::{photon_cross_section, EmissionModel};
 
@@ -85,8 +86,14 @@ pub struct Environment {
     /// A háttérsugárzás hőmérséklete (K); 0 = vákuum
     pub cmb_temperature: f64,
     pub accretion: AccretionModel,
-    /// Az akkretált nyugalmi tömeg sugárzásként távozó hányada (0 ≤ ε < 1)
+    /// Az akkretált nyugalmi tömeg sugárzásként távozó hányada (0 ≤ ε < 1).
+    /// Vékony korongnál (`disk_accretion`) ezt a spin határozza meg: ε = 1 − E_isco.
     pub radiative_efficiency: f64,
+    /// Vékony akkréciós korong (Novikov–Thorne): az anyag az ISCO-ról esik be,
+    /// E_isco energiát és L_isco impulzusmomentumot visz be — felpörgeti a
+    /// fekete lyukat (Bardeen 1970) a Thorne-határig (0.998). Ha hamis, az
+    /// akkréció gömbszimmetrikus (Bondi): impulzusmomentumot nem visz be.
+    pub disk_accretion: bool,
     pub infall_events: Vec<InfallEvent>,
 }
 
@@ -96,6 +103,7 @@ impl Default for Environment {
             cmb_temperature: T_CMB_TODAY,
             accretion: AccretionModel::None,
             radiative_efficiency: 0.1,
+            disk_accretion: false,
             infall_events: Vec::new(),
         }
     }
@@ -112,13 +120,17 @@ pub struct Rates {
     pub accretion_inflow: f64,
     /// Akkréciós luminozitás ε·Ṁ·c² (W) — elhagyja a rendszert
     pub accretion_luminosity: f64,
+    /// A ténylegesen alkalmazott sugárzási hatásfok ε
+    pub efficiency: f64,
+    /// da*/dt (1/s): Hawking-lepörgés + akkréció + izotróp elnyelés
+    pub spin_rate: f64,
 }
 
 impl Rates {
     /// dM/dt (kg/s)
-    pub fn net_mass_rate(&self, radiative_efficiency: f64) -> f64 {
+    pub fn net_mass_rate(&self) -> f64 {
         (self.absorbed_power - self.hawking_power) / (C * C)
-            + (1.0 - radiative_efficiency) * self.accretion_inflow
+            + (1.0 - self.efficiency) * self.accretion_inflow
     }
 }
 
@@ -129,6 +141,7 @@ impl Environment {
             cmb_temperature: 0.0,
             accretion: AccretionModel::None,
             radiative_efficiency: 0.1,
+            disk_accretion: false,
             infall_events: Vec::new(),
         }
     }
@@ -180,8 +193,24 @@ impl Environment {
         Ok(())
     }
 
-    /// Beáramló nyugalmi tömeg Ṁ (kg/s)
+    /// Az alkalmazott sugárzási hatásfok: vékony korongnál 1 − E_isco(a*)
+    pub fn efficiency(&self, spin: f64) -> f64 {
+        if self.disk_accretion {
+            kerr::radiative_efficiency(spin)
+        } else {
+            self.radiative_efficiency
+        }
+    }
+
+    /// Beáramló nyugalmi tömeg Ṁ (kg/s) a Schwarzschild-hatásfokkal
+    /// (az Eddington-korláthoz); lásd `accretion_inflow_spin`
     pub fn accretion_inflow(&self, mass: f64) -> f64 {
+        self.accretion_inflow_spin(mass, 0.0)
+    }
+
+    /// Beáramló nyugalmi tömeg Ṁ (kg/s); az Eddington-korlát a tényleges ε-nal
+    pub fn accretion_inflow_spin(&self, mass: f64, spin: f64) -> f64 {
+        let eps = self.efficiency(spin);
         match &self.accretion {
             AccretionModel::None => 0.0,
             AccretionModel::Constant { rate } => *rate,
@@ -192,7 +221,7 @@ impl Environment {
             } => {
                 let bondi = bondi_rate(mass, *density, *sound_speed);
                 if *eddington_limited {
-                    bondi.min(eddington_rate(mass, self.radiative_efficiency))
+                    bondi.min(eddington_rate(mass, eps))
                 } else {
                     bondi
                 }
@@ -200,19 +229,41 @@ impl Environment {
         }
     }
 
-    pub fn rates(&self, emission: EmissionModel, mass: f64) -> Rates {
-        let inflow = self.accretion_inflow(mass);
+    /// Az összes folytonos csatorna egy (M, a*) állapotban
+    pub fn rates(&self, emission: EmissionModel, mass: f64, spin: f64) -> Rates {
+        let eps = self.efficiency(spin);
+        let inflow = self.accretion_inflow_spin(mass, spin);
+        let kf = emission.kerr_factors(mass, spin);
+        let hawking_power = emission.power(mass) * kf.power_ratio;
+        let absorbed_power = background_absorption_power(mass, self.cmb_temperature);
+        // da*/dt = (c/(GM²))·dJ/dt − 2a*·(dM/dt)/M
+        // Hawking: d ln a*/d ln M = h(a*)  ⇒  da*/dt = h·a*·(dM/dt)_H/M
+        let dm_h = -hawking_power / (C * C);
+        let hawking_spin = kf.h * spin * dm_h / mass;
+        // izotróp elnyelés: J nem változik
+        let absorb_spin = -2.0 * spin * absorbed_power / (C * C) / mass;
+        // akkréció: korong → Bardeen-felpörgetés; gömbszimmetrikus → J nem változik
+        let accretion_spin = if self.disk_accretion {
+            kerr::accretion_spin_rate(mass, spin, inflow)
+        } else {
+            -2.0 * spin * (1.0 - eps) * inflow / mass
+        };
         Rates {
-            hawking_power: emission.power(mass),
-            absorbed_power: background_absorption_power(mass, self.cmb_temperature),
+            hawking_power,
+            absorbed_power,
             accretion_inflow: inflow,
-            accretion_luminosity: self.radiative_efficiency * inflow * C * C,
+            accretion_luminosity: eps * inflow * C * C,
+            efficiency: eps,
+            spin_rate: hawking_spin + absorb_spin + accretion_spin,
         }
     }
 
     pub fn net_mass_rate(&self, emission: EmissionModel, mass: f64) -> f64 {
-        self.rates(emission, mass)
-            .net_mass_rate(self.radiative_efficiency)
+        self.rates(emission, mass, 0.0).net_mass_rate()
+    }
+
+    pub fn net_mass_rate_spin(&self, emission: EmissionModel, mass: f64, spin: f64) -> f64 {
+        self.rates(emission, mass, spin).net_mass_rate()
     }
 
     /// Az egyensúlyi tömeg (dM/dt = 0), ha a vizsgált tartományban létezik.

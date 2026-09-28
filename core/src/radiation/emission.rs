@@ -201,3 +201,164 @@ pub fn photon_cross_section(mass: f64, freq: f64) -> f64 {
 pub fn hawking_temperature(mass: f64) -> f64 {
     HBAR * C.powi(3) / (8.0 * PI * G * mass * K_B)
 }
+
+// ---------------------------------------------------------------------------
+// Kerr (forgó) fekete lyukak emissziója — Page (1976b)
+// ---------------------------------------------------------------------------
+//
+// f(a*) = −M² dM/dt, g(a*) = −(M/a*) dJ/dt (Planck-egység), fajtánként.
+// Forrás: Page, PRD 14, 3260 (1976b); a táblázat Dong, Kinney & Stojkovic
+// (2016, arXiv:1511.05642) B.1 táblázatából (a Page-féle értékek, a skalárra
+// Taylor, Chambers & Hiscock 1998). A neutrínó-oszlop a* = 0.99999 és 1
+// sorában a nyomtatott 1.074e-4 / 1.093e-4 elírás: 1.074e-3 / 1.093e-3 a
+// helyes (monotonitás; 1.093e-3/8.185e-5 = 13.35 = Page neutrínó-faktora).
+// Ellenőrzés: f(1)/f(0) = 13.35 (ν), 107.5 (γ), ~26 380 (graviton) — Page absztraktja.
+//
+// Az a* = 0 sor a 0.01-es sor (a táblázat ott kezdődik; az eltérés < 1e-3).
+// A tömeges fajtákra ugyanazt az f(a*)/f(0), g(a*)/f(0) arányt alkalmazzuk,
+// mint az azonos spinű tömegtelen mezőre — ez közelítés (a tömeg az alacsony
+// frekvenciás, szuperradiáns módusokat elnyomja).
+
+const KERR_SPINS: [f64; 15] = [
+    0.0, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.96, 0.99, 0.999, 0.99999, 1.0,
+];
+/// f_s(a*) oszlopok: [skalár, 1 neutrínó íz (ν+ν̄), foton, graviton]
+const KERR_F: [[f64; 4]; 15] = [
+    [7.429e-5, 8.185e-5, 3.366e-5, 3.845e-6],
+    [7.442e-5, 8.343e-5, 3.580e-5, 4.684e-6],
+    [7.319e-5, 8.830e-5, 4.265e-5, 7.732e-6],
+    [7.265e-5, 9.669e-5, 5.525e-5, 1.494e-5],
+    [7.097e-5, 1.089e-4, 7.570e-5, 3.116e-5],
+    [6.996e-5, 1.258e-4, 1.080e-4, 6.822e-5],
+    [7.008e-5, 1.487e-4, 1.594e-4, 1.574e-4],
+    [7.119e-5, 1.804e-4, 2.450e-4, 3.909e-4],
+    [7.969e-5, 2.284e-4, 4.014e-4, 1.104e-3],
+    [1.024e-4, 3.195e-4, 7.520e-4, 4.107e-3],
+    [1.551e-4, 4.567e-4, 1.313e-3, 1.305e-2],
+    [2.283e-4, 6.708e-4, 2.151e-3, 3.578e-2],
+    [2.625e-4, 9.253e-4, 3.057e-3, 7.251e-2],
+    [2.667e-4, 1.074e-3, 3.555e-3, 9.785e-2],
+    [2.667e-4, 1.093e-3, 3.616e-3, 1.012e-1],
+];
+/// g_s(a*) oszlopok, ugyanabban a sorrendben
+const KERR_G: [[f64; 4]; 15] = [
+    [8.867e-5, 6.161e-4, 4.795e-4, 1.064e-4],
+    [9.085e-5, 6.174e-4, 4.895e-4, 1.167e-4],
+    [9.391e-5, 6.218e-4, 5.207e-4, 1.514e-4],
+    [1.024e-4, 6.299e-4, 5.759e-4, 2.233e-4],
+    [1.125e-4, 6.430e-4, 6.599e-4, 3.603e-4],
+    [1.281e-4, 6.631e-4, 7.845e-4, 6.236e-4],
+    [1.507e-4, 6.946e-4, 9.668e-4, 1.155e-3],
+    [1.803e-4, 7.457e-4, 1.245e-3, 2.322e-3],
+    [2.306e-4, 8.366e-4, 1.706e-3, 5.286e-3],
+    [3.166e-4, 1.034e-3, 2.632e-3, 1.544e-2],
+    [4.515e-4, 1.343e-3, 3.976e-3, 4.057e-2],
+    [6.160e-4, 1.810e-3, 5.829e-3, 9.555e-2],
+    [6.905e-4, 2.340e-3, 7.723e-3, 1.753e-1],
+    [6.997e-4, 2.641e-3, 8.730e-3, 2.271e-1],
+    [7.006e-4, 2.678e-3, 8.851e-3, 2.338e-1],
+];
+
+fn spin_column(spin: Spin) -> usize {
+    match spin {
+        Spin::Zero => 0,
+        Spin::Half => 1,
+        Spin::One => 2,
+        Spin::Two => 3,
+    }
+}
+
+/// Page-féle (f, g) egy spin-osztályra, lineáris interpolációval a*-ban
+pub fn page_kerr_fg(spin_class: usize, a: f64) -> (f64, f64) {
+    let a = a.clamp(0.0, 1.0);
+    let i = KERR_SPINS
+        .partition_point(|&x| x < a)
+        .clamp(1, KERR_SPINS.len() - 1);
+    let (a0, a1) = (KERR_SPINS[i - 1], KERR_SPINS[i]);
+    let w = if a1 > a0 { (a - a0) / (a1 - a0) } else { 0.0 };
+    let lerp =
+        |t: &[[f64; 4]; 15]| t[i - 1][spin_class] + w * (t[i][spin_class] - t[i - 1][spin_class]);
+    (lerp(&KERR_F), lerp(&KERR_G))
+}
+
+/// Kerr-korrekció a Hawking-emisszióhoz (M, a*) függvényében
+#[derive(Debug, Clone, Copy)]
+pub struct KerrEmissionFactors {
+    /// f(M, a*)/f(M, 0): a teljes teljesítmény növekedése a spinnel
+    pub power_ratio: f64,
+    /// h = d ln a*/d ln M = g/f − 2 a Hawking-párolgás alatt
+    /// (> 0: gyorsabban veszít impulzusmomentumot, mint tömeget)
+    pub h: f64,
+    /// A fotonokra eső teljesítmény-hányad szorzója a nem forgó esethez képest
+    pub photon_share_ratio: f64,
+}
+
+impl EmissionModel {
+    /// A modell fajtái: (spin-osztály, α-járulék a* = 0-ban) — a MacGibbon
+    /// szabadsági-fok-járulékok Page-normálásban egyeznek (foton 3.35e-5 vs
+    /// Page 3.366e-5; 1 ν-íz 8.21e-5 vs 8.185e-5; graviton 3.9e-6 vs 3.845e-6).
+    fn species_alphas(&self, mass: f64) -> Vec<(Spin, f64)> {
+        let scale = CARR_RATE / mass_loss_scale();
+        match self {
+            EmissionModel::PhotonBlackbody => vec![(Spin::One, ALPHA_PHOTON_BLACKBODY)],
+            EmissionModel::PageGammaGraviton => {
+                // a Page (2013) α arányosan szétosztva a foton- és graviton-részre
+                let (fg, gg) = (2.0 * 0.060, 2.0 * 0.007);
+                vec![
+                    (Spin::One, ALPHA_PAGE_GAMMA_GRAVITON * fg / (fg + gg)),
+                    (Spin::Two, ALPHA_PAGE_GAMMA_GRAVITON * gg / (fg + gg)),
+                ]
+            }
+            EmissionModel::MacGibbon => {
+                let kt = hawking_kt_mev(mass);
+                SPECIES
+                    .iter()
+                    .map(|s| {
+                        let switch = if s.mass_mev == 0.0 {
+                            1.0
+                        } else {
+                            (-s.mass_mev / (s.spin.beta() * kt)).exp()
+                        };
+                        (s.spin, scale * s.dof * s.f_per_dof * switch)
+                    })
+                    .collect()
+            }
+        }
+    }
+
+    /// Kerr-tényezők egy (M, a*) állapotban
+    pub fn kerr_factors(&self, mass: f64, spin: f64) -> KerrEmissionFactors {
+        if spin <= 0.0 {
+            return KerrEmissionFactors {
+                power_ratio: 1.0,
+                h: 0.0,
+                photon_share_ratio: 1.0,
+            };
+        }
+        let (mut f0, mut f_a, mut g_a, mut ph0, mut ph_a) = (0.0, 0.0, 0.0, 0.0, 0.0);
+        for (sp, alpha0) in self.species_alphas(mass) {
+            let col = spin_column(sp);
+            let (f_ref, _) = page_kerr_fg(col, 0.0);
+            let (f, g) = page_kerr_fg(col, spin);
+            f0 += alpha0;
+            f_a += alpha0 * f / f_ref;
+            g_a += alpha0 * g / f_ref;
+            if matches!(sp, Spin::One) {
+                // a spin-1 járulékból csak a foton (2 szf.) a „foton" — a
+                // gluonok/W/Z ugyanazt az arányt kapják, így az arány változatlan
+                ph0 += alpha0;
+                ph_a += alpha0 * f / f_ref;
+            }
+        }
+        let photon_share_ratio = if ph0 > 0.0 && f_a > 0.0 {
+            (ph_a / f_a) / (ph0 / f0)
+        } else {
+            1.0
+        };
+        KerrEmissionFactors {
+            power_ratio: f_a / f0,
+            h: g_a / f_a - 2.0,
+            photon_share_ratio,
+        }
+    }
+}

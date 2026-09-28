@@ -47,6 +47,14 @@ jobs:
           python -m python --mass 1.98847e31 --accretion bondi --gas-density 1e-10 --max-time 3e15 --output output/ci_env_bondi.json
           python -m python --mass 1e30 --accretion constant --accretion-rate 1e10 --cmb-temperature 0 --max-time 1e12 --output output/ci_env_const.json
 
+      - name: Valodi fekete lyukak (katalogus) es forgo PBH
+        run: |
+          python -m python --list-objects
+          for o in sgr-a m87 cyg-x1 gw250114 gw150914 pbh-today; do
+            python -m python --object "$o" --norbi-mode true --output "output/ci_obj_${o}.json"
+          done
+          python -m python --mass 1e12 --spin 0.99 --output output/ci_spin_pbh.json
+
       - name: Tomegres alatt hibaval kell leallnia
         run: |
           if python -m python --mass 1e-8 --output output/ci_gap.json; then

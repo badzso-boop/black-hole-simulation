@@ -31,6 +31,7 @@ class Environment:
     cmb_temperature: float = T_CMB_TODAY
     accretion: dict[str, Any] = field(default_factory=lambda: {"type": "none"})
     radiative_efficiency: float = 0.1
+    disk_accretion: bool = False
     infall_events: list[InfallEvent] = field(default_factory=list)
 
 
@@ -38,6 +39,7 @@ class Environment:
 @dataclass
 class SimulationConfig:
     mass: float = 1e12
+    spin: float = 0.0
     norbi_mode: bool = False
     emission_model: EmissionModel = "MacGibbon"
     steps: int = 100
@@ -45,11 +47,13 @@ class SimulationConfig:
     initial_radius_rs: float = 10.0
     environment: Environment = field(default_factory=lambda: Environment())
     max_time: float | None = None
+    object: str | None = None
 
     def to_json(self) -> str:
         d = asdict(self)
-        if d["max_time"] is None:
-            del d["max_time"]
+        for k in ("max_time", "object"):
+            if d[k] is None:
+                del d[k]
         return json.dumps(d)
 
     @classmethod
