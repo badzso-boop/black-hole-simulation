@@ -2,7 +2,7 @@
 
 **Készítők:** Norbi & Claude  
 **Időszak:** 2025–2026  
-**Verzió:** 3.0.0
+**Verzió:** 3.1.0
 
 ---
 
@@ -371,3 +371,51 @@ gamma-háttér (Carr et al. 2021) korlátoznak.
 sokkal könnyebb, mint egyet, ami *alátámaszt valamit*. A v2.0-ban a számok egy
 része a numerikából jött, nem a természetből — a v3.0 minden számához teszt
 tartozik, ami egy független (analitikus vagy irodalmi) értékhez méri.
+
+---
+
+## 10. fázis — Ami utána beleesik: CMB, akkréció, beesések (v3.1, 2026-09-28)
+
+### Miért
+
+A v3.0 után két kérdés maradt nyitva: (1) a realizmus — egy valódi fekete lyuk
+nem vákuumban párolog, hanem a környezetéből folyamatosan anyagot és
+sugárzást nyel el; (2) a Norbi-dokumentáció 2. fázisa („a belső univerzum a
+beeső anyagból táplálkozik", E_belső = E_0 + Σ E_beeső + ∫Ṁc² dt), ami a
+PDF-ben szerepelt, de a kódban sosem volt megvalósítva (a v2.0 `absorb_energy`
+a semmiből adott hozzá energiát).
+
+### Mit csináltunk
+
+- **CMB-elnyelés** ugyanazzal a foton-greybody hatáskeresztmetszettel, mint az
+  emisszió → a részletes egyensúly konstrukció szerint teljesül.
+- **Akkréció:** állandó ráta, Bondi (λ = 1/4), Eddington-korlát, sugárzási hatásfok ε.
+- **Diszkrét beesések:** „t időpontban m tömegű objektum esik be".
+- **Tömegfejlődés** beesések közötti szakaszokban: párolgó ág visszafelé
+  ln M-ben (ahogy eddig), növekvő ág időben, a tömeg *változását* normálva.
+- **Energiamérleg** ugyanabban az ODE-ben (hiba ~1e-14).
+- **Neutrínó-tömegek** (0, 0.0086, 0.05 eV) a MacGibbon-táblában — a hideg,
+  nagy fekete lyukaknál ez számít.
+- **interior_feeding:** a PDF 2. fázisának energiakönyvelése, beesésenkénti
+  sajátidővel a horizontig.
+
+### Amit megtudtunk
+
+| Kérdés | Eredmény |
+|---|---|
+| Párolog-e ma egy Nap-tömegű fekete lyuk? | **Nem — nő.** T_H = 6e-8 K ≪ T_CMB = 2.7 K; 13.8 Gyr alatt ~1e4 kg CMB-t nyel el, a Hawking-kibocsátás ~1e-10 J. |
+| Hol a határ? | M_eq ≈ 5.6e22 kg (~Hold-tömeg). Ennél kisebb fekete lyuk párolog, nagyobb nő (instabil egyensúly). |
+| Mit tesz a primordiális fekete lyukakkal a CMB? | Semmit érdemlegeset (relatív hatás < 1e-12 a párolgáshoz képest). |
+| Mit tesz egy beesés? | Egy 1e12 kg-os fekete lyukba 1e17 s-nál beeső 1e12 kg-os aszteroida ~9× meghosszabbítja az élettartamot (3.5e18 → 3.1e19 s), mert τ ∝ M³. |
+| Eddington-korlátos növekedés? | e^(t/t_S), t_S ≈ 50 Myr (ε = 0.1) — pontosan visszaadja (1e-7). |
+| „Táplálja-e" a beeső anyag a bébiuniverzumot? | **Könyvelhető, de nem igazolható.** A később beeső anyag a belső (Cauchy-)horizont felé tart; hogy a visszapattant tartományba jut-e, a geometriából nem következik, és a belső horizontok ismerten instabilak a késői beáramlásra (Poisson & Israel 1990). |
+
+### A becsületes összefoglalás — v3.1
+
+A szimulátor most már a valódi környezet legfontosabb hatásait is tartalmazza,
+és ez egy fontos, gyakran elfelejtett tényt tesz láthatóvá: **a Hawking-
+párolgás csak a kicsi, hipotetikus primordiális fekete lyukakra számít** — a
+csillag-tömegű és nagyobb fekete lyukak a mai Univerzumban nőnek. A Norbi-
+hipotézis 2. fázisa (a beeső anyag táplálja a belső univerzumot) most
+könyvelésként megvan, de a kulcsállítás (3. fázis: a belső energia kijut)
+változatlanul a kauzalitáson bukik el.

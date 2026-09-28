@@ -99,7 +99,7 @@ real objects (Sgr A*, M87).
 |---|---|
 | Bounce at ρ = ρ_P | Corrected: bounce at ρ_c ≈ 0.41 ρ_P (γ = 0.2375). |
 | a(t) = a₀·e^(H_inf t), with a₀ and H_inf free | Replaced by the exact LQC dust solution a = (1 + τ²/τ_b²)^(1/3), which has no free a₀ or H_inf. The a₀ sensitivity test no longer applies. |
-| Infalling matter feeds the interior; E_inner = E₀ + ∫Ṁc² | **Not modeled yet.** v3.0 only collapses the star itself. The old code added energy without removing it from the black hole; that bug was removed. Accretion is on the realism to-do list. |
+| Infalling matter feeds the interior; E_inner = E₀ + ∫Ṁc² | **Implemented in v3.1 as bookkeeping** (`interior_feeding`): CMB absorption, accretion (constant/Bondi/Eddington) and discrete infall events, with an energy ledger accurate to ~1e-14. Whether late infall reaches the *same* bounced region is not implied by the geometry (it heads for the inner/Cauchy horizon, which is unstable to late inflow: mass inflation, Poisson & Israel 1990). |
 | Inner expansion = horizon growth seen from outside | **Contradicted by the geometry.** The horizon grows by accretion (Δr_s = 2GΔM/c²), while the interior bounce happens in proper time τ at r_b ≪ r_−. These are separate quantities, not two views of one process. |
 | Energy "escapes through the event horizon" at tear-up (`project_to_horizon`) | **This is the step that fails.** Nothing can cross a horizon outward. v3.0 computes that the bounce edge lies inside the inner horizon and its light rays never reach r_+ (LMY 2023). |
 | P_Norbi = η·ρ_edge·v_tear·A_horizon, find η | The old test only asserted η > 0, which is tautological, and it was deleted. The formula is also dimensionally wrong: kg/m³ · m/s · m² = kg/s, not W. Physically η_exterior = 0 because there is no causal channel. |
@@ -122,4 +122,5 @@ real objects (Sgr A*, M87).
   a geometry where the bounced matter re-emerges in our universe (HKSW 2022 shock, black-to-white-hole transition).
   Those change the prediction from "non-thermal Hawking spectrum" to "delayed burst".
 - Ideas from the PDF that could still be modeled as realism upgrades, independent of the hypothesis:
-  **accretion feeding the black hole** (the open system of phase 2), **Kerr spin**, and **real objects (Sgr A*, M87)**.
+  **Kerr spin** and **real objects (Sgr A*, M87)**. Accretion feeding the black hole (the open system of phase 2)
+  is done in v3.1. It showed that stellar-mass and larger black holes *grow* in today's CMB rather than evaporate.

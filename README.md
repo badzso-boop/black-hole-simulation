@@ -35,21 +35,21 @@ lépés **a kauzalitáson bukik el**; így az 5. sem teljesül.
 
 ```
                  ┌─────────────────────────── Rust mag (core/) ────────────────────────────┐
-config (JSON) ──►│ 1. Külső: Hawking-párolgás M0 → M_min (tömegrés)                        │
+config (JSON) ──►│ 1. Külső: Hawking-párolgás + CMB-elnyelés + akkréció + beesések         │
 payload (JSON) ─►│    dM/dt = −α(M)·ħc⁴/(G²M²), MacGibbon/Carr f(M), greybody foton-spektrum│
                  │ 2. Belső: Oppenheimer–Snyder porgömb, saját idő τ                       │
                  │    Standard: klasszikus, ρ_c-nél érvényét veszti                        │
                  │    Norbi:    LQC visszapattanás ρ_c-nél → táguló bébiuniverzum          │
                  │ 3. Kauzalitás: LMY külső metrika, horizontok, fénysugár-követés         │
                  └──────────────────────────────┬──────────────────────────────────────────┘
-                                                │ SimulationResults (schema 3.0, JSON)
+                                                │ SimulationResults (schema 3.1, JSON)
                  ┌──────────────────────────────▼──── Python (python/) ─────────────────────┐
                  │ 4. Kvantuminformáció: Page-görbe S(R), Hayden–Preskill I(Ref:R)          │
                  │    unitary / semiclassical / norbi (← causal_channel.exists)             │
                  └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Eredmények (v3.0, Norbi-mód, alapbeállítások)
+### Eredmények (v3.1, Norbi-mód, alapbeállítások: mai CMB, nincs akkréció)
 
 | M (kg) | élettartam | T_H kezdetben | horizont → visszapattanás (sajátidő) | r_b | r_+ | kauzális csatorna |
 |---|---|---|---|---|---|---|
@@ -57,7 +57,7 @@ payload (JSON) ─►│    dM/dt = −α(M)·ħc⁴/(G²M²), MacGibbon/Carr f(
 | 1 | 4.0e-19 s | 1.2e23 K | 3.3e-36 s | 4.8e-33 m | 1.5e-27 m | nincs |
 | 5.1e11 (ma párolgó PBH) | **11.1 Gyr** | 2.4e11 K | 1.7e-24 s | 3.9e-29 m | 7.6e-16 m | nincs |
 | 1e12 | 110 Gyr | 1.2e11 K | 3.3e-24 s | 4.8e-29 m | 1.5e-15 m | nincs |
-| M_☉ | 1.5e57 Gyr | 6.2e-8 K | 6.6e-6 s | 6.1e-23 m | 2.95 km | nincs |
+| M_☉ | **nem párolog — nő** (CMB) | 6.2e-8 K | 6.6e-6 s | 6.1e-23 m | 2.95 km | nincs |
 
 - **Külső spektrum:** Standard és Norbi módban bitre azonos (teszt).
 - **Spektrális nem-termalitás:** minden tömegre 0.267 — ez a greybody-torzítás
@@ -65,8 +65,13 @@ payload (JSON) ─►│    dM/dt = −α(M)·ħc⁴/(G²M²), MacGibbon/Carr f(
 - **Információ** (toy modell, 12+1 qubit): unitary → I(Ref:R) = 2 bit (az üzenet
   visszajön), Page-görbe visszafordul; semiclassical és Norbi → I = 0, S(R)
   monoton nő.
-- **Energiamérleg:** ∫P dt vs. ΔMc² — 100 lépésnél ≲ 0.5%; a belső porgömb
-  energiája pontosan Mc² (semmi nem keletkezik a semmiből).
+- **A mai CMB-ben** M_eq ≈ 5.6e22 kg felett a fekete lyuk több háttérsugárzást
+  nyel el, mint amennyit kisugároz: egy Nap-tömegű fekete lyuk 13.8 Gyr alatt
+  ~1e4 kg-ot *nő* (a Hawking-kibocsátás ~1e-10 J). Párolgás csak a kis
+  (primordiális) fekete lyukakra releváns.
+- **Energiamérleg:** E0 + beesések + elnyelt + akkretált = E_vég + Hawking,
+  ugyanabban az ODE-ben integrálva — a hiba ~1e-14; a belső porgömb energiája
+  pontosan Mc² (semmi nem keletkezik a semmiből).
 
 ---
 
@@ -94,6 +99,34 @@ A tömegfejlődést a végtömegtől *visszafelé*, ln M-ben integráljuk (Dopri
 végfázis is teljes pontossággal felbontott; az idővonal a tömegben logaritmikus,
 az eredmény független a lépésszámtól. Ellenőrzés: τ(5.1e11 kg) ≈ 11 Gyr
 (irodalom: ~13.8 Gyr; az eltérés a közelítő fajta-küszöbökből jön).
+
+### Környezet: ami utána beleesik — `black_hole/environment.rs`, `black_hole/evolution.rs`
+
+dM/dt = [P_abs(M) − P_H(M)]/c² + (1 − ε)·Ṁ_acc(M), plusz ugrások a beeséseknél.
+
+| Csatorna | Képlet | Forrás / ellenőrzés |
+|---|---|---|
+| CMB-elnyelés | P_abs = ∫4πσ(ν)B_ν(T_CMB)dν, ugyanazzal a σ-val, mint az emisszió | részletes egyensúly (teszt); nagy M-re 27πr_g²·4σT⁴ |
+| Egyensúly | f(M_eq) = 0; T_CMB = 2.7255 K-ben M_eq ≈ 5.6e22 kg | T_H(4.5e22 kg) = 2.7 K |
+| Állandó akkréció | Ṁ = áll. | — |
+| Bondi | Ṁ = 4πλ(GM)²ρ_∞/c_s³, λ = 1/4 | Bondi 1952 |
+| Eddington-korlát | Ṁ_Edd = 4πGMm_p/(εσ_T c); növekedés e^(t/t_S), t_S = εσ_Tc/((1−ε)4πGm_p) ≈ 50 Myr | L_Edd = 1.26e31 W/M_☉ (teszt) |
+| Beesés | M → M + m a t időpontban | — |
+
+A környezet időben állandó (a CMB lehűlése és a gáz kifogyása nincs
+modellezve). Így a folytonos egyenlet autonóm, egyetlen (instabil) egyensúlyi
+tömeggel: alatta párolgás (visszafelé integrálva ln M-ben), felette növekedés
+(időben, a tömeg *változását* normálva — a Napra ez 1e-26 relatív, M-ben
+f64-ben nem is ábrázolható). A neutrínók tömeg-sajátállapotként szerepelnek
+(0, 0.0086, 0.05 eV), ami a hideg, nagy fekete lyukaknál számít.
+
+**Belső „táplálás"** (a Norbi-dokumentáció 2. fázisa, `interior_feeding`):
+minden beesés sajátideje a horizontig, és az összes befelé átlépett energia
+E_belső = E_0 + Σm_ic² + ∫(P_abs + (1−ε)Ṁc²)dt. Ez *könyvelés*: a később
+beeső anyag az LMY-geometriában a belső (Cauchy-)horizont felé tart; hogy
+ugyanabba a bébiuniverzumba jut-e, nincs modellezve, és a belső horizontok
+ismerten instabilak a késői beáramlással szemben (tömeg-infláció, Poisson &
+Israel 1990).
 
 ### Összeomlás és visszapattanás — `interior/collapse.rs`, `quantum/lqc.rs`
 
@@ -158,21 +191,21 @@ A toy modell qubitszáma leskálázott (a valódi S_BH ~10⁴⁰+ bit); az időt
 ```
 core/src/
   constants.rs, units.rs     CODATA 2022, LQC-állandók, Planck-egység konverziók
-  black_hole/                BlackHoleTrait, Schwarzschild, párolgás (evaporation.rs)
+  black_hole/                BlackHoleTrait, Schwarzschild, párolgás, környezet, tömegfejlődés
   radiation/                 emissziós modellek, greybody, spektrum, HawkingEngine
   interior/                  collapse.rs (OS), standard.rs, norbi.rs, baby_universe.rs
   quantum/lqc.rs             effektív Friedmann/Raychaudhuri, porral analitikus megoldás
   geometry/                  LMY-metrika, horizontok, kauzális csatorna
   time_evolution/            ode.rs (Dopri5), checkpoint.rs (MessagePack)
-  tests/                     68 teszt
+  tests/                     87 teszt
 python/
   __main__.py                CLI: python -m python ...
   quantum_info.py            Page-görbe, Hayden–Preskill
   comparator.py              Standard vs. Norbi összevetés
   information_packet.py      payload SHA3 → determinisztikus mag
   config.py, constants.py    a Rust típusok/állandók tükre
-  tests/                     14 teszt (Page-formula, HP, hypothesis, végponttól végpontig)
-scripts/                     validate_results.py (schema 3.0), export_csv.py, …
+  tests/                     19 teszt (Page-formula, HP, hypothesis, végponttól végpontig)
+scripts/                     validate_results.py (schema 3.1), export_csv.py, …
 ```
 
 ---
@@ -195,7 +228,19 @@ python scripts/export_csv.py output/norbi.json output/norbi.csv
 
 Fontosabb kapcsolók: `--emission-model {MacGibbon,PageGammaGraviton,PhotonBlackbody}`,
 `--steps` (külső mintapontok), `--interior-steps`, `--initial-radius-rs`,
-`--no-info`. M < M_min ≈ 1.81e-8 kg esetén a program hibával áll le
+`--no-info`, `--max-time`. Környezet: `--cmb-temperature` (alapból 2.7255 K,
+0 = vákuum), `--accretion {none,constant,bondi}`, `--accretion-rate`,
+`--gas-density`, `--sound-speed`, `--no-eddington-limit`,
+`--radiative-efficiency`, `--infall IDŐ:TÖMEG[:CÍMKE]` (ismételhető), pl.:
+
+```bash
+# egy aszteroida 1e17 s-nál beleesik egy primordiális fekete lyukba
+python -m python --mass 1e12 --norbi-mode true --infall 1e17:1e12:aszteroida
+# 10 M_☉ sűrű gázban, Eddington-korlátos növekedés 100 Myr-ig
+python -m python --mass 1.98847e31 --accretion bondi --gas-density 1e-10 --max-time 3.156e15
+```
+
+M < M_min ≈ 1.81e-8 kg esetén a program hibával áll le
 (tömegrés: nincs horizont).
 
 Tesztek:
@@ -208,17 +253,18 @@ cargo bench --manifest-path core/Cargo.toml
 
 ---
 
-## Kimenet (schema 3.0)
+## Kimenet (schema 3.1)
 
 ```jsonc
 {
-  "schema_version": "3.0",
+  "schema_version": "3.1",
   "config": { "mass": 5.1e11, "norbi_mode": true, "emission_model": "MacGibbon", "steps": 100, ... },
-  "timeline": [ { "time", "time_to_evaporation", "mass", "temperature", "entropy",
-                  "semiclassical_valid", "spectrum": { "frequencies", "intensities",
+  "timeline": [ { "time", "time_to_evaporation"?, "mass", "temperature", "entropy",
+                  "semiclassical_valid", "net_mass_rate", "absorbed_power",
+                  "accretion_inflow", "after_infall"?, "spectrum": { "frequencies", "intensities",
                   "temperature", "total_power", "photon_power",
                   "spectral_nonthermality", "fit_temperature" } } ],
-  "evaporation_complete": true, "end_mass": 1.81e-8,
+  "evaporation_complete": true, "end_mass": 1.81e-8, "end_time", "equilibrium_mass"?,
   "interior": { "kind": "norbi", "samples": [ { "tau", "radius", "density", "hubble",
                 "ricci_scalar", "phase": "infall|trapped|inner_region|post_bounce" } ],
                 "tau_start", "tau_horizon_crossing", "proper_time_horizon_to_end",
@@ -227,8 +273,12 @@ cargo bench --manifest-path core/Cargo.toml
                        "total_energy", "gh_temperature", "interior_luminosity" } ],
   "causal_channel": { "exists": false, "reason": "...", "horizons": { ... },
                       "edge_ray_final_gap", "edge_ray_efolds" },
-  "energy": { "initial_energy", "final_exterior_energy", "radiated_energy",
-              "relative_error", "interior_energy" },
+  "energy": { "initial_energy", "final_exterior_energy", "hawking_radiated",
+              "background_absorbed", "accretion_inflow", "accretion_luminosity",
+              "infall_events", "relative_error" },
+  "interior_feeding": { "initial_energy", "events": [ { "exterior_time", "label", "mass",
+                        "mass_before", "mass_after", "proper_time_to_horizon" } ],
+                        "continuous_inflow_energy", "total_infallen_energy", "note" },
   "warnings": [ ... ],
   "payload": { ... },
   "information": { "curves": { "unitary": {...}, "semiclassical": {...}, "norbi": {...} },
@@ -243,6 +293,7 @@ cargo bench --manifest-path core/Cargo.toml
 - `rust-tests.yml` — fmt, clippy `-D warnings`, `cargo test`, tarpaulin
 - `python-tests.yml` — ruff (explicit szabálykészlet), mypy `--strict`, pytest (3.11–3.13)
 - `integration.yml` — tömeg-scan (2 m_P, 1 kg, 5.1e11 kg, M_☉) × Standard/Norbi,
+  három környezet-szcenárió (beesés, Bondi/Eddington, állandó akkréció),
   validátor; a tömegrés alatti tömegnek hibát kell adnia
 
 ---
@@ -256,7 +307,11 @@ cargo bench --manifest-path core/Cargo.toml
   kérdéses (`semiclassical_valid = false`); a párolgást a tömegrésnél
   (M_min ≈ 0.83 m_P) állítjuk meg.
 - **Belső modell:** homogén, marginálisan kötött por (OS); nincs nyomás,
-  forgás, töltés, és nincs a párolgás visszahatása a belsőre.
+  forgás, töltés, és nincs a párolgás visszahatása a belsőre. A később beeső
+  anyag csak könyvelve van (`interior_feeding`), a belső dinamikát nem módosítja.
+- **Környezet:** időben állandó (a CMB nem hűl a kozmikus tágulással, a gáz
+  nem fogy el); a kozmikus neutrínóháttér elnyelése nincs benne; a beesések
+  pillanatszerűek.
 - **Két óra:** a belső sajátidő (τ) és a külső idő közti leképezés nincs
   modellezve — erre csak kauzális csatorna esetén lenne szükség.
 - **Toy modell:** az információs görbék 12–20 qubites leskálázott modellből jönnek.
@@ -303,3 +358,6 @@ viszont nem bébiuniverzumot, hanem a mi univerzumunkba visszatérő anyagot ír
 10. Frolov, Markov, Mukhanov, PRD 41, 383 (1990); Chakrabarty et al., EPJC 80, 373 (2020), arXiv:1909.07129; Masó-Ferrando et al., arXiv:2304.12018 (2023)
 11. Gibbons & Hawking, PRD 15, 2738 (1977)
 12. Arbey & Auffinger, BlackHawk, arXiv:1905.04268
+13. Bondi, MNRAS 112, 195 (1952) — gömbszimmetrikus akkréció
+14. Poisson & Israel, PRD 41, 1796 (1990) — belső horizontok instabilitása (tömeg-infláció)
+15. Fixsen, ApJ 707, 916 (2009) — T_CMB = 2.7255 K
