@@ -248,7 +248,8 @@ python/
   information_packet.py      payload SHA3 → determinisztikus mag
   config.py, constants.py    a Rust típusok/állandók tükre
   tests/                     22 teszt (Page-formula, HP, hypothesis, végponttól végpontig)
-scripts/                     setup_dev.sh, validate_results.py (schema 3.2), export_csv.py, …
+scripts/                     setup_dev.sh, run_campaign.py, analyze_campaign.py, validate_results.py, …
+runs/                        szimulációs kampányok: naplók, összesítők, elemzés
 ```
 
 ---
@@ -324,6 +325,15 @@ Fontosabb kapcsolók:
 | `--qubits`, `--message-qubits`, `--payload JSON`, `--no-info` | kvantuminformációs toy modell |
 
 M < M_min ≈ 1.81e-8 kg esetén a program hibával áll le (tömegrés: nincs horizont).
+
+Teljes szimulációs kampány (71 futás, naplókkal és elemzéssel; ~4 perc az i5-ön):
+
+```bash
+python scripts/run_campaign.py            # → runs/<dátum>/logs, system.txt, tests.log
+python scripts/analyze_campaign.py runs/<dátum>   # → RESULTS.md, summary.csv
+```
+
+A legutóbbi kampány és értelmezése: [runs/2026-09-28/ANALYSIS.md](runs/2026-09-28/ANALYSIS.md).
 
 Tesztek és benchmark:
 

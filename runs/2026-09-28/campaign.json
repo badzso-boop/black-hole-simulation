@@ -1,0 +1,1053 @@
+{
+  "id": "2026-09-28",
+  "jobs": 1,
+  "total_wall_s": 238.71,
+  "peak_rss_mb": {
+    "sgr-a": 54.0,
+    "m87_norbi": 54.1,
+    "spin_pbh_300": 68.3
+  },
+  "runs": [
+    {
+      "id": "catalog__sgr-a_norbi-false",
+      "group": "catalog",
+      "name": "sgr-a_norbi-false",
+      "args": [
+        "--object",
+        "sgr-a",
+        "--norbi-mode",
+        "false"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.155,
+      "output": "output/campaign/2026-09-28/catalog__sgr-a_norbi-false.json"
+    },
+    {
+      "id": "catalog__sgr-a_norbi-true",
+      "group": "catalog",
+      "name": "sgr-a_norbi-true",
+      "args": [
+        "--object",
+        "sgr-a",
+        "--norbi-mode",
+        "true"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.129,
+      "output": "output/campaign/2026-09-28/catalog__sgr-a_norbi-true.json"
+    },
+    {
+      "id": "catalog__m87_norbi-false",
+      "group": "catalog",
+      "name": "m87_norbi-false",
+      "args": [
+        "--object",
+        "m87",
+        "--norbi-mode",
+        "false"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.72,
+      "output": "output/campaign/2026-09-28/catalog__m87_norbi-false.json"
+    },
+    {
+      "id": "catalog__m87_norbi-true",
+      "group": "catalog",
+      "name": "m87_norbi-true",
+      "args": [
+        "--object",
+        "m87",
+        "--norbi-mode",
+        "true"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.803,
+      "output": "output/campaign/2026-09-28/catalog__m87_norbi-true.json"
+    },
+    {
+      "id": "catalog__cyg-x1_norbi-false",
+      "group": "catalog",
+      "name": "cyg-x1_norbi-false",
+      "args": [
+        "--object",
+        "cyg-x1",
+        "--norbi-mode",
+        "false"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.11,
+      "output": "output/campaign/2026-09-28/catalog__cyg-x1_norbi-false.json"
+    },
+    {
+      "id": "catalog__cyg-x1_norbi-true",
+      "group": "catalog",
+      "name": "cyg-x1_norbi-true",
+      "args": [
+        "--object",
+        "cyg-x1",
+        "--norbi-mode",
+        "true"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.135,
+      "output": "output/campaign/2026-09-28/catalog__cyg-x1_norbi-true.json"
+    },
+    {
+      "id": "catalog__gw250114_norbi-false",
+      "group": "catalog",
+      "name": "gw250114_norbi-false",
+      "args": [
+        "--object",
+        "gw250114",
+        "--norbi-mode",
+        "false"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.702,
+      "output": "output/campaign/2026-09-28/catalog__gw250114_norbi-false.json"
+    },
+    {
+      "id": "catalog__gw250114_norbi-true",
+      "group": "catalog",
+      "name": "gw250114_norbi-true",
+      "args": [
+        "--object",
+        "gw250114",
+        "--norbi-mode",
+        "true"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.61,
+      "output": "output/campaign/2026-09-28/catalog__gw250114_norbi-true.json"
+    },
+    {
+      "id": "catalog__gw150914_norbi-false",
+      "group": "catalog",
+      "name": "gw150914_norbi-false",
+      "args": [
+        "--object",
+        "gw150914",
+        "--norbi-mode",
+        "false"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.584,
+      "output": "output/campaign/2026-09-28/catalog__gw150914_norbi-false.json"
+    },
+    {
+      "id": "catalog__gw150914_norbi-true",
+      "group": "catalog",
+      "name": "gw150914_norbi-true",
+      "args": [
+        "--object",
+        "gw150914",
+        "--norbi-mode",
+        "true"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.617,
+      "output": "output/campaign/2026-09-28/catalog__gw150914_norbi-true.json"
+    },
+    {
+      "id": "catalog__pbh-today_norbi-false",
+      "group": "catalog",
+      "name": "pbh-today_norbi-false",
+      "args": [
+        "--object",
+        "pbh-today",
+        "--norbi-mode",
+        "false"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.049,
+      "output": "output/campaign/2026-09-28/catalog__pbh-today_norbi-false.json"
+    },
+    {
+      "id": "catalog__pbh-today_norbi-true",
+      "group": "catalog",
+      "name": "pbh-today_norbi-true",
+      "args": [
+        "--object",
+        "pbh-today",
+        "--norbi-mode",
+        "true"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.055,
+      "output": "output/campaign/2026-09-28/catalog__pbh-today_norbi-true.json"
+    },
+    {
+      "id": "mass_cmb__m4.35e-08",
+      "group": "mass_cmb",
+      "name": "m4.35e-08",
+      "args": [
+        "--mass",
+        "4.352868e-08"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.287,
+      "output": "output/campaign/2026-09-28/mass_cmb__m4.35e-08.json"
+    },
+    {
+      "id": "mass_cmb__m1e-06",
+      "group": "mass_cmb",
+      "name": "m1e-06",
+      "args": [
+        "--mass",
+        "1e-06"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.318,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e-06.json"
+    },
+    {
+      "id": "mass_cmb__m1",
+      "group": "mass_cmb",
+      "name": "m1",
+      "args": [
+        "--mass",
+        "1.0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.603,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1.json"
+    },
+    {
+      "id": "mass_cmb__m1e+03",
+      "group": "mass_cmb",
+      "name": "m1e+03",
+      "args": [
+        "--mass",
+        "1000.0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.734,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+03.json"
+    },
+    {
+      "id": "mass_cmb__m1e+06",
+      "group": "mass_cmb",
+      "name": "m1e+06",
+      "args": [
+        "--mass",
+        "1000000.0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.822,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+06.json"
+    },
+    {
+      "id": "mass_cmb__m1e+09",
+      "group": "mass_cmb",
+      "name": "m1e+09",
+      "args": [
+        "--mass",
+        "1000000000.0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.926,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+09.json"
+    },
+    {
+      "id": "mass_cmb__m1e+11",
+      "group": "mass_cmb",
+      "name": "m1e+11",
+      "args": [
+        "--mass",
+        "100000000000.0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.998,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+11.json"
+    },
+    {
+      "id": "mass_cmb__m5.1e+11",
+      "group": "mass_cmb",
+      "name": "m5.1e+11",
+      "args": [
+        "--mass",
+        "510000000000.0"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.027,
+      "output": "output/campaign/2026-09-28/mass_cmb__m5.1e+11.json"
+    },
+    {
+      "id": "mass_cmb__m1e+12",
+      "group": "mass_cmb",
+      "name": "m1e+12",
+      "args": [
+        "--mass",
+        "1000000000000.0"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.049,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+12.json"
+    },
+    {
+      "id": "mass_cmb__m1e+15",
+      "group": "mass_cmb",
+      "name": "m1e+15",
+      "args": [
+        "--mass",
+        "1000000000000000.0"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.253,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+15.json"
+    },
+    {
+      "id": "mass_cmb__m1e+18",
+      "group": "mass_cmb",
+      "name": "m1e+18",
+      "args": [
+        "--mass",
+        "1e+18"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.597,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+18.json"
+    },
+    {
+      "id": "mass_cmb__m1e+20",
+      "group": "mass_cmb",
+      "name": "m1e+20",
+      "args": [
+        "--mass",
+        "1e+20"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.621,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+20.json"
+    },
+    {
+      "id": "mass_cmb__m1e+22",
+      "group": "mass_cmb",
+      "name": "m1e+22",
+      "args": [
+        "--mass",
+        "1e+22"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.753,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+22.json"
+    },
+    {
+      "id": "mass_cmb__m5e+22",
+      "group": "mass_cmb",
+      "name": "m5e+22",
+      "args": [
+        "--mass",
+        "5e+22"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.837,
+      "output": "output/campaign/2026-09-28/mass_cmb__m5e+22.json"
+    },
+    {
+      "id": "mass_cmb__m7e+22",
+      "group": "mass_cmb",
+      "name": "m7e+22",
+      "args": [
+        "--mass",
+        "7e+22"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.141,
+      "output": "output/campaign/2026-09-28/mass_cmb__m7e+22.json"
+    },
+    {
+      "id": "mass_cmb__m1e+23",
+      "group": "mass_cmb",
+      "name": "m1e+23",
+      "args": [
+        "--mass",
+        "1e+23"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.164,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+23.json"
+    },
+    {
+      "id": "mass_cmb__m1e+25",
+      "group": "mass_cmb",
+      "name": "m1e+25",
+      "args": [
+        "--mass",
+        "1e+25"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.12,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1e+25.json"
+    },
+    {
+      "id": "mass_cmb__m1.99e+30",
+      "group": "mass_cmb",
+      "name": "m1.99e+30",
+      "args": [
+        "--mass",
+        "1.98847e+30"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.176,
+      "output": "output/campaign/2026-09-28/mass_cmb__m1.99e+30.json"
+    },
+    {
+      "id": "mass_vacuum__m4.35e-08",
+      "group": "mass_vacuum",
+      "name": "m4.35e-08",
+      "args": [
+        "--mass",
+        "4.352868e-08",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.18,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m4.35e-08.json"
+    },
+    {
+      "id": "mass_vacuum__m1e-06",
+      "group": "mass_vacuum",
+      "name": "m1e-06",
+      "args": [
+        "--mass",
+        "1e-06",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.252,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e-06.json"
+    },
+    {
+      "id": "mass_vacuum__m1",
+      "group": "mass_vacuum",
+      "name": "m1",
+      "args": [
+        "--mass",
+        "1.0",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.264,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1.json"
+    },
+    {
+      "id": "mass_vacuum__m1e+03",
+      "group": "mass_vacuum",
+      "name": "m1e+03",
+      "args": [
+        "--mass",
+        "1000.0",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.285,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e+03.json"
+    },
+    {
+      "id": "mass_vacuum__m1e+06",
+      "group": "mass_vacuum",
+      "name": "m1e+06",
+      "args": [
+        "--mass",
+        "1000000.0",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.246,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e+06.json"
+    },
+    {
+      "id": "mass_vacuum__m1e+09",
+      "group": "mass_vacuum",
+      "name": "m1e+09",
+      "args": [
+        "--mass",
+        "1000000000.0",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.354,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e+09.json"
+    },
+    {
+      "id": "mass_vacuum__m1e+11",
+      "group": "mass_vacuum",
+      "name": "m1e+11",
+      "args": [
+        "--mass",
+        "100000000000.0",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.258,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e+11.json"
+    },
+    {
+      "id": "mass_vacuum__m5.1e+11",
+      "group": "mass_vacuum",
+      "name": "m5.1e+11",
+      "args": [
+        "--mass",
+        "510000000000.0",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.295,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m5.1e+11.json"
+    },
+    {
+      "id": "mass_vacuum__m1e+12",
+      "group": "mass_vacuum",
+      "name": "m1e+12",
+      "args": [
+        "--mass",
+        "1000000000000.0",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.262,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e+12.json"
+    },
+    {
+      "id": "mass_vacuum__m1e+15",
+      "group": "mass_vacuum",
+      "name": "m1e+15",
+      "args": [
+        "--mass",
+        "1000000000000000.0",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.339,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e+15.json"
+    },
+    {
+      "id": "mass_vacuum__m1e+18",
+      "group": "mass_vacuum",
+      "name": "m1e+18",
+      "args": [
+        "--mass",
+        "1e+18",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.267,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e+18.json"
+    },
+    {
+      "id": "mass_vacuum__m1e+20",
+      "group": "mass_vacuum",
+      "name": "m1e+20",
+      "args": [
+        "--mass",
+        "1e+20",
+        "--cmb-temperature",
+        "0"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.288,
+      "output": "output/campaign/2026-09-28/mass_vacuum__m1e+20.json"
+    },
+    {
+      "id": "spin__MacGibbon_a0.0",
+      "group": "spin",
+      "name": "MacGibbon_a0.0",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.0",
+        "--emission-model",
+        "MacGibbon",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 4.676,
+      "output": "output/campaign/2026-09-28/spin__MacGibbon_a0.0.json"
+    },
+    {
+      "id": "spin__MacGibbon_a0.1",
+      "group": "spin",
+      "name": "MacGibbon_a0.1",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.1",
+        "--emission-model",
+        "MacGibbon",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.573,
+      "output": "output/campaign/2026-09-28/spin__MacGibbon_a0.1.json"
+    },
+    {
+      "id": "spin__MacGibbon_a0.3",
+      "group": "spin",
+      "name": "MacGibbon_a0.3",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.3",
+        "--emission-model",
+        "MacGibbon",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.415,
+      "output": "output/campaign/2026-09-28/spin__MacGibbon_a0.3.json"
+    },
+    {
+      "id": "spin__MacGibbon_a0.5",
+      "group": "spin",
+      "name": "MacGibbon_a0.5",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.5",
+        "--emission-model",
+        "MacGibbon",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.609,
+      "output": "output/campaign/2026-09-28/spin__MacGibbon_a0.5.json"
+    },
+    {
+      "id": "spin__MacGibbon_a0.7",
+      "group": "spin",
+      "name": "MacGibbon_a0.7",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.7",
+        "--emission-model",
+        "MacGibbon",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.445,
+      "output": "output/campaign/2026-09-28/spin__MacGibbon_a0.7.json"
+    },
+    {
+      "id": "spin__MacGibbon_a0.9",
+      "group": "spin",
+      "name": "MacGibbon_a0.9",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.9",
+        "--emission-model",
+        "MacGibbon",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.515,
+      "output": "output/campaign/2026-09-28/spin__MacGibbon_a0.9.json"
+    },
+    {
+      "id": "spin__MacGibbon_a0.99",
+      "group": "spin",
+      "name": "MacGibbon_a0.99",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.99",
+        "--emission-model",
+        "MacGibbon",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.73,
+      "output": "output/campaign/2026-09-28/spin__MacGibbon_a0.99.json"
+    },
+    {
+      "id": "spin__MacGibbon_a0.999",
+      "group": "spin",
+      "name": "MacGibbon_a0.999",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.999",
+        "--emission-model",
+        "MacGibbon",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.685,
+      "output": "output/campaign/2026-09-28/spin__MacGibbon_a0.999.json"
+    },
+    {
+      "id": "spin__PageGammaGraviton_a0.0",
+      "group": "spin",
+      "name": "PageGammaGraviton_a0.0",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.0",
+        "--emission-model",
+        "PageGammaGraviton",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 4.31,
+      "output": "output/campaign/2026-09-28/spin__PageGammaGraviton_a0.0.json"
+    },
+    {
+      "id": "spin__PageGammaGraviton_a0.1",
+      "group": "spin",
+      "name": "PageGammaGraviton_a0.1",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.1",
+        "--emission-model",
+        "PageGammaGraviton",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.592,
+      "output": "output/campaign/2026-09-28/spin__PageGammaGraviton_a0.1.json"
+    },
+    {
+      "id": "spin__PageGammaGraviton_a0.3",
+      "group": "spin",
+      "name": "PageGammaGraviton_a0.3",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.3",
+        "--emission-model",
+        "PageGammaGraviton",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.683,
+      "output": "output/campaign/2026-09-28/spin__PageGammaGraviton_a0.3.json"
+    },
+    {
+      "id": "spin__PageGammaGraviton_a0.5",
+      "group": "spin",
+      "name": "PageGammaGraviton_a0.5",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.5",
+        "--emission-model",
+        "PageGammaGraviton",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.652,
+      "output": "output/campaign/2026-09-28/spin__PageGammaGraviton_a0.5.json"
+    },
+    {
+      "id": "spin__PageGammaGraviton_a0.7",
+      "group": "spin",
+      "name": "PageGammaGraviton_a0.7",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.7",
+        "--emission-model",
+        "PageGammaGraviton",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.713,
+      "output": "output/campaign/2026-09-28/spin__PageGammaGraviton_a0.7.json"
+    },
+    {
+      "id": "spin__PageGammaGraviton_a0.9",
+      "group": "spin",
+      "name": "PageGammaGraviton_a0.9",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.9",
+        "--emission-model",
+        "PageGammaGraviton",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.717,
+      "output": "output/campaign/2026-09-28/spin__PageGammaGraviton_a0.9.json"
+    },
+    {
+      "id": "spin__PageGammaGraviton_a0.99",
+      "group": "spin",
+      "name": "PageGammaGraviton_a0.99",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.99",
+        "--emission-model",
+        "PageGammaGraviton",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.708,
+      "output": "output/campaign/2026-09-28/spin__PageGammaGraviton_a0.99.json"
+    },
+    {
+      "id": "spin__PageGammaGraviton_a0.999",
+      "group": "spin",
+      "name": "PageGammaGraviton_a0.999",
+      "args": [
+        "--mass",
+        "1e12",
+        "--spin",
+        "0.999",
+        "--emission-model",
+        "PageGammaGraviton",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 8.73,
+      "output": "output/campaign/2026-09-28/spin__PageGammaGraviton_a0.999.json"
+    },
+    {
+      "id": "emission__MacGibbon",
+      "group": "emission",
+      "name": "MacGibbon",
+      "args": [
+        "--mass",
+        "5.1e11",
+        "--emission-model",
+        "MacGibbon"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.104,
+      "output": "output/campaign/2026-09-28/emission__MacGibbon.json"
+    },
+    {
+      "id": "emission__PageGammaGraviton",
+      "group": "emission",
+      "name": "PageGammaGraviton",
+      "args": [
+        "--mass",
+        "5.1e11",
+        "--emission-model",
+        "PageGammaGraviton"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.983,
+      "output": "output/campaign/2026-09-28/emission__PageGammaGraviton.json"
+    },
+    {
+      "id": "emission__PhotonBlackbody",
+      "group": "emission",
+      "name": "PhotonBlackbody",
+      "args": [
+        "--mass",
+        "5.1e11",
+        "--emission-model",
+        "PhotonBlackbody"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.035,
+      "output": "output/campaign/2026-09-28/emission__PhotonBlackbody.json"
+    },
+    {
+      "id": "environment__pbh_asteroid_infall",
+      "group": "environment",
+      "name": "pbh_asteroid_infall",
+      "args": [
+        "--mass",
+        "1e12",
+        "--norbi-mode",
+        "true",
+        "--infall",
+        "1e17:1e12:aszteroida"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.685,
+      "output": "output/campaign/2026-09-28/environment__pbh_asteroid_infall.json"
+    },
+    {
+      "id": "environment__pbh_two_infalls",
+      "group": "environment",
+      "name": "pbh_two_infalls",
+      "args": [
+        "--mass",
+        "1e12",
+        "--infall",
+        "5e16:5e11:kicsi",
+        "--infall",
+        "2e18:2e12:nagy"
+      ],
+      "exit_code": 0,
+      "wall_s": 3.444,
+      "output": "output/campaign/2026-09-28/environment__pbh_two_infalls.json"
+    },
+    {
+      "id": "environment__stellar_bondi_eddington_100myr",
+      "group": "environment",
+      "name": "stellar_bondi_eddington_100myr",
+      "args": [
+        "--mass",
+        "1.98847e+31",
+        "--accretion",
+        "bondi",
+        "--gas-density",
+        "1e-10",
+        "--max-time",
+        "3.15576e15"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.605,
+      "output": "output/campaign/2026-09-28/environment__stellar_bondi_eddington_100myr.json"
+    },
+    {
+      "id": "environment__stellar_disk_spinup_from_0",
+      "group": "environment",
+      "name": "stellar_disk_spinup_from_0",
+      "args": [
+        "--mass",
+        "1.98847e+31",
+        "--accretion",
+        "constant",
+        "--accretion-rate",
+        "1e22",
+        "--disk-accretion",
+        "--cmb-temperature",
+        "0",
+        "--max-time",
+        "1.9e10",
+        "--steps",
+        "300"
+      ],
+      "exit_code": 0,
+      "wall_s": 4.119,
+      "output": "output/campaign/2026-09-28/environment__stellar_disk_spinup_from_0.json"
+    },
+    {
+      "id": "environment__sun_in_vacuum_10gyr",
+      "group": "environment",
+      "name": "sun_in_vacuum_10gyr",
+      "args": [
+        "--mass",
+        "1.98847e+30",
+        "--cmb-temperature",
+        "0",
+        "--max-time",
+        "3.15576e17"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.109,
+      "output": "output/campaign/2026-09-28/environment__sun_in_vacuum_10gyr.json"
+    },
+    {
+      "id": "convergence__steps25",
+      "group": "convergence",
+      "name": "steps25",
+      "args": [
+        "--mass",
+        "1e12",
+        "--steps",
+        "25"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.176,
+      "output": "output/campaign/2026-09-28/convergence__steps25.json"
+    },
+    {
+      "id": "convergence__steps50",
+      "group": "convergence",
+      "name": "steps50",
+      "args": [
+        "--mass",
+        "1e12",
+        "--steps",
+        "50"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.466,
+      "output": "output/campaign/2026-09-28/convergence__steps50.json"
+    },
+    {
+      "id": "convergence__steps100",
+      "group": "convergence",
+      "name": "steps100",
+      "args": [
+        "--mass",
+        "1e12",
+        "--steps",
+        "100"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.088,
+      "output": "output/campaign/2026-09-28/convergence__steps100.json"
+    },
+    {
+      "id": "convergence__steps400",
+      "group": "convergence",
+      "name": "steps400",
+      "args": [
+        "--mass",
+        "1e12",
+        "--steps",
+        "400"
+      ],
+      "exit_code": 0,
+      "wall_s": 5.449,
+      "output": "output/campaign/2026-09-28/convergence__steps400.json"
+    },
+    {
+      "id": "convergence__steps1000",
+      "group": "convergence",
+      "name": "steps1000",
+      "args": [
+        "--mass",
+        "1e12",
+        "--steps",
+        "1000"
+      ],
+      "exit_code": 0,
+      "wall_s": 12.275,
+      "output": "output/campaign/2026-09-28/convergence__steps1000.json"
+    }
+  ]
+}
