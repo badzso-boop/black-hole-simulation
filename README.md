@@ -5,12 +5,35 @@ gravitációs összeomlás kvantum-visszapattanásba fordul és egy táguló
 „bébiuniverzum" jön létre, eljuthat-e ennek a sugárzása — és vele a beeső
 anyag információja — a külső megfigyelőhöz Hawking-sugárzásként?
 
-> **Rövid válasz (v3.0):** a jelenlegi, irodalmi alapokra épülő modellben
+> **Rövid válasz (v3.2):** a jelenlegi, irodalmi alapokra épülő modellben
 > **nem**. A visszapattanás a belső horizont *alatt* történik, és onnan egyetlen
 > fénysugár sem ér ki a külső térbe. A külső spektrum ezért a közönséges
 > Hawking-spektrum, a beeső üzenet pedig nem nyerhető vissza. A v2.0 pozitív
 > eredményei (≈10 visszanyert bit, 138× nem-termalitás) numerikus műtermékek
 > voltak — részletesen lásd [summary.md](summary.md), 9. fázis.
+>
+> **A nagyobb kérdés — egy fekete lyukban élünk-e?** — nyitott: a modell ezt
+> nem zárja ki (a bébiuniverzum *kauzális leválasztása* épp ehhez kellene), de
+> nem is bizonyítja. A tesztelhető következményeket egy hat számolásból álló
+> tézis-terv rendezi — lásd [docs/are-we-in-a-black-hole.md](docs/are-we-in-a-black-hole.md)
+> és [docs/thesis-plan.md](docs/thesis-plan.md).
+
+A szimulátor mára valódi fekete lyukakat is kezel (Sgr A\*, M87\*, Cygnus X-1,
+GW-maradványok) forgással, akkrécióval és a kozmikus háttérsugárzással, és az
+EHT által mért gyűrűméreteket visszaadja.
+
+## Dokumentáció
+
+| Dokumentum | Tartalom |
+|---|---|
+| **README.md** (ez) | modell, képletek, telepítés, futtatás, kimenet |
+| [summary.md](summary.md) | fejlesztési napló fázisonként (1–12), mi volt hibás és miért |
+| [runs/2026-09-28/ANALYSIS.md](runs/2026-09-28/ANALYSIS.md) | 71 futásos kampány az i5-ön: eredmények és értelmezés ([RESULTS.md](runs/2026-09-28/RESULTS.md), naplók) |
+| [docs/are-we-in-a-black-hole.md](docs/are-we-in-a-black-hole.md) | „Egy fekete lyukban élünk?" — mit mondhat a projekt, mi adat és mi modell |
+| [docs/thesis-plan.md](docs/thesis-plan.md) | tézis-terv: 6 számolás (+ egy új), egyenletek, adatok, előre rögzített kimenetek |
+| [docs/norbi-documentation-summary.md](docs/norbi-documentation-summary.md) | az eredeti `norbi_teljes_dokumentacio.pdf` (v2.0) kivonata és pontonkénti állapota |
+| [data/observations.json](data/observations.json) | megfigyelési adatok forrással (Planck, DESI, ACT, BICEP/Keck, neutroncsillagok, …) |
+| [data/planck/](data/planck/README.md) | Planck 2018 CMB-spektrumok ellenőrzőösszeggel |
 
 ---
 
@@ -49,7 +72,7 @@ payload (JSON) ─►│    dM/dt = −α(M)·ħc⁴/(G²M²), MacGibbon/Carr f(
                  └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Eredmények (v3.1, Norbi-mód, alapbeállítások: mai CMB, nincs akkréció)
+### Eredmények (v3.2, Norbi-mód, a* = 0, alapbeállítások: mai CMB, nincs akkréció)
 
 | M (kg) | élettartam | T_H kezdetben | horizont → visszapattanás (sajátidő) | r_b | r_+ | kauzális csatorna |
 |---|---|---|---|---|---|---|
@@ -248,8 +271,16 @@ python/
   information_packet.py      payload SHA3 → determinisztikus mag
   config.py, constants.py    a Rust típusok/állandók tükre
   tests/                     22 teszt (Page-formula, HP, hypothesis, végponttól végpontig)
-scripts/                     setup_dev.sh, run_campaign.py, analyze_campaign.py, validate_results.py, …
-runs/                        szimulációs kampányok: naplók, összesítők, elemzés
+scripts/
+  setup_dev.sh               telepítés egy lépésben (venv, Rust mag, tesztek)
+  run_campaign.py            71 futásos kampány naplózva → runs/<dátum>/
+  analyze_campaign.py        összesítő, táblázatok, irodalmi ellenőrzések
+  cosmology_checks.py        „egy fekete lyukban élünk?" becslések (képletenként)
+  fetch_planck_data.sh       Planck-spektrumok letöltése ellenőrzőösszeggel
+  validate_results.py, export_csv.py, checkpoint_inspect.py, benchmark_compare.py
+runs/2026-09-28/             kampány: logs/, tests.log, system.txt, summary.csv, RESULTS.md, ANALYSIS.md
+docs/                        elemzések és a tézis-terv (lásd Dokumentáció)
+data/                        observations.json (forrásokkal), planck/ (CMB-spektrumok)
 ```
 
 ---
@@ -335,8 +366,14 @@ python scripts/analyze_campaign.py runs/<dátum>   # → RESULTS.md, summary.csv
 
 A legutóbbi kampány és értelmezése: [runs/2026-09-28/ANALYSIS.md](runs/2026-09-28/ANALYSIS.md).
 
-„Egy fekete lyukban élünk?": [docs/are-we-in-a-black-hole.md](docs/are-we-in-a-black-hole.md); a tézis
-terve (6 számolás, adatokkal): [docs/thesis-plan.md](docs/thesis-plan.md).
+Kozmológiai becslések és a tézis előkészítése:
+
+```bash
+python scripts/cosmology_checks.py        # Hubble- vs Schwarzschild-sugár, energiamérleg,
+                                          # forró visszapattanás, aszteroida a fekete lyukba
+pip install -e '.[dev,thesis]'            # a tézis-számolásokhoz: camb, getdist, matplotlib
+bash scripts/fetch_planck_data.sh         # Planck-spektrumok újraletöltése, ellenőrzéssel
+```
 
 Tesztek és benchmark:
 
@@ -426,9 +463,10 @@ cargo bench --manifest-path core/Cargo.toml
 
 ## Konklúzió
 
-A v3.0 minden ismert numerikus és fizikai hibát kijavított (lásd
-[summary.md](summary.md)), és az összes bemenet vagy egzakt állandó, vagy
-publikált irodalmi érték. Az eredmény:
+A v3.0 minden ismert numerikus és fizikai hibát kijavított, a v3.1–3.2 pedig
+hozzáadta a környezetet (CMB, akkréció, beesések), a forgást (Kerr) és a valódi
+fekete lyukakat (lásd [summary.md](summary.md)). Minden bemenet egzakt állandó,
+publikált irodalmi érték vagy objektumonként jelölt feltevés. Az eredmény:
 
 - A **visszapattanás és a bébiuniverzum** konzisztensen modellezhető: az
   LQC-por összeomlása minden tömegen ρ_c-nél megfordul, és a belső tartomány
@@ -441,10 +479,30 @@ publikált irodalmi érték. Az eredmény:
   ugyanúgy, mint Hawking eredeti, félklasszikus képében. Információ-visszanyeréshez
   unitér párolgás kell (Page-görbe, szigetek), amit a bébiuniverzum-mechanizmus nem ad.
 
-A hipotézis továbbvitele csak olyan geometriával lehetséges, ahol a
-belső tartomány kauzálisan összeköttetésben marad a külső térrel (pl. a HKSW
-2022-féle lökéshullám-modell, vagy fekete lyuk → fehér lyuk átmenet) — ezek
-viszont nem bébiuniverzumot, hanem a mi univerzumunkba visszatérő anyagot írnak le.
+- **Valódi fekete lyukak ma nem párolognak, hanem nőnek:** a mai CMB-ben
+  M_eq ≈ 5.6e22 kg (kb. Hold-tömeg) felett az elnyelés nagyobb a Hawking-
+  kibocsátásnál; minden ismert fekete lyuk 9–17 nagyságrenddel nehezebb. A
+  párolgás csak primordiális fekete lyukaknál számít, ott erősen függ a
+  részecskefizikától (17–32×) és a forgástól (a*≈1: 2.6–2.8× rövidebb élet).
+- **A modell a megfigyelésekkel konzisztens:** a tömegből és távolságból várt
+  EHT-gyűrű M87\*-ra 42.0 μas (mért 42 ± 3), Sgr A\*-ra δ = −0.082 (EHT: −0.08 ± 0.09).
+
+A „Hawking-sugárzás = a bébiuniverzum széle" állítás továbbvitele csak olyan
+geometriával lehetséges, ahol a belső tartomány kauzálisan összeköttetésben
+marad a külső térrel (pl. a HKSW 2022-féle lökéshullám-modell, vagy fekete lyuk
+→ fehér lyuk átmenet) — ezek viszont nem bébiuniverzumot, hanem a mi
+univerzumunkba visszatérő anyagot írnak le.
+
+**Egy fekete lyukban élünk?** A fordított kérdés — hogy *a mi* Ősrobbanásunk
+egy szülő-univerzumbeli fekete lyuk visszapattanása volt-e — nyitott, és a
+kauzális leválasztás éppen *szükséges* hozzá. Egy első becslés szerint a
+bébiuniverzum széle a megfigyelhető Univerzumon túl van, ha a visszapattanás óta
+N > 95–127 e-redőnyi tágulás történt (a szülő tömegétől függően); az LQC
+természetes előrejelzése 130–145 — így ez semmilyen szülőtömegre nem kizárt.
+Smolin „kozmikus természetes kiválasztódása" viszont (egy javasolt teszt) a
+2 M☉ feletti neutroncsillagok miatt ~3σ-val cáfolt. A részletes, előre rögzített
+kimenetekkel tervezett hat számolás: [docs/thesis-plan.md](docs/thesis-plan.md)
+(**még nincs megvalósítva**).
 
 ---
 

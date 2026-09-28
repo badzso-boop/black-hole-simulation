@@ -453,3 +453,43 @@ változatlanul a kauzalitáson bukik el.
 A szimuláció egyszálú és könnyű: futásonként 1–2 s, ~55 MB RAM. A fejlesztői
 gépen (Intel i5-2500S, 4 mag, 8 GB, 2011) a teljes hideg fordítás 37 s, a
 tesztcsomag ~1 perc.
+
+---
+
+## 12. fázis — Kampány, „egy fekete lyukban élünk?", tézis-terv (2026-09-28)
+
+### Mit csináltunk
+
+- **Szimulációs kampány az i5-2500S-en** (`scripts/run_campaign.py`,
+  `scripts/analyze_campaign.py`): 71 futás — katalógus × Standard/Norbi,
+  tömeg-scan (2 m_P … M_☉, CMB-ben és vákuumban), spin-scan két emissziós
+  modellel, emissziós modellek, környezet-szcenáriók, konvergencia. 71/71
+  sikeres, 239 s, 54–68 MB; 7/7 automatikus irodalmi ellenőrzés teljesül.
+  Minden napló, összesítő és az értelmezés a `runs/2026-09-28/` alatt
+  (a globális `*.log` gitignore-szabály kivételt kapott a `runs/` mappára).
+- **A PDF feldolgozása** (`docs/norbi-documentation-summary.md`): a hipotézis
+  Norbi saját szavaival, a PDF H₁/H₀-kritériumai, pontonkénti állapot a v3.x-ben.
+- **„Egy fekete lyukban élünk?"** (`docs/are-we-in-a-black-hole.md`,
+  `scripts/cosmology_checks.py`): mi adat és mi modell-következmény; a Hubble-
+  = Schwarzschild-sugár „egybeesés" a lapos Friedmann-kozmológia azonossága, nem
+  bizonyíték; energiamérleg (egy visszapattanás nem teremt anyagot — infláció
+  kell); forró visszapattanás (T ≈ 1.3e32 K, az atomok ~66 e-redő után
+  képződnének újra); mi történik egy beeső aszteroidával.
+- **Tézis-terv** (`docs/thesis-plan.md`): hat számolás munkacsomagokra bontva
+  egy második kutató-alügynök adataival (`data/observations.json`,
+  `data/planck/`), előre rögzített kimenetekkel.
+
+### Amit megtudtunk
+
+| Kérdés | Eredmény |
+|---|---|
+| Kijön-e információ a fekete lyukból? | A Norbi-úton nem (kauzális leválasztás). Általában a mai konszenzus szerint igen, a Hawking-sugárzás korrelációiban, de csak a Page-idő után (Sgr A\*: ~10⁸⁶ év). |
+| Mi lesz egy beeső aszteroidával? | Csillagtömegű fekete lyuk és Sgr A\* a horizont előtt széttépi, M87\* egészben lenyeli; a visszapattanáskor minden atom feloldódik. |
+| Keletkezhet-e „új galaxis" bent? | Csak inflációval: egy visszapattanás a szülő tömegét tartalmazza (Sgr A\*: ~1/350 000 galaxis); 10–17 e-redő infláció zárná az energiamérleget. |
+| Kizárható-e, hogy egy fekete lyukban élünk? | Nem. Első becslés: a bébiuniverzum széle a megfigyelhetőn túl van, ha N > 95–127 e-redő (szülőtömegtől függően); az LQC előrejelzése 130–145. |
+| Smolin kozmikus természetes kiválasztódása? | Cáfolt (~3σ): két neutroncsillag 2 M☉ felett (P = 0.0025). |
+
+### Következő lépés
+
+A tézis-terv megvalósítása: WP0 (Python-csomag, a Rust-mag LQC-eredményeinek
+reprodukálása), majd WP1 (infláció a visszapattanás után) — a többi erre épül.
