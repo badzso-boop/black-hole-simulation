@@ -55,9 +55,12 @@ def validate(data: dict[str, Any]) -> list[str]:
     if not data.get("evaporation_complete"):
         errors.append("HIBA: a párolgás nem futott le a végtömegig")
 
+    # A mérleg kvadratúrája másodrendű a log-tömegrácson: a tűrés (100/steps)²-tel skálázódik
     energy = data.get("energy", {})
-    if energy.get("relative_error", 1.0) > 0.02:
-        errors.append(f"HIBA: energiamérleg eltérés {energy.get('relative_error'):.3e} > 2%")
+    steps = max(int(data.get("config", {}).get("steps", 100)), 2)
+    tol = 0.01 * (100 / steps) ** 2
+    if energy.get("relative_error", 1.0) > tol:
+        errors.append(f"HIBA: energiamérleg eltérés {energy.get('relative_error'):.3e} > {tol:.1e}")
 
     interior = data.get("interior", {})
     samples = interior.get("samples", [])
