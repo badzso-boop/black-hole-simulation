@@ -45,7 +45,8 @@ impl InteriorModel for StandardInterior {
 
         // Sűrűség növekszik ahogy összehúzódik: ρ ∝ r⁻³
         if self.current_radius > 0.0 {
-            self.current_density = particle.mass / (4.0 / 3.0 * std::f64::consts::PI * self.current_radius.powi(3));
+            self.current_density =
+                particle.mass / (4.0 / 3.0 * std::f64::consts::PI * self.current_radius.powi(3));
         } else {
             self.current_density = f64::MAX;
         }

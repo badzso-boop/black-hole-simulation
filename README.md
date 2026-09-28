@@ -35,8 +35,6 @@ Fekete lyuk
 |---|---|---|
 | Fizikai mag | **Rust** (core/) | Minden számítás, OOP trait-ek |
 | Python elemzés | **Python 3.11–3.13** + numpy/scipy/sklearn | PCA, FFT, KL divergencia, Page-görbe |
-| 3D vizualizáció | **Bevy 0.15** (ECS) | Valós idejű 3D szimuláció |
-| Asztali UI | **Tauri 2** + React + TypeScript | Vezérlőpult, grafikonok |
 | Python↔Rust híd | **PyO3 0.22** + maturin | Natív Python modul |
 | CI/CD | **GitHub Actions** | Automatikus tesztelés |
 
@@ -47,7 +45,7 @@ Fekete lyuk
 ```
 black-hole-simulator/
 │
-├── Cargo.toml                      # Rust workspace (core + bevy-app + tauri)
+├── Cargo.toml                      # Rust workspace (core)
 ├── pyproject.toml                  # Python projekt (maturin build backend)
 │
 ├── core/                           # Rust fizikai mag
@@ -120,37 +118,6 @@ black-hole-simulator/
 │       ├── test_comparator.py           # 6 teszt: spektrum SNR, evolúció összehasonlítás
 │       └── test_information_tracker.py  # 10 teszt: Page-görbe, compare_models, KL divergencia
 │
-├── bevy-app/                       # Bevy 3D vizualizáció
-│   └── src/
-│       ├── main.rs
-│       ├── components.rs           # ECS komponensek
-│       ├── cameras.rs              # Osztott képernyő (külső orbit + belső fly kamera)
-│       ├── materials.rs            # PBR anyagok
-│       ├── bridge.rs               # SimulationState (Arc<Mutex<...>>)
-│       └── systems/
-│           ├── external.rs         # Gravitációs tér gizmos, pályavonalak
-│           ├── internal.rs         # N-test gravitáció, bébiuniverzum tágulás
-│           ├── hawking.rs          # Hawking emissziós pontok spawnolása
-│           ├── breakup.rs          # Szétszakadás animáció (GPU-részecske spray)
-│           └── input.rs            # Egér+billentyű: objektum lerakás, reset
-│
-├── tauri-app/                      # Tauri asztali vezérlőpult
-│   ├── src/
-│   │   ├── main.tsx
-│   │   ├── hooks/useSimulation.ts
-│   │   └── components/
-│   │       ├── Dashboard.tsx
-│   │       ├── ConfigPanel.tsx
-│   │       ├── SpectrumChart.tsx
-│   │       ├── EntropyPlot.tsx
-│   │       ├── KruskalDiagram.tsx
-│   │       ├── InteriorView.tsx
-│   │       └── ResultsPanel.tsx
-│   └── src-tauri/
-│       └── src/
-│           ├── commands.rs         # run_simulation, get_current_state, toggle_norbi_mode
-│           └── python_bridge.rs    # subprocess JSON kommunikáció
-│
 ├── scripts/
 │   ├── setup_dev.sh
 │   ├── validate_results.py         # CI validátor
@@ -163,7 +130,7 @@ black-hole-simulator/
 └── .github/workflows/
     ├── rust-tests.yml              # fmt + clippy -D warnings + cargo test + tarpaulin
     ├── python-tests.yml            # venv + pip install + ruff + mypy + pytest (3.11, 3.12, 3.13)
-    └── integration.yml             # E2E Planck-tömeg szimuláció + validáció (nightly)
+    └── integration.yml             # E2E Planck-tömeg szimuláció + validáció 
 ```
 
 ---
@@ -403,8 +370,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -e '.[dev]'   # Rust mag fordítása + Python függőségek egyszerre
 
-# Ubuntu/WSL2 rendszerfüggőségek (Bevy + Tauri)
-sudo apt install libudev-dev libasound2-dev libdbus-1-dev libgtk-3-dev libwebkit2gtk-4.1-dev
 ```
 
 Vagy egyben:
@@ -435,40 +400,19 @@ pytest python/tests/ -v
 
 ```bash
 # Standard Hawking-modell
-python -m python.main --mass 2.176e-8 --norbi-mode false --no-ui
+python -m python --mass 2.176e-8 --norbi-mode false --no-ui
 
 # Norbi-hipotézis
-python -m python.main --mass 2.176e-8 --norbi-mode true --no-ui
+python -m python --mass 2.176e-8 --norbi-mode true --no-ui
 
 # Egyedi kimeneti fájl
-python -m python.main --mass 1e15 --norbi-mode true --no-ui --output output/nagytomeg.json
+python -m python --mass 1e15 --norbi-mode true --no-ui --output output/nagytomeg.json
 
 # Eredmény validáció
 python scripts/validate_results.py output/results.json
 ```
 
 A kimenetek az `output/` mappába kerülnek (gitignore-olt).
-
-### Bevy 3D vizualizáció
-
-```bash
-cargo run --manifest-path bevy-app/Cargo.toml
-```
-
-**Vezérlők:**
-- `WASD + QE` — belső kamera (jobb panel)
-- `Shift + klikk` — bolygó lerakása a külső térben
-- `Shift + B + klikk` — nehéz objektum lerakása
-- `R` — összes külső objektum törlése
-- `H` — súgó megjelenítése
-
-### Tauri asztali UI
-
-```bash
-cd tauri-app
-npm install
-cargo tauri dev
-```
 
 ### Benchmarkok
 
@@ -502,7 +446,7 @@ Matrix: **Python 3.11 + 3.12 + 3.13**
 4. `mypy python/`
 5. `pytest python/tests/ --cov` (27 teszt)
 
-### `integration.yml` — Push main-re + nightly 02:00
+### `integration.yml` — Push main-re
 
 1. Teljes build
 2. Planck-tömeg szimuláció Standard → `output/ci_standard.json`
@@ -642,7 +586,7 @@ Ez **nem** jelenti, hogy a hipotézis igaz vagy validált:
 
 - Az összes fizikai számítás `f64` pontossággal történik
 - A `SimulationError` enum `thiserror`-al a hibakezelés biztonságos és exhaustive
-- Rust pánik-kezelés (`std::panic::catch_unwind`) védi a Python és Tauri réteget
+- Rust pánik-kezelés (`std::panic::catch_unwind`) védi a Python réteget
 - Az adaptív `dt = t_evap / steps` biztosítja, hogy a szimuláció ne lépi túl az elpárlási időt
 - A `compute_spectrum_norbi()` metódus a `RadiationEngine` traitre épül, de nem tagja — a Norbi-specifikus logika el van különítve
 - Szimuláció kimenetek az `output/` mappába kerülnek (gitignore-olt, automatikusan létrejön)

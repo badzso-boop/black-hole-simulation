@@ -16,7 +16,11 @@ impl SchwarzschildBlackHole {
                 reason: format!("Érvénytelen tömeg: {mass}"),
             });
         }
-        Ok(Self { mass, initial_mass: mass, age: 0.0 })
+        Ok(Self {
+            mass,
+            initial_mass: mass,
+            age: 0.0,
+        })
     }
 }
 

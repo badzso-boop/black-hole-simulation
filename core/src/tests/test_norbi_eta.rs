@@ -2,10 +2,10 @@
 /// P_Norbi = η · P_standard → milyen η mellett egyezik a két teljesítmény?
 #[cfg(test)]
 mod tests {
-    use crate::black_hole::{BlackHoleTrait, RadiationEngine};
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
-    use crate::interior::baby_universe::BabyUniverse;
+    use crate::black_hole::{BlackHoleTrait, RadiationEngine};
     use crate::constants::RHO_PLANCK;
+    use crate::interior::baby_universe::BabyUniverse;
     use crate::radiation::hawking_engine::HawkingEngine;
 
     /// A Norbi teljesítmény: P_Norbi = η · ρ_szél · v_szak · A_horizont
@@ -43,7 +43,10 @@ mod tests {
         let bh = SchwarzschildBlackHole::new(1e15).unwrap();
         let engine = HawkingEngine::new();
         let p = engine.energy_loss_rate(&bh).unwrap();
-        assert!(p > 0.0, "A standard Hawking-teljesítménynek pozitívnak kell lennie");
+        assert!(
+            p > 0.0,
+            "A standard Hawking-teljesítménynek pozitívnak kell lennie"
+        );
     }
 
     #[test]

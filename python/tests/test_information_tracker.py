@@ -1,8 +1,6 @@
 """Tesztek az InformationTracker osztályhoz és a Comparator új metódusaihoz."""
 from __future__ import annotations
 import math
-import numpy as np
-import pytest
 from python.information_tracker import InformationTracker
 from python.comparator import Comparator
 

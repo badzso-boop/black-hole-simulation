@@ -44,7 +44,11 @@ fn run_simulation_py(mass: f64, norbi_mode: bool, _payload_json: &str) -> PyResu
 }
 
 /// Publikus API Tauri és más Rust crate-ek számára
-pub fn run_simulation(mass: f64, config: SimulationConfig, _payload_json: &str) -> Result<SimulationResults, SimulationError> {
+pub fn run_simulation(
+    mass: f64,
+    config: SimulationConfig,
+    _payload_json: &str,
+) -> Result<SimulationResults, SimulationError> {
     use radiation::hawking_engine::HawkingEngine;
 
     let mut bh = SchwarzschildBlackHole::new(mass)?;
@@ -89,11 +93,15 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
 
     const BOUNCE_TRANSIENT_STEPS: usize = 80;
     const BOUNCE_TRANSIENT_DT: f64 = T_PLANCK; // a bébiuniverzum saját, Planck-idő
-                                                // nagyságrendű órája — lásd
-                                                // BabyUniverse::post_bounce_transient
+                                               // nagyságrendű órája — lásd
+                                               // BabyUniverse::post_bounce_transient
 
     let mut bh = SchwarzschildBlackHole::new(mass)?;
-    let engine = if norbi_mode { HawkingEngine::norbi() } else { HawkingEngine::standard() };
+    let engine = if norbi_mode {
+        HawkingEngine::norbi()
+    } else {
+        HawkingEngine::standard()
+    };
     let config = {
         let mut c = SimulationConfig::standard();
         c.norbi_mode = norbi_mode;
@@ -106,7 +114,7 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
 
     // Belső modell: Norbi vagy Standard
     let mut norbi_interior = NorbiInterior::new();
-    let mut std_interior   = StandardInterior::new();
+    let mut std_interior = StandardInterior::new();
 
     // Reprezentatív részecske a belső szimulációhoz
     let particle = types::Particle {
@@ -120,13 +128,15 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
     let mut bounce_transient_recorded = false;
 
     for _ in 0..steps {
-        let temp    = bh.hawking_temperature()?;
+        let temp = bh.hawking_temperature()?;
         let entropy = bh.bekenstein_entropy();
         let spectrum = engine.compute_spectrum(&bh)?;
 
         // Belső fizika lépés + Norbi spektrum bekötése
         let (spectrum, interior) = if norbi_mode {
-            let interior = norbi_interior.simulate_step(&particle, &bh, dt).unwrap_or_default();
+            let interior = norbi_interior
+                .simulate_step(&particle, &bh, dt)
+                .unwrap_or_default();
 
             // A visszapattanás pillanatában rögzítjük a bébiuniverzum saját,
             // Planck-idő nagyságrendű órája szerinti finom tranzienst —
@@ -142,13 +152,16 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
             }
 
             let spectrum = match &interior.baby_universe {
-                Some(bu_state) => engine.compute_spectrum_norbi(&bh, bu_state)
+                Some(bu_state) => engine
+                    .compute_spectrum_norbi(&bh, bu_state)
                     .unwrap_or(spectrum),
                 None => spectrum,
             };
             (spectrum, interior)
         } else {
-            let interior = std_interior.simulate_step(&particle, &bh, dt).unwrap_or_default();
+            let interior = std_interior
+                .simulate_step(&particle, &bh, dt)
+                .unwrap_or_default();
             (spectrum, interior)
         };
 

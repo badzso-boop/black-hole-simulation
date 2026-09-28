@@ -8,7 +8,6 @@ Feldolgozza a Rust szimulációból kapott teljes timeline-t és kiszámítja:
 """
 from __future__ import annotations
 import numpy as np
-from numpy.typing import NDArray
 
 
 class InformationTracker:

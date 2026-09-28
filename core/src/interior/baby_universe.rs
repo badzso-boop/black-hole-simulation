@@ -5,13 +5,13 @@ use crate::types::{BabyUniverseState, BreakupEvent, InternalObjectData};
 
 #[derive(Debug, Clone)]
 pub struct BabyUniverse {
-    pub scale_factor: f64,    // dimenzió nélküli tágulási faktor
-    pub expansion_rate: f64,  // H_belső (1/s)
+    pub scale_factor: f64,     // dimenzió nélküli tágulási faktor
+    pub expansion_rate: f64,   // H_belső (1/s)
     pub internal_density: f64, // kg/m³
-    pub total_energy: f64,    // J
-    pub age: f64,             // s
-    pub absorbed_energy: f64, // beeső anyagból
-    h_inf: f64,               // a visszapattanáskori csúcs-Hubble-ráta (1/s), rögzítve
+    pub total_energy: f64,     // J
+    pub age: f64,              // s
+    pub absorbed_energy: f64,  // beeső anyagból
+    h_inf: f64,                // a visszapattanáskori csúcs-Hubble-ráta (1/s), rögzítve
 }
 
 impl BabyUniverse {
@@ -85,8 +85,8 @@ impl BabyUniverse {
         obj: &InternalObjectData,
         current_time: f64,
     ) -> Option<BreakupEvent> {
-        let r = (obj.position[0].powi(2) + obj.position[1].powi(2) + obj.position[2].powi(2))
-            .sqrt();
+        let r =
+            (obj.position[0].powi(2) + obj.position[1].powi(2) + obj.position[2].powi(2)).sqrt();
 
         let (e_tidal, e_bind) = self.tidal_and_binding(obj.mass, obj.radius, r);
 

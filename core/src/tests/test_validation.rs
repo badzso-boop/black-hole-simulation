@@ -2,14 +2,14 @@
 /// Ha bármelyik megbukik, a fizikai implementációban hiba van.
 #[cfg(test)]
 mod validation {
-    use approx::assert_relative_eq;
+    use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::black_hole::BlackHoleTrait;
     use crate::black_hole::RadiationEngine;
-    use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::constants::{M_SUN, RHO_PLANCK, WIEN_FREQ};
     use crate::quantum::island::{IslandFormula, RadiationState};
     use crate::quantum::lqc::LQCEquation;
     use crate::radiation::hawking_engine::HawkingEngine;
+    use approx::assert_relative_eq;
 
     // VALIDÁCIÓ 1: Schwarzschild-sugár [SCH16]
     #[test]

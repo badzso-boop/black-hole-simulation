@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use approx::assert_relative_eq;
-    use crate::black_hole::BlackHoleTrait;
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
+    use crate::black_hole::BlackHoleTrait;
     use crate::constants::M_SUN;
+    use approx::assert_relative_eq;
 
     #[test]
     fn test_schwarzschild_radius_sun() {
@@ -43,8 +43,6 @@ mod tests {
     fn test_larger_mass_colder() {
         let bh_small = SchwarzschildBlackHole::new(1e10).unwrap();
         let bh_large = SchwarzschildBlackHole::new(1e20).unwrap();
-        assert!(
-            bh_large.hawking_temperature().unwrap() < bh_small.hawking_temperature().unwrap()
-        );
+        assert!(bh_large.hawking_temperature().unwrap() < bh_small.hawking_temperature().unwrap());
     }
 }

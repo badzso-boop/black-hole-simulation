@@ -26,7 +26,10 @@ mod tests {
         let mut bu = BabyUniverse::new(RHO_PLANCK);
         let e0 = bu.total_energy;
         bu.absorb_energy(1e20);
-        assert!(bu.total_energy > e0, "Energiaabszorpció után a teljes energia nő");
+        assert!(
+            bu.total_energy > e0,
+            "Energiaabszorpció után a teljes energia nő"
+        );
     }
 
     #[test]

@@ -1,4 +1,4 @@
-"""CLI belépési pont: python -m python.main --mass ... --norbi-mode ... --no-ui --output ..."""
+"""CLI belépési pont: python -m python --mass ... --norbi-mode ... --no-ui --output ..."""
 from __future__ import annotations
 import argparse
 import json

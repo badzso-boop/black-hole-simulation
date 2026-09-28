@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::black_hole::RadiationEngine;
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
+    use crate::black_hole::RadiationEngine;
     use crate::constants::RHO_PLANCK;
     use crate::interior::baby_universe::BabyUniverse;
     use crate::radiation::hawking_engine::HawkingEngine;
@@ -24,10 +24,12 @@ mod tests {
         let bh = SchwarzschildBlackHole::new(1e15).unwrap();
         let engine = HawkingEngine::standard();
         let s = engine.compute_spectrum(&bh).unwrap();
-        assert!((s.hawking_fraction - 1.0).abs() < 1e-10,
-            "hawking_fraction={}", s.hawking_fraction);
-        assert!(s.edge_fraction < 1e-10,
-            "edge_fraction={}", s.edge_fraction);
+        assert!(
+            (s.hawking_fraction - 1.0).abs() < 1e-10,
+            "hawking_fraction={}",
+            s.hawking_fraction
+        );
+        assert!(s.edge_fraction < 1e-10, "edge_fraction={}", s.edge_fraction);
     }
 
     // INFO-02: Standard thermality_score kis pozitív (csak greybody-eltérés)
@@ -36,10 +38,16 @@ mod tests {
         let bh = SchwarzschildBlackHole::new(1e15).unwrap();
         let engine = HawkingEngine::standard();
         let s = engine.compute_spectrum(&bh).unwrap();
-        assert!(s.thermality_score >= 0.0,
-            "thermality_score negatív: {}", s.thermality_score);
-        assert!(s.thermality_score < 0.5,
-            "Standard thermality_score túl nagy: {}", s.thermality_score);
+        assert!(
+            s.thermality_score >= 0.0,
+            "thermality_score negatív: {}",
+            s.thermality_score
+        );
+        assert!(
+            s.thermality_score < 0.5,
+            "Standard thermality_score túl nagy: {}",
+            s.thermality_score
+        );
     }
 
     // INFO-03: Norbi aktív bébiuniverzummal: edge_fraction > 0.0
@@ -49,8 +57,10 @@ mod tests {
         let engine = HawkingEngine::norbi();
         let baby = active_baby_state();
         let s = engine.compute_spectrum_norbi(&bh, &baby).unwrap();
-        assert!(s.edge_fraction > 0.0,
-            "Norbi edge_fraction nulla, holott bébiuniverzum aktív");
+        assert!(
+            s.edge_fraction > 0.0,
+            "Norbi edge_fraction nulla, holott bébiuniverzum aktív"
+        );
     }
 
     // INFO-04: Norbi thermality_score > Standard thermality_score
@@ -61,9 +71,12 @@ mod tests {
         let std_s = engine.compute_spectrum(&bh).unwrap();
         let baby = active_baby_state();
         let norbi_s = engine.compute_spectrum_norbi(&bh, &baby).unwrap();
-        assert!(norbi_s.thermality_score > std_s.thermality_score,
+        assert!(
+            norbi_s.thermality_score > std_s.thermality_score,
             "Norbi thermality={} nem nagyobb Standard thermality={}",
-            norbi_s.thermality_score, std_s.thermality_score);
+            norbi_s.thermality_score,
+            std_s.thermality_score
+        );
     }
 
     // INFO-05: KL divergencia nemnegatív mindkét módban

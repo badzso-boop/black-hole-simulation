@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use std::fs;
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::black_hole::BlackHoleTrait;
     use crate::time_evolution::checkpoint::Checkpoint;
     use crate::types::{InteriorState, SimulationConfig};
+    use std::fs;
 
     #[test]
     fn test_checkpoint_save_and_load() {

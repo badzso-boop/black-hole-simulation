@@ -22,7 +22,10 @@ pub fn planck_spectrum(freq: f64, temp: f64) -> Result<f64, SimulationError> {
     }
     let prefactor = 2.0 * HBAR * (2.0 * std::f64::consts::PI * freq).powi(3) / (C * C);
     let val = prefactor / denominator;
-    check_finite(val, &format!("planck_spectrum(freq={freq:.3e}, temp={temp:.3e})"))
+    check_finite(
+        val,
+        &format!("planck_spectrum(freq={freq:.3e}, temp={temp:.3e})"),
+    )
 }
 
 /// Wien-törvény szerinti csúcsfrekvencia: ν_max = WIEN_FREQ · T
@@ -46,7 +49,13 @@ pub fn build_spectrum(temp: f64, total_power: f64, greybody_fn: impl Fn(f64) -> 
         intensities.push(planck * gamma);
     }
 
-    Spectrum { frequencies, intensities, temperature: temp, total_power, ..Default::default() }
+    Spectrum {
+        frequencies,
+        intensities,
+        temperature: temp,
+        total_power,
+        ..Default::default()
+    }
 }
 
 impl Spectrum {

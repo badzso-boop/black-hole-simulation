@@ -1,7 +1,5 @@
-use black_hole_core::{
-    HawkingEngine, RadiationEngine, SchwarzschildBlackHole, BlackHoleTrait,
-};
 use black_hole_core::constants::{M_PLANCK, M_SUN, T_PLANCK};
+use black_hole_core::{BlackHoleTrait, HawkingEngine, RadiationEngine, SchwarzschildBlackHole};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 fn bench_hawking_temperature(c: &mut Criterion) {

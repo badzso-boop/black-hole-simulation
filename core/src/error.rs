@@ -6,7 +6,11 @@ pub enum SimulationError {
     MassExhausted { time: f64 },
 
     #[error("Numerikus divergencia: {field} = {value:.3e} t={time:.3e}s-nél")]
-    NumericalDivergence { field: String, value: f64, time: f64 },
+    NumericalDivergence {
+        field: String,
+        value: f64,
+        time: f64,
+    },
 
     #[error("NaN érték keletkezett: {context}")]
     NaNDetected { context: String },

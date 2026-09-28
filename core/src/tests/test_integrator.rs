@@ -9,7 +9,9 @@ mod tests {
         let integrator = RK45Integrator::new();
         let bh = SchwarzschildBlackHole::new(1e15).unwrap();
         let particle = Particle::test_particle();
-        let state = integrator.integrate_geodesic(&particle, &bh, 1e-30).unwrap();
+        let state = integrator
+            .integrate_geodesic(&particle, &bh, 1e-30)
+            .unwrap();
         assert!(state.radius >= 0.0);
         assert!(!state.radius.is_nan());
         assert!(!state.density.is_nan());
@@ -29,7 +31,11 @@ mod tests {
         };
         // Nagy dt → érzékelhető elmozdulás
         let state = integrator.integrate_geodesic(&particle, &bh, 1e3).unwrap();
-        assert!(state.radius < particle.initial_radius || state.radius == 0.0,
-            "Radiális esés: r = {:.3e} >= r0 = {:.3e}", state.radius, particle.initial_radius);
+        assert!(
+            state.radius < particle.initial_radius || state.radius == 0.0,
+            "Radiális esés: r = {:.3e} >= r0 = {:.3e}",
+            state.radius,
+            particle.initial_radius
+        );
     }
 }

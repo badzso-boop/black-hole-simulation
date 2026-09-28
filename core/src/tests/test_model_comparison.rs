@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod model_comparison {
-    use crate::black_hole::{InteriorModel, RadiationEngine};
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
+    use crate::black_hole::{InteriorModel, RadiationEngine};
     use crate::interior::norbi::NorbiInterior;
     use crate::interior::standard::StandardInterior;
     use crate::radiation::hawking_engine::HawkingEngine;
@@ -16,7 +16,11 @@ mod model_comparison {
     fn cmp_01_standard_model_stops_at_planck_scale() {
         let mut interior = StandardInterior::new();
         // Kis tömegű részecske: gyorsan eléri a Planck-sűrűséget
-        let particle = Particle { mass: 1e-10, initial_radius: 1e-34, ..Particle::test_particle() };
+        let particle = Particle {
+            mass: 1e-10,
+            initial_radius: 1e-34,
+            ..Particle::test_particle()
+        };
         let bh = make_bh();
         let mut reached = false;
         for _ in 0..100_000 {
@@ -35,7 +39,11 @@ mod model_comparison {
     #[test]
     fn cmp_02_norbi_model_continues_after_planck_scale() {
         let mut interior = NorbiInterior::new();
-        let particle = Particle { mass: 1e-10, initial_radius: 1e-34, ..Particle::test_particle() };
+        let particle = Particle {
+            mass: 1e-10,
+            initial_radius: 1e-34,
+            ..Particle::test_particle()
+        };
         let bh = make_bh();
         let mut bounced = false;
         for _ in 0..100_000 {
@@ -54,7 +62,11 @@ mod model_comparison {
     #[test]
     fn cmp_03_norbi_radiation_has_edge_component() {
         let mut norbi = NorbiInterior::new();
-        let particle = Particle { mass: 1e-10, initial_radius: 1e-34, ..Particle::test_particle() };
+        let particle = Particle {
+            mass: 1e-10,
+            initial_radius: 1e-34,
+            ..Particle::test_particle()
+        };
         let bh = make_bh();
         for _ in 0..100_000 {
             let state = norbi.simulate_step(&particle, &bh, 1e-44).unwrap();
@@ -81,9 +93,18 @@ mod model_comparison {
         for _ in 0..100_000 {
             let state = interior.simulate_step(&particle, &bh, 1e-44).unwrap();
             if let Some(ref bu) = state.baby_universe {
-                assert!(bu.total_energy > 0.0, "Bébiuniverzum energiájának pozitívnak kell lennie");
-                assert!(bu.scale_factor > 0.0, "Skálafaktornak pozitívnak kell lennie");
-                assert!(bu.expansion_rate > 0.0, "Tágulási rátának pozitívnak kell lennie");
+                assert!(
+                    bu.total_energy > 0.0,
+                    "Bébiuniverzum energiájának pozitívnak kell lennie"
+                );
+                assert!(
+                    bu.scale_factor > 0.0,
+                    "Skálafaktornak pozitívnak kell lennie"
+                );
+                assert!(
+                    bu.expansion_rate > 0.0,
+                    "Tágulási rátának pozitívnak kell lennie"
+                );
                 return;
             }
         }

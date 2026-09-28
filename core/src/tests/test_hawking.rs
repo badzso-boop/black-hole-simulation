@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use approx::assert_relative_eq;
-    use crate::black_hole::BlackHoleTrait;
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
-    use crate::radiation::hawking_engine::HawkingEngine;
+    use crate::black_hole::BlackHoleTrait;
     use crate::black_hole::RadiationEngine;
+    use crate::radiation::hawking_engine::HawkingEngine;
+    use approx::assert_relative_eq;
 
     #[test]
     fn test_mass_decreases_over_time() {

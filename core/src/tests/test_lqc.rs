@@ -31,7 +31,10 @@ mod tests {
     fn test_bounce_triggers_above_planck() {
         let mut interior = NorbiInterior::new();
         let triggered = interior.quantum_bounce(RHO_PLANCK * 1.01);
-        assert!(triggered, "Planck-sűrűség felett a visszapattanásnak be kell következni");
+        assert!(
+            triggered,
+            "Planck-sűrűség felett a visszapattanásnak be kell következni"
+        );
     }
 
     #[test]

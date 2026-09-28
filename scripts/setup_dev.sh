@@ -18,8 +18,7 @@ fi
 
 # Maturin és Python függőségek
 echo "Python függőségek telepítése..."
-pip install maturin
-maturin develop --manifest-path core/Cargo.toml --features python-ext
+unset CONDA_PREFIX
 pip install -e '.[dev]'
 
 # Ellenőrzés
@@ -33,4 +32,3 @@ echo ""
 echo "Kész! A fejlesztői környezet beállítva."
 echo "  cargo test --manifest-path core/Cargo.toml   — Rust tesztek"
 echo "  pytest python/tests/                          — Python tesztek"
-echo "  cargo run --manifest-path bevy-app/Cargo.toml — 3D vizualizáció"

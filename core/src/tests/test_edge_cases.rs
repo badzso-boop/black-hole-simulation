@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::black_hole::BlackHoleTrait;
     use crate::black_hole::RadiationEngine;
-    use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::radiation::hawking_engine::HawkingEngine;
     use crate::radiation::spectrum::planck_spectrum;
 
@@ -39,6 +39,9 @@ mod tests {
     #[test]
     fn test_zero_frequency_planck_spectrum_is_zero() {
         let val = planck_spectrum(0.0, 1e-8).unwrap();
-        assert_eq!(val, 0.0, "Nulla frekvencián a Planck-spektrum nulla kell legyen");
+        assert_eq!(
+            val, 0.0,
+            "Nulla frekvencián a Planck-spektrum nulla kell legyen"
+        );
     }
 }

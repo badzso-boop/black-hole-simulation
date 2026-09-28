@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
+    use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::black_hole::BlackHoleTrait;
     use crate::black_hole::RadiationEngine;
-    use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::radiation::hawking_engine::HawkingEngine;
     use crate::radiation::spectrum::planck_spectrum;
 

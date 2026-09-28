@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use crate::black_hole::InteriorModel;
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
+    use crate::black_hole::InteriorModel;
     use crate::interior::norbi::NorbiInterior;
     use crate::interior::standard::StandardInterior;
     use crate::types::Particle;

@@ -1,8 +1,6 @@
 [workspace]
 members = [
     "core",
-    "bevy-app",
-    "tauri-app/src-tauri",
 ]
 resolver = "2"
 

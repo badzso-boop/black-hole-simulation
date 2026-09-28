@@ -1,4 +1,3 @@
-import pytest
 from python.information_packet import InformationPacket
 
 

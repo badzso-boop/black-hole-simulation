@@ -3,7 +3,6 @@ use crate::types::{InteriorState, Particle, Spectrum};
 
 pub mod schwarzschild;
 pub mod thermodynamics;
-pub mod kerr;
 
 // ---------------------------------------------------------------------------
 // Trait-ek — OOP interfészek Rust módra
@@ -39,10 +38,6 @@ pub trait InteriorModel: Send + Sync {
 pub trait RadiationEngine: Send + Sync {
     fn compute_spectrum(&self, bh: &dyn BlackHoleTrait) -> Result<Spectrum, SimulationError>;
     fn energy_loss_rate(&self, bh: &dyn BlackHoleTrait) -> Result<f64, SimulationError>;
-    fn evolve_step(
-        &self,
-        bh: &mut dyn BlackHoleTrait,
-        dt: f64,
-    ) -> Result<f64, SimulationError>;
+    fn evolve_step(&self, bh: &mut dyn BlackHoleTrait, dt: f64) -> Result<f64, SimulationError>;
     fn greybody_factor(&self, freq: f64, bh: &dyn BlackHoleTrait) -> f64;
 }

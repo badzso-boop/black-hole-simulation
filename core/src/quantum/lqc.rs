@@ -1,4 +1,4 @@
-use crate::constants::{G, RHO_PLANCK, PI};
+use crate::constants::{G, PI, RHO_PLANCK};
 use crate::error::{check_finite, SimulationError};
 
 /// LQCEquation — Loop Quantum Cosmology módosított Friedmann-egyenlet.
@@ -32,11 +32,17 @@ impl LQCEquation {
 
     /// Igaz ha a visszapattanás feltétele teljesül (H² ≤ 0)
     pub fn bounce_condition_met(&self, density: f64) -> bool {
-        self.hubble_squared(density).map(|h| h <= 0.0).unwrap_or(false)
+        self.hubble_squared(density)
+            .map(|h| h <= 0.0)
+            .unwrap_or(false)
     }
 
     /// A tágulási sebesség (ȧ = H · a)
-    pub fn expansion_velocity(&self, density: f64, scale_factor: f64) -> Result<f64, SimulationError> {
+    pub fn expansion_velocity(
+        &self,
+        density: f64,
+        scale_factor: f64,
+    ) -> Result<f64, SimulationError> {
         let h_sq = self.hubble_squared(density)?;
         let h = if h_sq >= 0.0 { h_sq.sqrt() } else { 0.0 };
         Ok(h * scale_factor)

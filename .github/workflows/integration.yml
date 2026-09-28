@@ -33,10 +33,10 @@ jobs:
         run: pip install -e '.[dev]'
 
       - name: Standard szimulacio (Planck-tomeg)
-        run: python -m python.main --mass 2.176e-8 --norbi-mode false --no-ui --output output/ci_standard.json
+        run: python -m python --mass 2.176e-8 --norbi-mode false --no-ui --output output/ci_standard.json
 
       - name: Norbi szimulacio
-        run: python -m python.main --mass 2.176e-8 --norbi-mode true --no-ui --output output/ci_norbi.json
+        run: python -m python --mass 2.176e-8 --norbi-mode true --no-ui --output output/ci_norbi.json
 
       - name: Eredmeny validacio
         run: python scripts/validate_results.py output/ci_standard.json output/ci_norbi.json

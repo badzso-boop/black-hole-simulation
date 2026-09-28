@@ -12,7 +12,11 @@ pub struct RK45Integrator {
 
 impl RK45Integrator {
     pub fn new() -> Self {
-        Self { tolerance: 1e-8, min_dt: 1e-50, max_dt: 1e-10 }
+        Self {
+            tolerance: 1e-8,
+            min_dt: 1e-50,
+            max_dt: 1e-10,
+        }
     }
 
     /// Schwarzschild-geodézia integrálása egy lépésen át.
@@ -31,8 +35,7 @@ impl RK45Integrator {
         // d²r/dτ² = -GM/r² · (1 - r_s/r) + L²/r³ · (1 - r_s/r)
         let f = |r: f64, v: f64| -> (f64, f64) {
             let factor = if r > r_s * 1.01 { 1.0 - r_s / r } else { 0.01 };
-            let accel = -G * bh.mass() / r.powi(2) * factor
-                + l.powi(2) / r.powi(3) * factor;
+            let accel = -G * bh.mass() / r.powi(2) * factor + l.powi(2) / r.powi(3) * factor;
             (v, accel)
         };
 
