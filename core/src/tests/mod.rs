@@ -2,6 +2,8 @@ mod test_baby_universe;
 mod test_checkpoint;
 mod test_constants;
 mod test_edge_cases;
+mod test_environment;
+mod test_evolution;
 mod test_geometry;
 mod test_hawking;
 mod test_interior;

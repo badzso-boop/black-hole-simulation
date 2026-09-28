@@ -49,24 +49,43 @@ mod tests {
     }
 
     #[test]
-    fn dopri_history_matches_analytic_where_alpha_is_constant() {
-        // 1e20 → 1e17 kg: T_H < 1e-4 MeV, minden tömeges fajta lekapcsolva,
-        // tehát a MacGibbon α itt állandó — a numerikus (Dopri5) ágnak ekkor
-        // az analitikus t(M) = (M0³ − M³)/(3Kα) megoldást kell adnia.
+    fn dopri_history_matches_direct_quadrature() {
+        // t(M) = ∫_M^{M0} M'² dM' / (K·α(M')) — független, sűrű Simpson-kvadratúra
+        // ln M-ben (1e20 → 1e17 kg: itt a neutrínó-küszöbök miatt α nem állandó)
         let model = EmissionModel::MacGibbon;
-        let m0 = 1e20;
-        let alpha = model.alpha(m0);
-        let hist = evaporation_history(model, m0, 1e17, 200).unwrap();
-        for s in &hist.samples {
-            let t = lifetime_constant_alpha(alpha, m0) - lifetime_constant_alpha(alpha, s.mass);
-            assert_relative_eq!(s.time, t, max_relative = 1e-8, epsilon = 1e-30);
+        let (m0, m_end) = (1e20, 1e17);
+        let hist = evaporation_history(model, m0, m_end, 40).unwrap();
+        let k = crate::radiation::emission::mass_loss_scale();
+        let t_of = |m: f64| {
+            let n = 20_000;
+            let (a, b) = (m.ln(), m0.ln());
+            let h = (b - a) / n as f64;
+            let g = |u: f64| {
+                let mm = u.exp();
+                mm.powi(3) / (k * model.alpha(mm))
+            };
+            let mut s = g(a) + g(b);
+            for i in 1..n {
+                s += if i % 2 == 1 { 4.0 } else { 2.0 } * g(a + i as f64 * h);
+            }
+            s * h / 3.0
+        };
+        for smp in hist.samples.iter().step_by(7) {
+            assert_relative_eq!(
+                smp.time,
+                t_of(smp.mass),
+                max_relative = 1e-8,
+                epsilon = 1e-30
+            );
         }
-        // és az analitikus M(t) inverz is konzisztens
-        let mid = &hist.samples[10];
+        // az állandó-α analitikus inverz a PageGammaGraviton modellre
+        let pg = EmissionModel::PageGammaGraviton;
+        let a = pg.alpha(1.0);
+        let t = lifetime_constant_alpha(a, 1e12) - lifetime_constant_alpha(a, 5e11);
         assert_relative_eq!(
-            mass_at_time_constant_alpha(alpha, m0, mid.time),
-            mid.mass,
-            max_relative = 1e-6
+            mass_at_time_constant_alpha(a, 1e12, t),
+            5e11,
+            max_relative = 1e-9
         );
     }
 

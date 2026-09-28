@@ -181,7 +181,8 @@ def emission_times(timeline: list[dict[str, Any]], n_total: int) -> list[dict[st
     tömegben log-log interpoláljuk (állandó α-ra t_h ∝ M³ hatványfüggvény),
     mert a végfázisban ez a pontos mennyiség (a kezdettől mért idő ott már
     f64-felbontás alatt változik)."""
-    if not timeline:
+    if not timeline or any(s.get("time_to_evaporation") is None for s in timeline):
+        # nem (vagy nem végig) párolgó fekete lyuk — nincs értelmezett kisugárzási idő
         return []
     masses = np.array([float(s["mass"]) for s in timeline])
     rem = np.array([float(s["time_to_evaporation"]) for s in timeline])
@@ -213,6 +214,10 @@ def analyze(
 ) -> dict[str, Any]:
     """A Rust szimuláció eredményéhez tartozó információs görbék (bitben).
 
+    Ha a fekete lyuk a szimulációs horizontig nem párolog el (pl. a CMB-ből vagy
+    akkrécióból nő), a görbék azt mutatják, *mi történne* a párolgás során;
+    az ``emission_times`` ilyenkor üres.
+
     Mindhárom modellt kiszámolja; a ``norbi`` a ``causal_channel.exists``-ből jön.
     A toy modell qubitszáma (n) nem a valódi S_BH (az ~10⁴⁰ bit lenne), hanem
     egy leskálázott érték; az időtengely a valódi párolgásból származik.
@@ -220,7 +225,11 @@ def analyze(
     rng = np.random.default_rng(seed)
     causal = bool(results.get("causal_channel", {}).get("exists", False))
     n_total = n_bh + k_msg
-    times = emission_times(results.get("timeline", []), n_total)
+    evaporates = bool(results.get("evaporation_complete", False))
+    # beesések vagy növekedés esetén a tömeg nem monoton: az időtengelyt csak a
+    # tisztán párolgó futásokra rendeljük hozzá
+    has_jumps = any(s.get("after_infall") for s in results.get("timeline", []))
+    times = emission_times(results.get("timeline", []), n_total) if evaporates and not has_jumps else []
 
     curves = {
         "unitary": unitary_curve(n_bh, k_msg, rng),
@@ -233,6 +242,7 @@ def analyze(
         "n_message_qubits": k_msg,
         "seed": seed,
         "causal_channel_exists": causal,
+        "evaporates": evaporates,
         "emission_times": times,
         "page_average_entropy_half": page_average_entropy_bits(2 ** (n_total // 2), 2 ** (n_total - n_total // 2)),
         "curves": {name: c.to_dict() for name, c in curves.items()},

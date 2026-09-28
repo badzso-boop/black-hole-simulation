@@ -21,8 +21,16 @@ mod model_comparison {
                 let r = run_simulation(&cfg(mass, norbi), serde_json::json!({})).unwrap();
                 let txt = serde_json::to_string(&r).unwrap();
                 assert!(!txt.contains("null"), "M={mass:e} norbi={norbi}");
-                assert!(r.evaporation_complete);
-                assert_relative_eq!(r.end_mass, M_MIN_LMY);
+                if mass < 1e20 {
+                    // kicsi fekete lyuk: a CMB elhanyagolható, elpárolog
+                    assert!(r.evaporation_complete, "M={mass:e}");
+                    assert_relative_eq!(r.end_mass, M_MIN_LMY);
+                } else {
+                    // Nap-tömeg: T_H ≪ T_CMB → több CMB-t nyel el, mint amennyit kisugároz
+                    assert!(!r.evaporation_complete);
+                    assert!(r.timeline.iter().all(|t| t.net_mass_rate > 0.0));
+                    assert!(r.warnings.iter().any(|w| w.contains("nő")));
+                }
             }
         }
     }
@@ -65,8 +73,8 @@ mod model_comparison {
             max_relative = 1e-8
         );
         assert_relative_eq!(
-            a.timeline[0].time_to_evaporation,
-            b.timeline[0].time_to_evaporation,
+            a.timeline[0].time_to_evaporation.unwrap(),
+            b.timeline[0].time_to_evaporation.unwrap(),
             max_relative = 1e-8
         );
     }
@@ -82,13 +90,13 @@ mod model_comparison {
         )
         .unwrap();
         assert!(
-            r.energy.relative_error < 1e-3,
+            r.energy.relative_error < 1e-8,
             "{}",
             r.energy.relative_error
         );
         let r = run_simulation(&cfg(1e12, false), serde_json::json!({})).unwrap();
         assert!(
-            r.energy.relative_error < 1e-2,
+            r.energy.relative_error < 1e-8,
             "{}",
             r.energy.relative_error
         );
@@ -98,7 +106,7 @@ mod model_comparison {
     fn payload_passes_through_and_mass_gap_is_error() {
         let r = run_simulation(&cfg(1e12, true), serde_json::json!({"uzenet": "szia"})).unwrap();
         assert_eq!(r.payload["uzenet"], "szia");
-        assert_eq!(r.schema_version, "3.0");
+        assert_eq!(r.schema_version, "3.1");
         assert!(matches!(
             run_simulation(&cfg(0.5 * M_PLANCK, true), serde_json::json!({})),
             Err(SimulationError::MassGap { .. })

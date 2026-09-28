@@ -120,3 +120,24 @@ def test_information_packet_is_deterministic() -> None:
     assert a.hash_sha3 == b.hash_sha3 and a.seed == b.seed
     assert InformationPacket({"x": 2}).seed != a.seed
     assert len(a.message_bits(5)) == 5 and set(a.message_bits(5)) <= {0, 1}
+
+
+def test_config_roundtrip_with_environment() -> None:
+    from python.config import Environment, InfallEvent, SimulationConfig
+
+    cfg = SimulationConfig(
+        mass=1e12,
+        environment=Environment(
+            accretion={"type": "constant", "rate": 1.0},
+            infall_events=[InfallEvent(time=1.0, mass=2.0, label="x")],
+        ),
+        max_time=10.0,
+    )
+    back = SimulationConfig.from_json(cfg.to_json())
+    assert back == cfg
+    assert "max_time" not in SimulationConfig().to_json()
+
+
+def test_emission_times_empty_for_non_evaporating_timeline() -> None:
+    timeline = [{"mass": 1.0, "time": 0.0}, {"mass": 1.1, "time": 1.0}]
+    assert emission_times(timeline, 4) == []

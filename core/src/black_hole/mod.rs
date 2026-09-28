@@ -3,7 +3,9 @@ use crate::interior::collapse::OSCollapse;
 use crate::radiation::emission::EmissionModel;
 use crate::types::{InteriorKind, InteriorTrajectory, Spectrum};
 
+pub mod environment;
 pub mod evaporation;
+pub mod evolution;
 pub mod schwarzschild;
 pub mod thermodynamics;
 

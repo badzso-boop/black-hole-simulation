@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CI validátor — szimulációs eredmények (schema 3.0) ellenőrzése."""
+"""CI validátor — szimulációs eredmények (schema 3.1) ellenőrzése."""
 from __future__ import annotations
 
 import json
@@ -9,7 +9,7 @@ from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "3.0"
+SCHEMA = "3.1"
 RHO_CRIT_LQC = 2.1102600051408844e96
 
 
@@ -41,27 +41,41 @@ def validate(data: dict[str, Any]) -> list[str]:
     if not tl:
         return [*errors, "HIBA: üres timeline"]
 
-    masses = [s["mass"] for s in tl]
-    if any(b >= a for a, b in pairwise(masses)):
-        errors.append("HIBA: a tömeg nem szigorúan csökkenő")
-    rem = [s["time_to_evaporation"] for s in tl]
-    if any(b >= a for a, b in pairwise(rem)):
-        errors.append("HIBA: a hátralévő idő nem szigorúan csökkenő")
-    temps = [s["temperature"] for s in tl]
-    if any(b < a for a, b in pairwise(temps)):
-        errors.append("HIBA: a hőmérséklet csökkent")
+    # A tömeg a beesések között monoton, a dM/dt előjelének megfelelően
+    for i, (a, b) in enumerate(pairwise(tl)):
+        if b.get("after_infall"):
+            if b["mass"] <= a["mass"]:
+                errors.append(f"HIBA: a {i + 1}. pontnál a beesés nem növelte a tömeget")
+            continue
+        grows = a["net_mass_rate"] > 0
+        if (grows and b["mass"] < a["mass"]) or (not grows and b["mass"] >= a["mass"]):
+            errors.append(f"HIBA: a tömeg változása a {i + 1}. pontnál ellentmond dM/dt előjelének")
+            break
+    if any(b["time"] < a["time"] for a, b in pairwise(tl)):
+        errors.append("HIBA: az idő csökkent")
     if any(s["entropy"] < 0 for s in tl):
         errors.append("HIBA: negatív entrópia")
 
-    if not data.get("evaporation_complete"):
-        errors.append("HIBA: a párolgás nem futott le a végtömegig")
+    if data.get("evaporation_complete"):
+        # az utolsó beesés utáni párolgó szakaszon a hátralévő idő szigorúan csökken
+        last_jump = max((i for i, s in enumerate(tl) if s.get("after_infall")), default=0)
+        rem = [s.get("time_to_evaporation") for s in tl[last_jump:]]
+        if any(r is None for r in rem):
+            errors.append("HIBA: elpárolgott fekete lyuknál hiányzik a hátralévő idő")
+        elif any(b >= a for a, b in pairwise(rem)):
+            errors.append("HIBA: a hátralévő idő nem szigorúan csökkenő")
+        if rem and rem[-1] != 0.0:
+            errors.append("HIBA: a párolgás végén a hátralévő idő nem 0")
 
-    # A mérleg kvadratúrája másodrendű a log-tömegrácson: a tűrés (100/steps)²-tel skálázódik
+    # Az energiamérleg tételei ugyanabban az ODE-ben integráltak: a hiba ~1e-9
     energy = data.get("energy", {})
-    steps = max(int(data.get("config", {}).get("steps", 100)), 2)
-    tol = 0.01 * (100 / steps) ** 2
-    if energy.get("relative_error", 1.0) > tol:
-        errors.append(f"HIBA: energiamérleg eltérés {energy.get('relative_error'):.3e} > {tol:.1e}")
+    if energy.get("relative_error", 1.0) > 1e-6:
+        errors.append(f"HIBA: energiamérleg eltérés {energy.get('relative_error'):.3e} > 1e-6")
+    feeding = data.get("interior_feeding", {})
+    expected = energy.get("infall_events", 0.0) + feeding.get("continuous_inflow_energy", 0.0)
+    total = feeding.get("total_infallen_energy", 0.0)
+    if abs(total - expected) > 1e-9 * max(abs(expected), 1.0):
+        errors.append("HIBA: interior_feeding összege nem egyezik az energiamérleggel")
 
     interior = data.get("interior", {})
     samples = interior.get("samples", [])

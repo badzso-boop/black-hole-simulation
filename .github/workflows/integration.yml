@@ -41,6 +41,12 @@ jobs:
             done
           done
 
+      - name: Kornyezet-szcenariok (CMB, beeses, akkrecio)
+        run: |
+          python -m python --mass 1e12 --norbi-mode true --infall 1e17:1e12:aszteroida --output output/ci_env_infall.json
+          python -m python --mass 1.98847e31 --accretion bondi --gas-density 1e-10 --max-time 3e15 --output output/ci_env_bondi.json
+          python -m python --mass 1e30 --accretion constant --accretion-rate 1e10 --cmb-temperature 0 --max-time 1e12 --output output/ci_env_const.json
+
       - name: Tomegres alatt hibaval kell leallnia
         run: |
           if python -m python --mass 1e-8 --output output/ci_gap.json; then

@@ -32,7 +32,7 @@ def _run(tmp_path: Path, norbi: bool, mass: float = 1e12) -> dict[str, Any]:
 def test_norbi_and_standard_end_to_end(tmp_path: Path) -> None:
     std = _run(tmp_path, False)
     norbi = _run(tmp_path, True)
-    assert std["schema_version"] == norbi["schema_version"] == "3.0"
+    assert std["schema_version"] == norbi["schema_version"] == "3.1"
     assert norbi["payload"] == {"uzenet": "teszt"}
 
     spectra = compare_exterior_spectra(std, norbi)
@@ -62,3 +62,47 @@ def test_validator_accepts_output(tmp_path: Path) -> None:
 
 def test_mass_gap_is_reported(tmp_path: Path) -> None:
     assert main(["--mass", "1e-8", "--output", str(tmp_path / "gap.json")]) == 1
+
+
+def _run_args(tmp_path: Path, name: str, *args: str) -> dict[str, Any]:
+    out = tmp_path / f"{name}.json"
+    assert main([*args, "--steps", "40", "--interior-steps", "31", "--qubits", "6",
+                 "--output", str(out)]) == 0
+    data: dict[str, Any] = json.loads(out.read_text())
+    return data
+
+
+def test_infall_event_feeds_interior_and_delays_evaporation(tmp_path: Path) -> None:
+    base = _run_args(tmp_path, "base", "--mass", "1e12", "--norbi-mode", "true")
+    fed = _run_args(
+        tmp_path, "fed", "--mass", "1e12", "--norbi-mode", "true",
+        "--infall", "1e17:1e12:aszteroida",
+    )
+    assert fed["evaporation_complete"] and fed["end_time"] > base["end_time"]
+    jump = [s for s in fed["timeline"] if s.get("after_infall") == "aszteroida"]
+    assert len(jump) == 1 and jump[0]["time"] == 1e17
+    feeding = fed["interior_feeding"]
+    assert len(feeding["events"]) == 1
+    assert feeding["events"][0]["proper_time_to_horizon"] > 0
+    assert abs(feeding["total_infallen_energy"] - fed["energy"]["infall_events"]) < 1e-6 * feeding[
+        "total_infallen_energy"
+    ]
+    # nem monoton tömeg → az információs időtengely nincs hozzárendelve
+    assert fed["information"]["emission_times"] == []
+
+
+def test_solar_mass_hole_grows_in_the_cmb(tmp_path: Path) -> None:
+    r = _run_args(tmp_path, "sun", "--mass", "1.98847e30")
+    assert not r["evaporation_complete"]
+    assert all(s["net_mass_rate"] > 0 for s in r["timeline"])
+    assert r["energy"]["background_absorbed"] > 1e6 * r["energy"]["hawking_radiated"]
+    assert 4e22 < r["equilibrium_mass"] < 1e23
+    vac = _run_args(tmp_path, "sun_vac", "--mass", "1.98847e30", "--cmb-temperature", "0",
+                    "--max-time", "1e17")
+    assert vac["energy"]["background_absorbed"] == 0.0
+    assert "equilibrium_mass" not in vac
+
+
+def test_bad_infall_spec_is_rejected(tmp_path: Path) -> None:
+    assert main(["--mass", "1e12", "--infall", "csak-egy-szam",
+                 "--output", str(tmp_path / "x.json")]) == 2

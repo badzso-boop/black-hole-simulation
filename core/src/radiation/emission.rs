@@ -7,7 +7,9 @@
 //! - MacGibbon (1991); Carr, Kohri, Sendouda, Yokoyama, PRD 81, 104019 (2010),
 //!   arXiv:0912.5297: dM/dt = −5.34e25·f(M)·(M/g)⁻² g/s, szabadsági fokonkénti
 //!   járulékok f: spin-0 0.267, spin-½ 0.142 (töltött) / 0.147 (semleges),
-//!   spin-1 0.060, spin-2 0.007; f(M ≫ 10¹⁷ g) ≈ 1.
+//!   spin-1 0.060, spin-2 0.007; f(M ≫ 10¹⁷ g) ≈ 1 (tömegtelen neutrínókkal).
+//!   A neutrínókat itt tömeg-sajátállapotokként kezeljük: M ≳ 1e22 kg-nál
+//!   (T_H ≲ 0.01 eV) a két nehezebb lekapcsol, f → 0.43.
 //!
 //! A fajták bekapcsolása a MacGibbon-féle sima küszöbbel történik:
 //! exp(−m c² / (β_s k_B T_H)), β_s = 2.66 / 4.53 / 6.04 / 9.56 (s = 0, ½, 1, 2).
@@ -82,24 +84,31 @@ const fn sp(dof: f64, spin: Spin, f_per_dof: f64, mass_mev: f64) -> Species {
 
 /// Szabadsági fokok: részecske+antirészecske × spin/helicitás × szín
 const SPECIES: &[Species] = &[
-    sp(2.0, Spin::One, 0.060, 0.0),         // foton
-    sp(2.0, Spin::Two, 0.007, 0.0),         // graviton
-    sp(6.0, Spin::Half, 0.147, 0.0),        // 3 neutrínó íz (ν, ν̄), ~tömegtelen
-    sp(4.0, Spin::Half, 0.142, 0.511),      // e±
-    sp(4.0, Spin::Half, 0.142, 105.66),     // μ±
-    sp(4.0, Spin::Half, 0.142, 1776.9),     // τ±
-    sp(12.0, Spin::Half, 0.142, 300.0),     // u (QCD-skála küszöb)
-    sp(12.0, Spin::Half, 0.142, 300.0),     // d
-    sp(12.0, Spin::Half, 0.142, 500.0),     // s
-    sp(12.0, Spin::Half, 0.142, 1270.0),    // c
-    sp(12.0, Spin::Half, 0.142, 4180.0),    // b
+    sp(2.0, Spin::One, 0.060, 0.0), // foton
+    sp(2.0, Spin::Two, 0.007, 0.0), // graviton
+    // Neutrínó tömeg-sajátállapotok (ν, ν̄ × 1 helicitás = 2 szf. mindegyik),
+    // normál hierarchia az oszcillációs Δm²-ekből: m1 ≈ 0 (ismeretlen, a
+    // legkönnyebb), m2 ≈ √(7.4e-5) eV, m3 ≈ √(2.5e-3) eV. Hideg, nagy tömegű
+    // fekete lyukaknál (T_H ≲ 0.01 eV/k_B) ez számít — Page 2013 ezért hagyja
+    // ki a neutrínókat asztrofizikai fekete lyukakra.
+    sp(2.0, Spin::Half, 0.147, 0.0), // ν1 (a legkönnyebb, ~tömegtelen)
+    sp(2.0, Spin::Half, 0.147, 8.6e-9), // ν2 (≈ 0.0086 eV)
+    sp(2.0, Spin::Half, 0.147, 5.0e-8), // ν3 (≈ 0.050 eV)
+    sp(4.0, Spin::Half, 0.142, 0.511), // e±
+    sp(4.0, Spin::Half, 0.142, 105.66), // μ±
+    sp(4.0, Spin::Half, 0.142, 1776.9), // τ±
+    sp(12.0, Spin::Half, 0.142, 300.0), // u (QCD-skála küszöb)
+    sp(12.0, Spin::Half, 0.142, 300.0), // d
+    sp(12.0, Spin::Half, 0.142, 500.0), // s
+    sp(12.0, Spin::Half, 0.142, 1270.0), // c
+    sp(12.0, Spin::Half, 0.142, 4180.0), // b
     sp(12.0, Spin::Half, 0.142, 172_570.0), // t
-    sp(16.0, Spin::One, 0.060, 650.0),      // gluonok (effektív tömeg)
-    sp(1.0, Spin::Zero, 0.267, 134.98),     // π⁰
-    sp(2.0, Spin::Zero, 0.267, 139.57),     // π±
-    sp(6.0, Spin::One, 0.060, 80_377.0),    // W±
-    sp(3.0, Spin::One, 0.060, 91_188.0),    // Z
-    sp(1.0, Spin::Zero, 0.267, 125_250.0),  // Higgs
+    sp(16.0, Spin::One, 0.060, 650.0), // gluonok (effektív tömeg)
+    sp(1.0, Spin::Zero, 0.267, 134.98), // π⁰
+    sp(2.0, Spin::Zero, 0.267, 139.57), // π±
+    sp(6.0, Spin::One, 0.060, 80_377.0), // W±
+    sp(3.0, Spin::One, 0.060, 91_188.0), // Z
+    sp(1.0, Spin::Zero, 0.267, 125_250.0), // Higgs
 ];
 
 /// ħc⁴/G² — a dimenziótlan α és az SI tömegvesztés közti váltószám (kg³/s)
