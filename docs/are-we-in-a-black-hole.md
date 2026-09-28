@@ -76,6 +76,9 @@ evidence either way on whether we live in a black hole.
 
 ## 5. If you want to defend a thesis: what to calculate
 
+**The detailed plan is in [thesis-plan.md](thesis-plan.md)** — work packages, equations,
+data ([`data/observations.json`](../data/observations.json)), pass/fail criteria.
+
 A defensible thesis does **not** claim "we live in a black hole". It claims
 something like: *"If our Big Bang was an LQC bounce inside a black hole, then
 we should observe X; current data give Y."* The calculations for that:

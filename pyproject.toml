@@ -22,6 +22,12 @@ dev = [
     "mypy>=1.9",
     "hypothesis>=6.0",
 ]
+# a tézis-számolásokhoz (docs/thesis-plan.md): pip install -e '.[dev,thesis]'
+thesis = [
+    "camb>=2.0",
+    "getdist>=1.7",
+    "matplotlib>=3.8",
+]
 
 [tool.maturin]
 module-name   = "black_hole_core"

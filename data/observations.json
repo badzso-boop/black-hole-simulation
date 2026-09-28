@@ -1,0 +1,88 @@
+{
+  "_about": "Observational numbers and literature results for the six thesis calculations (docs/thesis-plan.md). Collected 2026-09-28 by a research pass over the primary sources; every entry has its source. 'verified': false means the number could not be confirmed from the primary text and must be checked before citing. Conventions: Omega_K > 0 is OPEN; Planck units G = hbar = c = 1 where marked; m_Pl = 1.22e19 GeV, reduced M_Pl = m_Pl/sqrt(8 pi) = 2.435e18 GeV.",
+
+  "1_inflation": {
+    "n_s_planck2018": {"value": 0.9649, "err": 0.0042, "cl": "68%", "source": "Planck 2018 X, A&A 641, A10, arXiv:1807.06211", "verified": true},
+    "n_s_act_dr6": {"value": 0.974, "err": 0.003, "cl": "68%", "source": "ACT DR6, Louis et al. 2025, arXiv:2503.14452 (P-ACT-LB)", "verified": true, "note": "Starobinsky gives 0.964-0.967 for N=55-60: 2-3 sigma tension if ACT holds"},
+    "ln_1e10_As": {"value": 3.044, "err": 0.014, "cl": "68%", "source": "Planck 2018 VI, arXiv:1807.06209 (TT,TE,EE+lowE+lensing)", "verified": true},
+    "A_s_derived": {"value": 2.10e-9, "source": "derived from ln(1e10 A_s) = 3.044"},
+    "r_upper_bk18": {"value": 0.036, "cl": "95% upper limit", "pivot_Mpc^-1": 0.05, "source": "BICEP/Keck 2021, PRL 127, 151301, arXiv:2110.00483", "verified": true},
+    "r_upper_bk18_pr4_bao": {"value": 0.032, "cl": "95% upper limit", "source": "Tristram et al. 2022, arXiv:2112.07961", "verified": true, "note": "journal reference not verified"},
+    "starobinsky_R2": {"n_s_minus_1": "-2/N", "r": "12/N^2", "N_star_range_95": [49, 59], "source": "Planck 2018 X", "verified": true},
+    "phi2_excluded": {"r_prediction": "8/N ~ 0.145", "source": "Planck 2018 X: monomials p >= 2 strongly disfavoured", "verified": true},
+    "starobinsky_M_mPl": {"value": 2.51e-6, "units": "m_Pl", "potential": "V = (3 M^2 / 32 pi G) (1 - exp(-sqrt(16 pi G/3) phi))^2", "source": "Bonga & Gupt 2016, GRG 48, 71, arXiv:1510.00680", "verified": true},
+    "phi2_mass_mPl": {"value": 1.21e-6, "units": "m_Pl", "source": "Ashtekar & Sloan 2011, GRG 43, 3619, arXiv:1103.2475 (WMAP-7 normalisation)", "verified": true},
+    "lqc_prob_slow_roll_phi2": {"value": 0.999997, "comparison": ">", "source": "Ashtekar & Sloan 2011", "verified": true, "note": "Liouville measure on the bounce surface; |phi_B| <= phi_max with m*phi_max = 0.90 m_Pl^2"},
+    "lqc_starobinsky_bounce_range": {"phi_B_min_mPl": -3.47, "phidot_B_max_mPl2": 0.905, "slow_roll_if": "phi_B >= -1.45 m_Pl (phidot>0) or phi_B >= 3.63 m_Pl (phidot<0)", "source": "Bonga & Gupt 2016", "verified": true, "note": "non-compact: no uniform-measure probability"},
+    "efolds_distribution_peak": {"value": 145, "source": "Linsefors & Barrau 2013, PRD 87, 123509, arXiv:1301.1264", "verified": true},
+    "N_tot_bounce_to_today_lower": {"value": 141, "cl": "95%", "source": "Zhu, Wang, Cleaver, Kirsten & Sheng 2017, PRD 96, 083520, arXiv:1705.07544", "verified": true},
+    "V_star_quarter_upper_GeV": {"value": 1.4e16, "source": "derived: Planck 2018 X Eq. 32 rescaled to r < 0.036"},
+    "T_reheat_lower_MeV": {"radiative": 1.8, "hadronic": "4-5", "source": "Hasegawa et al. 2019, JCAP 12, 012, arXiv:1908.10189", "verified": true}
+  },
+
+  "2_anisotropy": {
+    "classical_bianchi_I": {"equation": "H^2 = (8 pi G/3) rho + sigma^2/6, sigma^2 = Sigma^2/a^6", "source": "Corichi & Singh 2009, arXiv:0905.4949", "verified": true},
+    "lqc_shear_max": {"value": "10.125/(3 gamma^2 lambda^2) ~ 11.57 l_Pl^-2", "source": "Gupt & Singh 2012, PRD 85, 044011, arXiv:1109.6636, Eq. 2.21", "verified": true},
+    "lqc_expansion_max": {"value": "theta_max = 3/(2 gamma lambda), H_max ~ 0.93 / t_Pl", "source": "Corichi & Singh 2009", "verified": true},
+    "shear_vector_today_upper": {"value": 4.7e-11, "quantity": "(sigma_V/H)_0", "cl": "95%", "source": "Saadeh et al. 2016, PRL 117, 131302, arXiv:1605.07178", "verified": true},
+    "shear_tensor_today_upper": {"value": 1.0e-6, "quantity": "(sigma_T,reg/H)_0", "cl": "95%", "source": "Saadeh et al. 2016", "verified": true},
+    "anisotropy_odds_against": {"value": 121000, "source": "Saadeh et al. 2016", "verified": true},
+    "scalings": {"sigma": "a^-3 always", "sigma_over_H": "e^{-3N} inflation; a^-1 radiation; a^{-3/2} matter", "source": "standard"},
+    "high_shear_shortens_inflation": {"source": "Linsefors & Barrau 2015, CQG 32, 035010, arXiv:1405.1753", "verified": true},
+    "no_hair": {"source": "Wald 1983, PRD 28, 2118", "verified": true}
+  },
+
+  "3_curvature": {
+    "planck_TTTEEE_lowE": {"value": -0.044, "err_plus": 0.018, "err_minus": 0.015, "cl": "68%", "source": "Planck 2018 VI Eq. 46b", "verified": true, "note": "the 'closed universe' result; not supported once lensing/BAO are added"},
+    "planck_plus_lensing": {"value": -0.0106, "err": 0.0065, "source": "Planck 2018 VI Eq. 47a", "verified": true},
+    "planck_lensing_bao": {"value": 0.0007, "err": 0.0019, "cl": "68%", "source": "Planck 2018 VI Eq. 47b", "verified": true},
+    "planck_pr4_hillipop": {"value": -0.012, "err": 0.010, "source": "Tristram et al. 2024, A&A 682, A37, arXiv:2309.10034", "verified": true},
+    "desi_dr1_cmb": {"value": 0.0024, "err": 0.0016, "source": "DESI DR1, JCAP 02 (2025) 021, Eq. 4.10", "verified": true},
+    "desi_dr2_cmb": {"value": 0.0023, "err": 0.0011, "cl": "68%", "source": "DESI DR2, PRD 112, 083515 (2025), arXiv:2503.14738, Table V", "verified": true},
+    "act_dr6_p_act_lb": {"value": 0.0019, "err": 0.0015, "curvature_radius_lower_Gpc": {"closed": 105, "open": 66}, "source": "Calabrese et al. 2025, arXiv:2503.14454, Eq. 59", "verified": true},
+    "gaztanaga_bh_universe_prediction": {"range": [-0.07, 0.0], "err_on_lower": 0.02, "source": "Gaztanaga, Kumar, Pradhan & Gabler 2025, PRD 111, 103537, arXiv:2505.23877", "verified": true, "note": "a black-hole-universe prediction; mild (~2 sigma) tension with DESI DR2+CMB"},
+    "lqc_closed_equations": {"source": "Ashtekar, Pawlowski, Singh & Vandersloot 2007, PRD 75, 024035; Gordon, Li & Singh 2021, PRD 103, 046016, arXiv:2010.04738", "verified": true},
+    "liddle_leach_N_hor": {"source": "Liddle & Leach 2003, PRD 68, 103503, astro-ph/0305263, Eq. 6", "typical": "50-60", "verified": true}
+  },
+
+  "4_rotation": {
+    "vorticity_today_upper": {"value": 7.6e-10, "quantity": "(omega/H)_0", "cl": "95%", "source": "Planck 2015 XVIII, A&A 594, A18, arXiv:1502.01593", "verified": true},
+    "vorticity_planck2013": {"value": 8e-10, "source": "Planck 2013 XXVI, arXiv:1303.5086", "verified": true, "note": "journal reference not verified"},
+    "dipolar_modulation_low_ell": {"A": 0.070, "err_plus": 0.032, "err_minus": 0.015, "ell_range": [2, 64], "direction_l_b_deg": [221, -22], "direction_err_deg": 31, "source": "Planck 2018 VII, A&A 641, A7, arXiv:1906.02552", "verified": true, "note": "not significant after look-elsewhere (p ~ 0.1-1% in ~10% of isotropic skies)"},
+    "poplawski_preferred_axis": {"source": "Poplawski, arXiv:1910.10819", "verified": true, "note": "qualitative only: no numerical prediction for omega_0"},
+    "shamir_jades_spin_asymmetry": {"clockwise": 158, "counterclockwise": 105, "p_chance": 0.0007, "source": "Shamir 2025, MNRAS 538, 76, arXiv:2502.18781", "verified": true, "status": "contested"},
+    "isotropy_reanalyses": {"source": ["Patel & Desmond 2024, MNRAS 534, 1553, arXiv:2404.06617", "Stiskalek & Desmond, arXiv:2410.18884"], "verified": true, "note": "consistent with isotropy"}
+  },
+
+  "5_cmb_lqc": {
+    "lqc_suppression_scale": {"k_LQC_planck": 3.21, "k_today_Mpc^-1": 3.6e-4, "suppressed_below_Mpc^-1": 3.6e-3, "ell_below": 30, "source": "Ashtekar, Gupt, Jeong & Sreenath 2020, PRL 125, 051302, arXiv:2001.11689", "verified": true},
+    "lqc_fit_vs_standard": {"tau": [0.0542, 0.0595], "ln1e10As": [3.044, 3.054], "n_s": [0.9651, 0.9643], "S_half_fullsky": [42496.5, 14308.05], "A_L": [1.072, 1.049], "order": ["standard", "LQC"], "source": "Ashtekar et al. 2020", "verified": true},
+    "S_half_observed_uK4": {"Commander": 1209.2, "NILC": 1156.6, "SEVEM": 1146.2, "SMICA": 1142.4, "p_LCDM_larger": ">0.999", "global_p": "~0.01", "source": "Planck 2018 VII", "verified": true},
+    "A_L_planck2018": {"value": 1.180, "err": 0.065, "source": "Planck 2018 VI Eq. 36b", "verified": true},
+    "A_L_planck_pr4": {"value": 1.039, "err": 0.052, "source": "Tristram et al. 2024", "verified": true, "note": "the lensing anomaly has largely disappeared"},
+    "cutoff_templates": {"exponential": "P(k) = P0(k)[1 - exp(-(k/k_c)^lambda_c)]", "kinetic_domination": "Upsilon_kin(y) = (pi/16) y |C_c(y) - D_c(y)|^2, y = k/k_c", "source": "Planck 2018 X Eqs. 19, 64", "verified": true, "note": "no significant detection of k_c"},
+    "analytic_lqc_spectrum": {"parameters": "a0 (end of bounce), k0 = a0 H0 = sqrt(8 pi rho_c/(3 a0^4))", "accuracy": "<1% near suppression", "preferred_N_tot": [130, 143], "source": "Guillen, Langer, Mena Marugan et al. 2026, arXiv:2605.14657", "verified": true},
+    "low_ell_deficit_size": {"verified": false, "note": "size and significance of the l < 30 TT deficit not extracted — read Planck 2018 VI/VII"},
+    "quadrupole_octopole_alignment": {"verified": false, "note": "p-values not extracted"}
+  },
+
+  "6_cosmological_natural_selection": {
+    "smolin_predictions": {"ns_max_mass_Msun": [1.5, 1.6, "< 2 (2012)"], "sources": ["Smolin 2004, hep-th/0407213", "Smolin 2006, hep-th/0612185", "Smolin 2012, arXiv:1202.3373"], "verified": true, "note": "2012: stars ~2.4 Msun 'would be inconsistent'"},
+    "brown_lee_rho_2008": {"statement": "a neutron star above 2 Msun would falsify the reasoning chain", "source": "PRL 101, 091101, arXiv:0802.2997", "verified": true},
+    "neutron_star_masses_Msun": {
+      "PSR_J1614-2230": {"value": 1.97, "err": 0.04, "source": "Demorest et al. 2010, Nature 467, 1081"},
+      "PSR_J0348+0432": {"value": 2.01, "err": 0.04, "source": "Antoniadis et al. 2013, Science 340"},
+      "PSR_J0740+6620": {"value": 2.08, "err": 0.07, "source": "Fonseca et al. 2021, ApJL 915, L12, arXiv:2104.00880"},
+      "PSR_J0952-0607": {"value": 2.35, "err": 0.17, "source": "Romani et al. 2022, ApJL 934, L17, arXiv:2207.05124"},
+      "GW190814_secondary": {"value": 2.59, "err_plus": 0.08, "err_minus": 0.09, "source": "LVC 2020, ApJL 896, L44", "note": "neutron star or black hole unclear"}
+    },
+    "M_max_lower_bound": {"1sigma": 2.19, "3sigma": 2.09, "source": "Romani et al. 2022", "verified": true},
+    "critiques": ["Vilenkin 2006, hep-th/0610051", "Rothman & Ellis 1993, QJRAS 34, 201", "Silk 1997, Science 277, 644"],
+    "smolin_reply_after_2022": {"verified": false, "note": "absence of a reply not exhaustively checked"}
+  },
+
+  "black_hole_cosmology_models": {
+    "gaztanaga": {"parent_mass_Msun": 5e22, "sources": ["Universe 8, 257 (2022), arXiv:2204.11608", "PRD 111, 103537 (2025)", "arXiv:2602.17702 (2026)"], "verified": true, "note": "no published rebuttal found; tension is observational (Omega_K)"},
+    "lewandowski_ma_yang_zhang": {"source": "PRL 130, 101501 (2023), arXiv:2210.02253", "note": "quantum Oppenheimer-Snyder; basis of this project's interior"}
+  }
+}

@@ -335,6 +335,9 @@ python scripts/analyze_campaign.py runs/<dátum>   # → RESULTS.md, summary.csv
 
 A legutóbbi kampány és értelmezése: [runs/2026-09-28/ANALYSIS.md](runs/2026-09-28/ANALYSIS.md).
 
+„Egy fekete lyukban élünk?": [docs/are-we-in-a-black-hole.md](docs/are-we-in-a-black-hole.md); a tézis
+terve (6 számolás, adatokkal): [docs/thesis-plan.md](docs/thesis-plan.md).
+
 Tesztek és benchmark:
 
 ```bash
