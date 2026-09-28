@@ -35,14 +35,14 @@ lépés **a kauzalitáson bukik el**; így az 5. sem teljesül.
 
 ```
                  ┌─────────────────────────── Rust mag (core/) ────────────────────────────┐
-config (JSON) ──►│ 1. Külső: Hawking-párolgás + CMB-elnyelés + akkréció + beesések         │
+config (JSON) ──►│ 1. Külső: (M, a*) — Hawking (Kerr) + CMB + akkréció + beesések          │
 payload (JSON) ─►│    dM/dt = −α(M)·ħc⁴/(G²M²), MacGibbon/Carr f(M), greybody foton-spektrum│
                  │ 2. Belső: Oppenheimer–Snyder porgömb, saját idő τ                       │
                  │    Standard: klasszikus, ρ_c-nél érvényét veszti                        │
                  │    Norbi:    LQC visszapattanás ρ_c-nél → táguló bébiuniverzum          │
                  │ 3. Kauzalitás: LMY külső metrika, horizontok, fénysugár-követés         │
                  └──────────────────────────────┬──────────────────────────────────────────┘
-                                                │ SimulationResults (schema 3.1, JSON)
+                                                │ SimulationResults (schema 3.2, JSON)
                  ┌──────────────────────────────▼──── Python (python/) ─────────────────────┐
                  │ 4. Kvantuminformáció: Page-görbe S(R), Hayden–Preskill I(Ref:R)          │
                  │    unitary / semiclassical / norbi (← causal_channel.exists)             │
@@ -128,6 +128,48 @@ ugyanabba a bébiuniverzumba jut-e, nincs modellezve, és a belső horizontok
 ismerten instabilak a késői beáramlással szemben (tömeg-infláció, Poisson &
 Israel 1990).
 
+### Forgó (Kerr) fekete lyukak — `black_hole/kerr.rs`, `radiation/emission.rs`
+
+| Mennyiség | Képlet / érték | Forrás |
+|---|---|---|
+| Horizontok | r± = m(1 ± √(1−a*²)), m = GM/c² | Kerr 1963 |
+| Hőmérséklet | T = ħc³/(4πGMk_B)·√(1−a*²)/(1+√(1−a*²)) | Bardeen, Carter, Hawking 1973 |
+| Terület, entrópia | A = 8πm²(1+√(1−a*²)), S = A/4ℓ_P² | |
+| ISCO, E_isco, L_isco | Z1, Z2 képletek; a* = 0: 6m, 0.9428 | Bardeen, Press, Teukolsky 1972 |
+| Korong-hatásfok | ε = 1 − E_isco: 5.7% → 32% (a* = 0.998) | Novikov–Thorne |
+| Akkréciós felpörgetés | dJ/dM₀ = L_isco, a Thorne-határig (0.998) | Bardeen 1970; Thorne 1974 |
+| Hawking-emisszió | f(a*), g(a*) fajtánként; ν ×13.35, γ ×107.5, graviton ×26 380 a*→1-re | Page 1976b (Dong et al. 2016 táblázata) |
+
+A spin a tömeggel együtt fejlődik: a Hawking-párolgás a forgást gyorsabban
+viszi el, mint a tömeget (h = d ln a*/d ln M ≈ 7 kis spinre), így egy gyorsan
+forgó primordiális fekete lyuk a tömegének ~40–50%-a elvesztése után már
+alig forog, és 2.6–2.8× rövidebb ideig él (Page: 2.0–2.7). A vékony korong
+felpörget; a gömbszimmetrikus akkréció, a CMB és a radiális beesés nem visz
+be impulzusmomentumot (a*·M² állandó). **Közelítések:** a tömeges fajták az
+azonos spinű tömegtelen mező Kerr-arányát kapják; a CMB-elnyelés
+hatáskeresztmetszete a nem forgó esetre vonatkozik; a belső összeomlás és
+a kauzalitás-elemzés a* = 0-val készül (forgó LQC-összeomlásra nincs
+publikált effektív modell — a klasszikus Kerr-megoldásnak is van belső
+Cauchy-horizontja, így a következtetés minőségileg ugyanaz).
+
+### Valódi fekete lyukak — `catalog.rs`
+
+| Kulcs | Tömeg | Távolság | Spin | Ṁ | Forrás |
+|---|---|---|---|---|---|
+| `sgr-a` | 4.2996e6 M_☉ | 8.276 kpc | 0.9 (gyengén korlátozott) | 7e-9 M_☉/év | GRAVITY 2024; EHT 2022 |
+| `m87` | 6.5e9 M_☉ | 16.8 Mpc | 0.9 (nem mért) | 1e-3 M_☉/év | EHT 2019, 2021 |
+| `cyg-x1` | 21.2 M_☉ | 2.22 kpc | 0.998 (> 0.9985 mért) | 3e-9 M_☉/év, korong | Miller-Jones 2021; Zhao 2021 |
+| `gw250114` | 62.7 M_☉ | ~440 Mpc | 0.68 | — | LVK 2025 |
+| `gw150914` | 63.1 M_☉ | 440 Mpc | 0.69 | — | GWTC-1 |
+| `pbh-today` | 5.1e11 kg | — | 0 | — | Carr et al. 2010 |
+
+**Ellenőrzés az EHT-képekkel:** a tömegből és távolságból számolt gyűrű
+(≈ 11·GM/(c²D)) M87*-ra 42.0 μas (mért: 42 ± 3), Sgr A*-ra 56.4 μas
+(mért: 51.8 ± 2.3), azaz δ = −0.082 — pontosan az EHT által publikált
+δ = −0.08 ± 0.09 eltérés. A mai akkréciós rátát a program állandónak veszi
+a teljes horizonton (objektumonként jelölt feltevés); Cyg X-1-nél a horizont
+a kísérőcsillag hátralévő élete (~5 Myr).
+
 ### Összeomlás és visszapattanás — `interior/collapse.rs`, `quantum/lqc.rs`
 
 Marginálisan kötött homogén porgömb (Oppenheimer–Snyder), R0 = n·r_s-ről.
@@ -191,75 +233,115 @@ A toy modell qubitszáma leskálázott (a valódi S_BH ~10⁴⁰+ bit); az időt
 ```
 core/src/
   constants.rs, units.rs     CODATA 2022, LQC-állandók, Planck-egység konverziók
-  black_hole/                BlackHoleTrait, Schwarzschild, párolgás, környezet, tömegfejlődés
+  black_hole/                BlackHoleTrait, Schwarzschild, Kerr, párolgás, környezet, (M, a*)-fejlődés
+  catalog.rs                 valódi fekete lyukak (Sgr A*, M87*, Cyg X-1, GW-maradványok)
   radiation/                 emissziós modellek, greybody, spektrum, HawkingEngine
   interior/                  collapse.rs (OS), standard.rs, norbi.rs, baby_universe.rs
   quantum/lqc.rs             effektív Friedmann/Raychaudhuri, porral analitikus megoldás
   geometry/                  LMY-metrika, horizontok, kauzális csatorna
   time_evolution/            ode.rs (Dopri5), checkpoint.rs (MessagePack)
-  tests/                     87 teszt
+  tests/                     105 teszt
 python/
   __main__.py                CLI: python -m python ...
   quantum_info.py            Page-görbe, Hayden–Preskill
   comparator.py              Standard vs. Norbi összevetés
   information_packet.py      payload SHA3 → determinisztikus mag
   config.py, constants.py    a Rust típusok/állandók tükre
-  tests/                     19 teszt (Page-formula, HP, hypothesis, végponttól végpontig)
-scripts/                     validate_results.py (schema 3.1), export_csv.py, …
+  tests/                     22 teszt (Page-formula, HP, hypothesis, végponttól végpontig)
+scripts/                     setup_dev.sh, validate_results.py (schema 3.2), export_csv.py, …
 ```
 
 ---
 
-## Futtatás
+## Telepítés és futtatás
+
+### Hardver
+
+A szimuláció könnyű: egyszálú, futásonként **1–2 másodperc és ~55 MB RAM**
+(minden katalógus-objektumra mérve). A fejlesztői gépen — egy 2011-es
+**Intel i5-2500S, 4 mag, 8 GB RAM** — a teljes, gyorsítótár nélküli
+release-fordítás **37 s**, a tesztcsomag (105 Rust + 22 Python) **~1 perc**.
+Egy erősebb gép (pl. 16 magos Ryzen) csak a fordítást gyorsítja, illetve sok
+paraméter-szkennelést tud párhuzamosan futtatni (egy futás egy magot használ).
+
+### Első telepítés (Debian/Ubuntu)
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
-unset CONDA_PREFIX
-pip install -e '.[dev]'          # Rust mag fordítása (maturin) + Python függőségek
+# 1. Rendszercsomagok (C-linker, Python venv, git)
+sudo apt update
+sudo apt install -y git curl build-essential python3 python3-venv
 
-# Szimuláció (+ kvantuminformációs elemzés)
-python -m python --mass 5.1e11 --norbi-mode true --output output/norbi.json
-python -m python --mass 5.1e11 --norbi-mode false --output output/std.json \
-    --payload '{"uzenet": "szia"}' --qubits 12 --message-qubits 1
+# 2. Rust (ha még nincs) — rustup, felhasználói szinten
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+source "$HOME/.cargo/env"
 
-python scripts/validate_results.py output/*.json
-python scripts/export_csv.py output/norbi.json output/norbi.csv
+# 3. A repó és a környezet (virtualenv, a Rust mag lefordítása, tesztek)
+git clone https://github.com/badzso-boop/black-hole-simulation.git
+cd black-hole-simulation
+bash scripts/setup_dev.sh
 ```
 
-Fontosabb kapcsolók: `--emission-model {MacGibbon,PageGammaGraviton,PhotonBlackbody}`,
-`--steps` (külső mintapontok), `--interior-steps`, `--initial-radius-rs`,
-`--no-info`, `--max-time`. Környezet: `--cmb-temperature` (alapból 2.7255 K,
-0 = vákuum), `--accretion {none,constant,bondi}`, `--accretion-rate`,
-`--gas-density`, `--sound-speed`, `--no-eddington-limit`,
-`--radiative-efficiency`, `--infall IDŐ:TÖMEG[:CÍMKE]` (ismételhető), pl.:
+Python 3.11 vagy újabb kell. A `setup_dev.sh` létrehozza a `.venv`-et (a
+rendszer-Pythonba a PEP 668 miatt nem telepít), `pip install -e '.[dev]'`-vel
+lefordítja a Rust magot Python-modullá (maturin), majd lefuttatja a teszteket.
+Conda-környezetben előtte: `unset CONDA_PREFIX`.
+
+### Futtatás
 
 ```bash
-# egy aszteroida 1e17 s-nál beleesik egy primordiális fekete lyukba
-python -m python --mass 1e12 --norbi-mode true --infall 1e17:1e12:aszteroida
-# 10 M_☉ sűrű gázban, Eddington-korlátos növekedés 100 Myr-ig
-python -m python --mass 1.98847e31 --accretion bondi --gas-density 1e-10 --max-time 3.156e15
+source .venv/bin/activate
+
+python -m python --list-objects                       # a valódi fekete lyukak katalógusa
+python -m python --object sgr-a                       # Sagittarius A*, mért paraméterekkel
+python -m python --object m87 --norbi-mode true       # M87*, Norbi-belsővel
+python -m python --object cyg-x1 --output output/cyg.json
+python -m python --mass 1e12 --spin 0.99              # forgó primordiális fekete lyuk
+python -m python --object sgr-a --spin 0.5 --accretion none   # a kapcsolók felülírják a katalógust
+
+python scripts/validate_results.py output/*.json      # ellenőrzés
+python scripts/export_csv.py output/cyg.json output/cyg.csv
 ```
 
-M < M_min ≈ 1.81e-8 kg esetén a program hibával áll le
-(tömegrés: nincs horizont).
+A képernyőn rövid összefoglaló jelenik meg (végtömeg, spin, ΔM, EHT-gyűrű,
+figyelmeztetések); a teljes eredmény a `--output` JSON-fájlban van
+(alapból `output/results.json`).
 
-Tesztek:
+Fontosabb kapcsolók:
+
+| Kapcsoló | Jelentés |
+|---|---|
+| `--object KULCS` | katalógus-objektum: `sgr-a`, `m87`, `cyg-x1`, `gw250114`, `gw150914`, `pbh-today` |
+| `--mass KG`, `--spin A` | kezdőtömeg (kg) és spin 0 ≤ a* < 1 |
+| `--norbi-mode true` | LQC-visszapattanás + bébiuniverzum a belsőben |
+| `--emission-model` | `MacGibbon` (alap), `PageGammaGraviton`, `PhotonBlackbody` |
+| `--max-time S` | szimulációs horizont (s); alapból a párolgás végéig / az Univerzum koráig |
+| `--cmb-temperature K` | háttérsugárzás (alap 2.7255 K; 0 = vákuum) |
+| `--accretion {none,constant,bondi}` | akkréció; `--accretion-rate`, `--gas-density`, `--sound-speed`, `--no-eddington-limit` |
+| `--disk-accretion` | vékony korong: ε = 1 − E_isco(a*), Bardeen-felpörgetés a Thorne-határig |
+| `--radiative-efficiency E` | ε (gömbszimmetrikus akkrécióra) |
+| `--infall IDŐ:TÖMEG[:CÍMKE]` | beesés, ismételhető (pl. `1e17:5.97e24:Föld`) |
+| `--steps`, `--interior-steps` | mintapontok száma (a pontosságot nem befolyásolja, csak a felbontást) |
+| `--qubits`, `--message-qubits`, `--payload JSON`, `--no-info` | kvantuminformációs toy modell |
+
+M < M_min ≈ 1.81e-8 kg esetén a program hibával áll le (tömegrés: nincs horizont).
+
+Tesztek és benchmark:
 
 ```bash
 cargo test --manifest-path core/Cargo.toml
-pytest python/tests
+python -m pytest python/tests
 cargo bench --manifest-path core/Cargo.toml
 ```
 
 ---
 
-## Kimenet (schema 3.1)
+## Kimenet (schema 3.2)
 
 ```jsonc
 {
-  "schema_version": "3.1",
+  "schema_version": "3.2",
   "config": { "mass": 5.1e11, "norbi_mode": true, "emission_model": "MacGibbon", "steps": 100, ... },
-  "timeline": [ { "time", "time_to_evaporation"?, "mass", "temperature", "entropy",
+  "timeline": [ { "time", "time_to_evaporation"?, "mass", "spin", "temperature", "entropy",
                   "semiclassical_valid", "net_mass_rate", "absorbed_power",
                   "accretion_inflow", "after_infall"?, "spectrum": { "frequencies", "intensities",
                   "temperature", "total_power", "photon_power",
@@ -279,6 +361,10 @@ cargo bench --manifest-path core/Cargo.toml
   "interior_feeding": { "initial_energy", "events": [ { "exterior_time", "label", "mass",
                         "mass_before", "mass_after", "proper_time_to_horizon" } ],
                         "continuous_inflow_energy", "total_infallen_energy", "note" },
+  "kerr": { "initial_spin", "final_spin", "r_plus", "r_minus", "isco_radius",
+            "disk_efficiency", "horizon_angular_velocity" },
+  "object"?: { "key", "name", "theta_g_uas", "shadow_diameter_uas", "predicted_ring_uas",
+               "observed_ring_uas", "ring_deviation", "eddington_ratio", "references", ... },
   "warnings": [ ... ],
   "payload": { ... },
   "information": { "curves": { "unitary": {...}, "semiclassical": {...}, "norbi": {...} },
@@ -294,6 +380,7 @@ cargo bench --manifest-path core/Cargo.toml
 - `python-tests.yml` — ruff (explicit szabálykészlet), mypy `--strict`, pytest (3.11–3.13)
 - `integration.yml` — tömeg-scan (2 m_P, 1 kg, 5.1e11 kg, M_☉) × Standard/Norbi,
   három környezet-szcenárió (beesés, Bondi/Eddington, állandó akkréció),
+  minden katalógus-objektum és egy forgó primordiális fekete lyuk,
   validátor; a tömegrés alatti tömegnek hibát kell adnia
 
 ---
@@ -309,6 +396,10 @@ cargo bench --manifest-path core/Cargo.toml
 - **Belső modell:** homogén, marginálisan kötött por (OS); nincs nyomás,
   forgás, töltés, és nincs a párolgás visszahatása a belsőre. A később beeső
   anyag csak könyvelve van (`interior_feeding`), a belső dinamikát nem módosítja.
+- **Kerr:** a tömeges fajták Kerr-szorzója a tömegtelen mezőé; a CMB-elnyelés
+  és a belső modell a nem forgó esetre vonatkozik (lásd fent).
+- **Katalógus:** a spin Sgr A*-ra és M87*-ra gyengén korlátozott / nem mért
+  (0.9 feltételezve); a mai akkréciós ráta állandónak tekintve.
 - **Környezet:** időben állandó (a CMB nem hűl a kozmikus tágulással, a gáz
   nem fogy el); a kozmikus neutrínóháttér elnyelése nincs benne; a beesések
   pillanatszerűek.
@@ -361,3 +452,9 @@ viszont nem bébiuniverzumot, hanem a mi univerzumunkba visszatérő anyagot ír
 13. Bondi, MNRAS 112, 195 (1952) — gömbszimmetrikus akkréció
 14. Poisson & Israel, PRD 41, 1796 (1990) — belső horizontok instabilitása (tömeg-infláció)
 15. Fixsen, ApJ 707, 916 (2009) — T_CMB = 2.7255 K
+16. Page, PRD 14, 3260 (1976b) — forgó fekete lyuk emissziója; Dong, Kinney & Stojkovic, JCAP (2016), arXiv:1511.05642 — f(a*), g(a*) táblázat
+17. Bardeen, Press & Teukolsky, ApJ 178, 347 (1972); Bardeen, Nature 226, 64 (1970); Thorne, ApJ 191, 507 (1974)
+18. GRAVITY Collaboration, A&A 692, A242 (2024) — Sgr A* tömeg és távolság
+19. EHT Collaboration, ApJL 875, L1–L6 (2019); ApJL 910, L13 (2021) — M87*; ApJL 930, L12–L17 (2022) — Sgr A*
+20. Miller-Jones et al., Science 371, 1046 (2021); Zhao et al., ApJ 908, 117 (2021) — Cygnus X-1
+21. LIGO–Virgo–KAGRA, PRL (2025), arXiv:2509.08054 — GW250114; GWTC-1, PRX 9, 031040 (2019)

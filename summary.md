@@ -2,7 +2,7 @@
 
 **Készítők:** Norbi & Claude  
 **Időszak:** 2025–2026  
-**Verzió:** 3.1.0
+**Verzió:** 3.2.0
 
 ---
 
@@ -419,3 +419,37 @@ csillag-tömegű és nagyobb fekete lyukak a mai Univerzumban nőnek. A Norbi-
 hipotézis 2. fázisa (a beeső anyag táplálja a belső univerzumot) most
 könyvelésként megvan, de a kulcsállítás (3. fázis: a belső energia kijut)
 változatlanul a kauzalitáson bukik el.
+
+---
+
+## 11. fázis — Forgás (Kerr) és valódi fekete lyukak (v3.2, 2026-09-28)
+
+### Mit csináltunk
+
+- **Kerr-geometria:** horizontok, hőmérséklet, entrópia, horizont-szögsebesség,
+  ISCO, Novikov–Thorne hatásfok, Bardeen-felpörgetés, Thorne-határ.
+- **Page (1976b) forgó Hawking-emissziója** fajtánkénti f(a*), g(a*) táblázatból
+  (egy nyomtatott elírást a kutató-alügynök azonosított és javított: a neutrínó-
+  oszlop a* ≥ 0.99999 sorában 1e-4 helyett 1e-3 — a monotonitás és Page
+  13.35-ös faktora alapján).
+- **(M, a*) kétdimenziós fejlődés:** Hawking-lepörgés, korong-felpörgetés,
+  impulzusmomentum nélküli csatornák (CMB, gömbszimmetrikus akkréció, radiális beesés).
+- **Katalógus** mért paraméterekkel és hivatkozásokkal: Sgr A*, M87*, Cyg X-1,
+  GW250114, GW150914, ma elpárolgó PBH; megfigyelhetők (árnyék, EHT-gyűrű, Eddington-arány).
+- **CLI:** `--object`, `--list-objects`, `--spin`, `--disk-accretion`, képernyő-összefoglaló.
+- **setup_dev.sh** javítva: virtualenv (PEP 668), C-linker és Python-verzió ellenőrzés.
+
+### Amit megtudtunk
+
+| Kérdés | Eredmény |
+|---|---|
+| Gyorsabban párolog-e egy forgó fekete lyuk? | Igen: a*≈1-ről 2.6–2.8× rövidebb élettartam (Page: 2.0–2.7×), mert a forgás a gravitonok és fotonok kibocsátását 100–26 000-szeresére növeli. |
+| Meddig forog? | A spin gyorsabban fogy, mint a tömeg (h ≈ 7): a* = 0.1 már M/M0 ≈ 0.5–0.63-nál — Page következtetése, a teljes fejlődésből visszakapva. |
+| Stimmel-e a modell az EHT-képekkel? | Igen: M87* gyűrű 42.0 μas (mért 42 ± 3); Sgr A* δ = −0.082 (EHT: −0.08 ± 0.09). |
+| Mi történik a valódi fekete lyukakkal? | Mind nő (akkréció + CMB): Sgr A* ~97 M_☉-et 13.8 Gyr alatt a mai rátával; Cyg X-1 ~0.01 M_☉-et a kísérőcsillag hátralévő ~5 Myr-e alatt, a spin a Thorne-határon marad. Párolgás csak a primordiális fekete lyukaknál. |
+
+### Hardver
+
+A szimuláció egyszálú és könnyű: futásonként 1–2 s, ~55 MB RAM. A fejlesztői
+gépen (Intel i5-2500S, 4 mag, 8 GB, 2011) a teljes hideg fordítás 37 s, a
+tesztcsomag ~1 perc.

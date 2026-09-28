@@ -111,7 +111,7 @@ real objects (Sgr A*, M87).
 | H₁.C (CMB correlation > 0.3) | **Never implemented** in v2.0 or v3.0. With no causal channel the exterior can't correlate with the interior. |
 | Validation step 1 (7 known results) | Done, with 3 fixes: the "Page-curve peak" test was tautological, the bounce density was wrong, and t ∝ M³ only holds for constant α. |
 | Sensitivity analysis | M₀ covered by the mass scan (2 m_P to M_☉). Step count covered by convergence tests. Bin count affects only the display, and a₀ no longer exists. |
-| Future: Kerr, island formula, soft hair, complexity | Stubs deleted. Kerr is on the realism to-do list, and a real Page curve now exists in the quantum toy model. |
+| Future: Kerr, island formula, soft hair, complexity | Kerr **implemented in v3.2** (geometry, Page 1976b spin-dependent emission, spin evolution, disk spin-up). Island formula / soft hair / complexity: stubs deleted; a real Page curve exists in the quantum toy model. |
 
 ## 5. Takeaways for future work
 
@@ -121,6 +121,7 @@ real objects (Sgr A*, M87).
   assumes it (`project_to_horizon`) but never derives it. Any revival of the hypothesis has to supply that, for example
   a geometry where the bounced matter re-emerges in our universe (HKSW 2022 shock, black-to-white-hole transition).
   Those change the prediction from "non-thermal Hawking spectrum" to "delayed burst".
-- Ideas from the PDF that could still be modeled as realism upgrades, independent of the hypothesis:
-  **Kerr spin** and **real objects (Sgr A*, M87)**. Accretion feeding the black hole (the open system of phase 2)
-  is done in v3.1. It showed that stellar-mass and larger black holes *grow* in today's CMB rather than evaporate.
+- The realism upgrades from the PDF's future-plans chapter are done:
+  - accretion feeding the black hole (v3.1): stellar-mass and larger black holes *grow* in today's CMB rather than evaporate;
+  - Kerr spin (v3.2);
+  - real objects Sgr A*, M87* and others (v3.2). Their EHT ring sizes are reproduced (Sgr A* δ = −0.08, as published).
