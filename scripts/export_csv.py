@@ -13,7 +13,14 @@ def export(input_path: str, output_path: str) -> None:
     if not tl:
         print("Üres timeline.")
         return
-    fields = ["time", "mass", "temperature", "entropy"]
+    fields = [
+        "time",
+        "time_to_evaporation",
+        "mass",
+        "temperature",
+        "entropy",
+        "semiclassical_valid",
+    ]
     with open(output_path, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         w.writeheader()

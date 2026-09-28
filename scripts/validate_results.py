@@ -1,60 +1,101 @@
 #!/usr/bin/env python3
-"""CI validátor — szimulációs eredmények ellenőrzése."""
+"""CI validátor — szimulációs eredmények (schema 3.0) ellenőrzése."""
 from __future__ import annotations
+
 import json
+import math
 import sys
 from pathlib import Path
+from typing import Any
+
+SCHEMA = "3.0"
+RHO_CRIT_LQC = 2.1102600051408844e96
 
 
-def validate(path: str) -> list[str]:
+def _walk_numbers(obj: Any, path: str, errors: list[str]) -> None:
+    if obj is None:
+        errors.append(f"HIBA: null érték: {path}")
+    elif isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            errors.append(f"HIBA: NaN/Inf: {path}")
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            _walk_numbers(v, f"{path}.{k}", errors)
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            _walk_numbers(v, f"{path}[{i}]", errors)
+
+
+def validate(data: dict[str, Any]) -> list[str]:
     errors: list[str] = []
-    data = json.loads(Path(path).read_text())
-    tl = data.get("timeline", [])
-
-    if not tl:
-        errors.append("HIBA: Üres timeline")
+    if data.get("schema_version") != SCHEMA:
+        errors.append(f"HIBA: váratlan schema: {data.get('schema_version')} (várt: {SCHEMA})")
         return errors
 
-    # 1. Tömeg monoton csökkenő
+    _walk_numbers(data, "$", errors)
+    if len(errors) > 20:
+        return errors[:20] + [f"... és még {len(errors) - 20} hiba"]
+
+    tl = data.get("timeline", [])
+    if not tl:
+        return errors + ["HIBA: üres timeline"]
+
     masses = [s["mass"] for s in tl]
-    for i in range(1, len(masses)):
-        if masses[i] > masses[i - 1] * (1 + 1e-10):
-            errors.append(f"HIBA: A tömeg nőtt {i}. lépésnél: {masses[i-1]:.3e} → {masses[i]:.3e}")
-            break
-
-    # 2. Entrópia nem negatív
-    for s in tl:
-        if s.get("entropy", 0) < 0:
-            errors.append(f"HIBA: Negatív entrópia t={s['time']:.3e}s-nél")
-            break
-
-    # 3. Hőmérséklet monoton növekvő
+    if any(b >= a for a, b in zip(masses, masses[1:])):
+        errors.append("HIBA: a tömeg nem szigorúan csökkenő")
+    rem = [s["time_to_evaporation"] for s in tl]
+    if any(b >= a for a, b in zip(rem, rem[1:])):
+        errors.append("HIBA: a hátralévő idő nem szigorúan csökkenő")
     temps = [s["temperature"] for s in tl]
-    for i in range(1, len(temps)):
-        if temps[i] < temps[i - 1] * (1 - 1e-10):
-            errors.append(f"HIBA: Hőmérséklet csökkent {i}. lépésnél")
-            break
+    if any(b < a for a, b in zip(temps, temps[1:])):
+        errors.append("HIBA: a hőmérséklet csökkent")
+    if any(s["entropy"] < 0 for s in tl):
+        errors.append("HIBA: negatív entrópia")
 
-    # 4. NaN / Inf ellenőrzés
-    for s in tl:
-        for k, v in s.items():
-            if isinstance(v, float) and (v != v or abs(v) == float("inf")):
-                errors.append(f"HIBA: NaN/Inf: {k} t={s.get('time', '?'):.3e}s")
+    if not data.get("evaporation_complete"):
+        errors.append("HIBA: a párolgás nem futott le a végtömegig")
 
-    # 5. Schema verzió
-    if data.get("schema_version") != "2.0":
-        errors.append(f"HIBA: Váratlan schema: {data.get('schema_version')}")
+    energy = data.get("energy", {})
+    if energy.get("relative_error", 1.0) > 0.02:
+        errors.append(f"HIBA: energiamérleg eltérés {energy.get('relative_error'):.3e} > 2%")
+
+    interior = data.get("interior", {})
+    samples = interior.get("samples", [])
+    if not samples:
+        errors.append("HIBA: üres belső trajektória")
+    elif samples[0].get("phase") != "infall":
+        errors.append("HIBA: a belső trajektória nem a horizonton kívülről indul")
+    if any(s["density"] > RHO_CRIT_LQC * (1 + 1e-9) for s in samples):
+        errors.append("HIBA: a sűrűség meghaladja az LQC kritikus sűrűséget")
+
+    norbi = data.get("config", {}).get("norbi_mode", False)
+    bounce = interior.get("bounce")
+    if norbi:
+        if bounce is None:
+            errors.append("HIBA: Norbi módban nincs visszapattanás")
+        elif abs(bounce["density"] / RHO_CRIT_LQC - 1) > 1e-9:
+            errors.append("HIBA: a visszapattanás nem ρ_c-nél történt")
+        if not data.get("baby_universe"):
+            errors.append("HIBA: Norbi módban üres a bébiuniverzum")
+    elif interior.get("physics_boundary") is None:
+        errors.append("HIBA: Standard módban nincs fizikai határ")
 
     return errors
 
 
-if __name__ == "__main__":
+def main(paths: list[str]) -> int:
     all_errors: list[str] = []
-    for path in sys.argv[1:]:
-        errs = validate(path)
-        status = "OK" if not errs else f"{len(errs)} HIBA"
-        print(f"{path}: {status}")
+    for path in paths:
+        errs = validate(json.loads(Path(path).read_text()))
+        print(f"{path}: {'OK' if not errs else f'{len(errs)} HIBA'}")
         for e in errs:
             print(f"  {e}")
         all_errors.extend(errs)
-    sys.exit(1 if all_errors else 0)
+    return 1 if all_errors else 0
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Használat: validate_results.py <results.json> [...]")
+        sys.exit(2)
+    sys.exit(main(sys.argv[1:]))

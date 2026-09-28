@@ -15,8 +15,11 @@ pub enum SimulationError {
     #[error("NaN érték keletkezett: {context}")]
     NaNDetected { context: String },
 
-    #[error("Planck-határ elérve r={radius:.3e}m-nél")]
-    PlanckBoundaryReached { radius: f64 },
+    #[error(
+        "Tömegrés: M = {mass:.3e} kg < M_min = {m_min:.3e} kg — a kvantum \
+         Oppenheimer–Snyder modellben ilyen tömegnél nem alakul ki horizont (LMY 2023)"
+    )]
+    MassGap { mass: f64, m_min: f64 },
 
     #[error("Az integrálás sikertelen: {reason}")]
     IntegrationFailed { reason: String },

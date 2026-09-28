@@ -1,6 +1,7 @@
 use crate::error::SimulationError;
+use crate::interior::collapse::OSCollapse;
 use crate::radiation::emission::EmissionModel;
-use crate::types::{InteriorState, Particle, Spectrum};
+use crate::types::{InteriorKind, InteriorTrajectory, Spectrum};
 
 pub mod evaporation;
 pub mod schwarzschild;
@@ -28,17 +29,15 @@ pub trait BlackHoleTrait: Send + Sync {
     fn set_state(&mut self, mass: f64, age: f64) -> Result<(), SimulationError>;
 }
 
-/// Belső modell — Standard és Norbi egyaránt implementálja
+/// Belső modell — Standard és Norbi egyaránt implementálja.
+/// A belső dinamika saját ideje (τ) független a külső párolgási időtől.
 pub trait InteriorModel: Send + Sync {
-    fn simulate_step(
-        &mut self,
-        particle: &Particle,
-        bh: &dyn BlackHoleTrait,
-        dt: f64,
-    ) -> Result<InteriorState, SimulationError>;
-
-    fn at_physics_boundary(&self) -> bool;
-    fn radiation_spectrum(&self) -> Vec<f64>;
+    fn kind(&self) -> InteriorKind;
+    /// Folytatódik-e a leírás a kritikus sűrűségen túl
+    fn continues_through_bounce(&self) -> bool;
+    fn trajectory(&self, collapse: &OSCollapse, n_samples: usize) -> InteriorTrajectory {
+        collapse.trajectory(self.kind(), n_samples)
+    }
 }
 
 /// Sugárzási motor

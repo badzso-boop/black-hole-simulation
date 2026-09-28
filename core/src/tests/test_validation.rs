@@ -4,7 +4,7 @@
 mod validation {
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::black_hole::BlackHoleTrait;
-    use crate::constants::{M_SUN, RHO_PLANCK, WIEN_FREQ};
+    use crate::constants::{M_SUN, WIEN_FREQ};
     use crate::quantum::lqc::LQCEquation;
     use crate::radiation::hawking_engine::HawkingEngine;
     use approx::assert_relative_eq;
@@ -70,14 +70,15 @@ mod validation {
         assert_relative_eq!(ratio, 4.0, epsilon = 0.001);
     }
 
-    // VALIDÁCIÓ 7: LQC visszapattanás feltétele [ASH06]
+    // VALIDÁCIÓ 7: LQC visszapattanás feltétele [ASH06, LMY23] — ρ_c ≈ 0.41 ρ_Pl-nél
     #[test]
-    fn val_07_lqc_hubble_zero_at_planck_density() {
+    fn val_07_lqc_hubble_zero_at_critical_density() {
         let lqc = LQCEquation::new();
-        let h_sq = lqc.hubble_squared(RHO_PLANCK).unwrap();
+        let rho_c = crate::constants::RHO_CRIT_LQC;
+        let h_sq = lqc.hubble_squared(rho_c).unwrap();
         assert!(
-            h_sq.abs() < 1e-10,
-            "Planck-sűrűségnél H² = {h_sq:.3e}, nullának kellene"
+            h_sq.abs() < 1e-6 * lqc.classical_hubble_squared(rho_c),
+            "H² = {h_sq:.3e}"
         );
     }
 }

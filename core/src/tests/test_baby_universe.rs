@@ -1,80 +1,91 @@
 #[cfg(test)]
 mod tests {
-    use crate::constants::RHO_PLANCK;
-    use crate::interior::baby_universe::BabyUniverse;
-    use crate::types::InternalObjectData;
-    use crate::types::ObjectType;
+    use crate::black_hole::InteriorModel;
+    use crate::constants::{C, M_PLANCK, M_SUN};
+    use crate::interior::baby_universe::{baby_universe_states, gibbons_hawking_temperature};
+    use crate::interior::collapse::OSCollapse;
+    use crate::interior::norbi::NorbiInterior;
+    use crate::quantum::lqc::LQCEquation;
+    use approx::assert_relative_eq;
 
-    #[test]
-    fn test_baby_universe_starts_with_positive_energy() {
-        let bu = BabyUniverse::new(RHO_PLANCK);
-        assert!(bu.total_energy > 0.0);
-        assert!(bu.scale_factor > 0.0);
-        assert!(bu.expansion_rate > 0.0);
+    fn states(mass: f64) -> Vec<crate::types::BabyUniverseState> {
+        let c = OSCollapse::new(mass, 10.0).unwrap();
+        let t = NorbiInterior::new().trajectory(&c, 400);
+        baby_universe_states(&c, &t)
     }
 
     #[test]
-    fn test_baby_universe_expands_over_time() {
-        let mut bu = BabyUniverse::new(RHO_PLANCK);
-        let a0 = bu.scale_factor;
-        bu.evolve(1e-40);
-        assert!(bu.scale_factor > a0, "Bébiuniverzumnak tágulnia kell");
+    fn no_overflow_at_any_mass() {
+        // Korábbi hiba: exp(H·dt) túlcsordult minden M > m_P tömegre
+        for mass in [1.0 * M_PLANCK, 2.0 * M_PLANCK, 1.0, 1e12, M_SUN, 1e40] {
+            let s = states(mass);
+            assert!(!s.is_empty(), "M={mass:e}");
+            for b in &s {
+                for v in [
+                    b.scale_factor,
+                    b.efolds,
+                    b.hubble,
+                    b.density,
+                    b.radius,
+                    b.total_energy,
+                    b.gh_temperature,
+                    b.interior_luminosity,
+                ] {
+                    assert!(
+                        v.is_finite() && v >= 0.0,
+                        "M={mass:e}: nem véges/negatív érték {v}"
+                    );
+                }
+            }
+        }
     }
 
     #[test]
-    fn test_absorb_energy_increases_total() {
-        let mut bu = BabyUniverse::new(RHO_PLANCK);
-        let e0 = bu.total_energy;
-        bu.absorb_energy(1e20);
-        assert!(
-            bu.total_energy > e0,
-            "Energiaabszorpció után a teljes energia nő"
-        );
+    fn energy_is_conserved_not_created() {
+        for mass in [2.0 * M_PLANCK, 1e12, M_SUN] {
+            for b in states(mass) {
+                assert_relative_eq!(b.total_energy, mass * C * C, max_relative = 1e-9);
+            }
+        }
     }
 
     #[test]
-    fn test_edge_breakup_rate_positive() {
-        let bu = BabyUniverse::new(RHO_PLANCK);
-        assert!(bu.edge_breakup_rate() > 0.0);
+    fn expansion_is_monotonic_from_bounce() {
+        let s = states(1e12);
+        assert!(s[0].scale_factor >= 1.0);
+        for w in s.windows(2) {
+            assert!(w[1].scale_factor > w[0].scale_factor);
+            assert!(w[1].efolds > w[0].efolds);
+        }
+        let lqc = LQCEquation::new();
+        let h_peak = s.iter().map(|b| b.hubble).fold(0.0, f64::max);
+        assert!(h_peak <= lqc.max_bounce_hubble_rate() * (1.0 + 1e-12));
+        assert!(h_peak > 0.9 * lqc.max_bounce_hubble_rate());
     }
 
     #[test]
-    fn test_breakup_detected_for_large_object() {
-        let bu = BabyUniverse::new(RHO_PLANCK);
-        let obj = InternalObjectData {
-            mass: 1e30,
-            radius: 1.0,
-            position: [1e10, 0.0, 0.0], // messze a szélen
-            velocity: [0.0; 3],
-            entry_time: 0.0,
-            fragmented: false,
-            obj_type: ObjectType::Star,
-        };
-        let event = bu.check_breakup(&obj, 0.0);
-        // Nagy tömeg + nagy távolság → szétszakadás
-        assert!(
-            event.is_some(),
-            "Nagy objektumnak szétszakadnia kell a belső szélén"
-        );
+    fn hubble_peak_resolved_on_interior_grid() {
+        // A bébiuniverzum a saját óráján fejlődik; a külső lépésszám nem is bemenete.
+        let c = OSCollapse::new(1e12, 10.0).unwrap();
+        let a = baby_universe_states(&c, &NorbiInterior::new().trajectory(&c, 401));
+        let b = baby_universe_states(&c, &NorbiInterior::new().trajectory(&c, 4001));
+        let peak =
+            |v: &[crate::types::BabyUniverseState]| v.iter().map(|x| x.hubble).fold(0.0, f64::max);
+        // a finomabb rács a H_max csúcsot jobban eltalálja; mindkettő ≤ H_max
+        let h_max = LQCEquation::new().max_bounce_hubble_rate();
+        assert!(peak(&a) <= h_max && peak(&b) <= h_max);
+        assert_relative_eq!(peak(&b), h_max, max_relative = 1e-3);
+        assert_relative_eq!(peak(&a), h_max, max_relative = 5e-2);
     }
 
     #[test]
-    fn test_no_breakup_at_origin() {
-        // A belső univerzum középpontján (r=0) nulla a tidal erő → nincs szétszakadás
-        let bu = BabyUniverse::new(RHO_PLANCK);
-        let obj = InternalObjectData {
-            mass: 1e10,
-            radius: 1e6,
-            position: [0.0, 0.0, 0.0], // origón: r=0 → e_tidal=0
-            velocity: [0.0; 3],
-            entry_time: 0.0,
-            fragmented: false,
-            obj_type: ObjectType::Planet,
-        };
-        let event = bu.check_breakup(&obj, 0.0);
-        assert!(
-            event.is_none(),
-            "Az origón lévő objektumnak nem szabad szétszakadni (e_tidal=0)"
+    fn gibbons_hawking_temperature_formula() {
+        // T = ħH/(2πk_B); H = 1/t_P-nél ~ T_P/(2π)
+        let t = gibbons_hawking_temperature(1.0 / crate::constants::T_PLANCK);
+        assert_relative_eq!(
+            t,
+            crate::constants::TEMP_PLANCK / (2.0 * std::f64::consts::PI),
+            max_relative = 1e-12
         );
     }
 }

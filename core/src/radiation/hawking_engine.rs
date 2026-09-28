@@ -3,7 +3,7 @@ use crate::constants::{PI, SPECTRUM_BINS, WIEN_FREQ};
 use crate::error::SimulationError;
 use crate::radiation::emission::photon_cross_section;
 use crate::radiation::spectrum::{planck_spectrum, spectral_nonthermality};
-use crate::types::{BabyUniverseState, Spectrum};
+use crate::types::Spectrum;
 
 /// HawkingEngine — a külső megfigyelő által látott Hawking-sugárzás.
 ///
@@ -59,45 +59,6 @@ impl HawkingEngine {
             * df
     }
 
-    /// Norbi-módú spektrum: Hawking alap + bébiuniverzum él-sugárzás keveréke.
-    /// (Átmeneti, a 4–5. fázisban a kauzalitással kapuzott változat váltja fel.)
-    pub fn compute_spectrum_norbi(
-        &self,
-        bh: &dyn BlackHoleTrait,
-        baby_state: &BabyUniverseState,
-    ) -> Result<Spectrum, SimulationError> {
-        let base = self.compute_spectrum(bh)?;
-        let temp_edge =
-            crate::interior::baby_universe::gibbons_hawking_temperature(baby_state.expansion_rate);
-        let edge_raw: Vec<f64> = base
-            .frequencies
-            .iter()
-            .map(|&f| planck_spectrum(f, temp_edge).unwrap_or(0.0))
-            .collect();
-        let alpha = baby_state.breakup_fraction.clamp(0.0, 1.0);
-        let sum_h: f64 = base.intensities.iter().sum();
-        let sum_e: f64 = edge_raw.iter().sum();
-        let blended: Vec<f64> = base
-            .intensities
-            .iter()
-            .zip(&edge_raw)
-            .map(|(&h, &e)| {
-                let hn = if sum_h > 0.0 { h / sum_h } else { 0.0 };
-                let en = if sum_e > 0.0 { e / sum_e } else { 0.0 };
-                ((1.0 - alpha) * hn + alpha * en) * sum_h
-            })
-            .collect();
-        let (kl, t_fit) = spectral_nonthermality(&base.frequencies, &blended, base.temperature);
-        Ok(Spectrum {
-            intensities: blended,
-            hawking_fraction: 1.0 - alpha,
-            edge_fraction: alpha,
-            spectral_nonthermality: kl,
-            fit_temperature: t_fit,
-            ..base
-        })
-    }
-
     /// Planck-spektrum közvetlen számítása (teszteléshez)
     pub fn planck_spectrum(&self, freq: f64, temp: f64) -> Result<f64, SimulationError> {
         planck_spectrum(freq, temp)
@@ -117,8 +78,6 @@ impl RadiationEngine for HawkingEngine {
             temperature: temp,
             total_power,
             photon_power,
-            hawking_fraction: 1.0,
-            edge_fraction: 0.0,
             spectral_nonthermality: kl,
             fit_temperature: t_fit,
         })

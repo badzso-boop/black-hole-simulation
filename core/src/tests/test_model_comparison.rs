@@ -1,125 +1,107 @@
 #[cfg(test)]
 mod model_comparison {
-    use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
-    use crate::black_hole::{InteriorModel, RadiationEngine};
-    use crate::interior::norbi::NorbiInterior;
-    use crate::interior::standard::StandardInterior;
-    use crate::radiation::hawking_engine::HawkingEngine;
-    use crate::types::Particle;
+    use crate::constants::{M_MIN_LMY, M_PLANCK, M_SUN};
+    use crate::error::SimulationError;
+    use crate::run_simulation;
+    use crate::types::SimulationConfig;
+    use approx::assert_relative_eq;
 
-    fn make_bh() -> SchwarzschildBlackHole {
-        SchwarzschildBlackHole::new(1e15).unwrap()
-    }
-
-    // ÖSSZEHASONLÍTÁS 1: Standard modell megáll Planck-határnál
-    #[test]
-    fn cmp_01_standard_model_stops_at_planck_scale() {
-        let mut interior = StandardInterior::new();
-        // Kis tömegű részecske: gyorsan eléri a Planck-sűrűséget
-        let particle = Particle {
-            mass: 1e-10,
-            initial_radius: 1e-34,
-            ..Particle::test_particle()
-        };
-        let bh = make_bh();
-        let mut reached = false;
-        for _ in 0..100_000 {
-            let state = interior.simulate_step(&particle, &bh, 1e-44).unwrap();
-            if state.at_planck_scale {
-                assert!(interior.at_physics_boundary());
-                assert!(state.physics_boundary.is_some());
-                reached = true;
-                break;
-            }
+    fn cfg(mass: f64, norbi: bool) -> SimulationConfig {
+        SimulationConfig {
+            mass,
+            norbi_mode: norbi,
+            ..Default::default()
         }
-        assert!(reached, "Standard modellnek Planck-határt kell elérnie");
     }
 
-    // ÖSSZEHASONLÍTÁS 2: Norbi modell folytatódik Planck után
     #[test]
-    fn cmp_02_norbi_model_continues_after_planck_scale() {
-        let mut interior = NorbiInterior::new();
-        let particle = Particle {
-            mass: 1e-10,
-            initial_radius: 1e-34,
-            ..Particle::test_particle()
-        };
-        let bh = make_bh();
-        let mut bounced = false;
-        for _ in 0..100_000 {
-            let state = interior.simulate_step(&particle, &bh, 1e-44).unwrap();
-            if state.bounce_occurred {
-                assert!(!interior.at_physics_boundary());
-                assert!(state.baby_universe.is_some());
-                bounced = true;
-                break;
-            }
-        }
-        assert!(bounced, "Norbi modellnek visszapattanást kell produkálnia");
-    }
-
-    // ÖSSZEHASONLÍTÁS 3: Norbi sugárzás ≠ Standard sugárzás (különböző engine-ek)
-    #[test]
-    fn cmp_03_norbi_radiation_has_edge_component() {
-        let mut norbi = NorbiInterior::new();
-        let particle = Particle {
-            mass: 1e-10,
-            initial_radius: 1e-34,
-            ..Particle::test_particle()
-        };
-        let bh = make_bh();
-        for _ in 0..100_000 {
-            let state = norbi.simulate_step(&particle, &bh, 1e-44).unwrap();
-            if state.bounce_occurred {
-                let spectrum = norbi.radiation_spectrum();
-                // A Norbi spektrumnak van edge komponense
-                assert_eq!(spectrum.len(), crate::constants::SPECTRUM_BINS);
-                break;
+    fn mass_scan_has_no_nan_inf_or_null() {
+        for mass in [2.0 * M_PLANCK, 1e-6, 1.0, 5.1e11, 1e12, M_SUN] {
+            for norbi in [false, true] {
+                let r = run_simulation(&cfg(mass, norbi), serde_json::json!({})).unwrap();
+                let txt = serde_json::to_string(&r).unwrap();
+                assert!(!txt.contains("null"), "M={mass:e} norbi={norbi}");
+                assert!(r.evaporation_complete);
+                assert_relative_eq!(r.end_mass, M_MIN_LMY);
             }
         }
     }
 
-    // ÖSSZEHASONLÍTÁS 4: BabyUniverse energiája pozitív visszapattanás után
     #[test]
-    fn cmp_04_baby_universe_has_positive_energy() {
-        let mut interior = NorbiInterior::new();
-        let particle = Particle {
-            mass: 1e-10,
-            energy: 1e30,
-            initial_radius: 1e-34,
-            ..Particle::test_particle()
-        };
-        let bh = make_bh();
-        for _ in 0..100_000 {
-            let state = interior.simulate_step(&particle, &bh, 1e-44).unwrap();
-            if let Some(ref bu) = state.baby_universe {
-                assert!(
-                    bu.total_energy > 0.0,
-                    "Bébiuniverzum energiájának pozitívnak kell lennie"
-                );
-                assert!(
-                    bu.scale_factor > 0.0,
-                    "Skálafaktornak pozitívnak kell lennie"
-                );
-                assert!(
-                    bu.expansion_rate > 0.0,
-                    "Tágulási rátának pozitívnak kell lennie"
-                );
-                return;
-            }
+    fn exterior_is_identical_because_interior_is_causally_disconnected() {
+        let s = run_simulation(&cfg(1e12, false), serde_json::json!({})).unwrap();
+        let n = run_simulation(&cfg(1e12, true), serde_json::json!({})).unwrap();
+        assert!(!n.causal_channel.exists);
+        assert_eq!(s.timeline.len(), n.timeline.len());
+        for (a, b) in s.timeline.iter().zip(&n.timeline) {
+            assert_eq!(a.spectrum.intensities, b.spectrum.intensities);
         }
+        assert!(s.baby_universe.is_empty() && !n.baby_universe.is_empty());
+        assert!(s.interior.physics_boundary.is_some() && n.interior.bounce.is_some());
+        assert!(n.warnings.iter().any(|w| w.contains("kauzálisan")));
     }
 
-    // ÖSSZEHASONLÍTÁS 5: Hawking motor standard és norbi módban különböző objektumok
     #[test]
-    fn cmp_05_engine_modes_are_distinct() {
-        let std_engine = HawkingEngine::new();
-        let norbi_engine = HawkingEngine::new();
-        // Mindkét engine azonos fekete lyukra azonos Hawking-hőmérsékletet számít
-        let bh = make_bh();
-        let s_spec = std_engine.compute_spectrum(&bh).unwrap();
-        let n_spec = norbi_engine.compute_spectrum(&bh).unwrap();
-        // Alapspektrum azonos (Norbi belső motor a NorbiInterior-ban van)
-        assert_eq!(s_spec.frequencies.len(), n_spec.frequencies.len());
+    fn converged_in_step_count() {
+        let a = run_simulation(
+            &SimulationConfig {
+                steps: 100,
+                ..cfg(1e12, true)
+            },
+            serde_json::json!({}),
+        )
+        .unwrap();
+        let b = run_simulation(
+            &SimulationConfig {
+                steps: 1000,
+                ..cfg(1e12, true)
+            },
+            serde_json::json!({}),
+        )
+        .unwrap();
+        assert_relative_eq!(
+            a.timeline.last().unwrap().time,
+            b.timeline.last().unwrap().time,
+            max_relative = 1e-8
+        );
+        assert_relative_eq!(
+            a.timeline[0].time_to_evaporation,
+            b.timeline[0].time_to_evaporation,
+            max_relative = 1e-8
+        );
+    }
+
+    #[test]
+    fn energy_ledger_is_consistent() {
+        let r = run_simulation(
+            &SimulationConfig {
+                steps: 2000,
+                ..cfg(1e12, false)
+            },
+            serde_json::json!({}),
+        )
+        .unwrap();
+        assert!(
+            r.energy.relative_error < 1e-3,
+            "{}",
+            r.energy.relative_error
+        );
+        let r = run_simulation(&cfg(1e12, false), serde_json::json!({})).unwrap();
+        assert!(
+            r.energy.relative_error < 1e-2,
+            "{}",
+            r.energy.relative_error
+        );
+    }
+
+    #[test]
+    fn payload_passes_through_and_mass_gap_is_error() {
+        let r = run_simulation(&cfg(1e12, true), serde_json::json!({"uzenet": "szia"})).unwrap();
+        assert_eq!(r.payload["uzenet"], "szia");
+        assert_eq!(r.schema_version, "3.0");
+        assert!(matches!(
+            run_simulation(&cfg(0.5 * M_PLANCK, true), serde_json::json!({})),
+            Err(SimulationError::MassGap { .. })
+        ));
     }
 }

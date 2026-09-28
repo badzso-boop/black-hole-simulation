@@ -1,42 +1,34 @@
 #[cfg(test)]
 mod tests {
-    use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
-    use crate::black_hole::BlackHoleTrait;
+    use crate::run_simulation;
     use crate::time_evolution::checkpoint::Checkpoint;
-    use crate::types::{InteriorState, SimulationConfig};
+    use crate::types::SimulationConfig;
     use std::fs;
 
     #[test]
-    fn test_checkpoint_save_and_load() {
-        let tmp = std::env::temp_dir().join("test_checkpoint.bhs");
-        let config = SimulationConfig::lite();
-        let bh = SchwarzschildBlackHole::new(1e15).unwrap();
-        let interior = InteriorState::default();
-
-        let cp = Checkpoint::new(config.clone(), bh.age(), bh.mass(), vec![], interior);
-        cp.save(&tmp).expect("Checkpoint mentés sikertelen");
-
-        let loaded = Checkpoint::load(&tmp).expect("Checkpoint betöltés sikertelen");
-        assert_eq!(loaded.schema_version, "2.0");
-        assert!((loaded.current_mass - bh.mass()).abs() < 1e-10);
-
-        let _ = fs::remove_file(&tmp);
-    }
-
-    #[test]
-    fn test_checkpoint_atomic_write() {
-        let tmp = std::env::temp_dir().join("test_atomic.bhs");
-        let config = SimulationConfig::standard();
-        let bh = SchwarzschildBlackHole::new(1e10).unwrap();
-        let interior = InteriorState::default();
-
-        let cp = Checkpoint::new(config, bh.age(), bh.mass(), vec![], interior);
-        cp.save(&tmp).unwrap();
-
-        // Az atomikus írás után nem marad tmp fájl
-        let tmp_path = tmp.with_extension("tmp");
-        assert!(!tmp_path.exists(), "Nem szabad maradék .tmp fájlnak lennie");
-
+    fn checkpoint_roundtrip_and_atomic_write() {
+        let tmp =
+            std::env::temp_dir().join(format!("bh_test_checkpoint_{}.bhs", std::process::id()));
+        let cfg = SimulationConfig {
+            mass: 1e12,
+            norbi_mode: true,
+            steps: 20,
+            interior_steps: 20,
+            ..Default::default()
+        };
+        let results = run_simulation(&cfg, serde_json::json!({"a": 1})).unwrap();
+        Checkpoint::new(results.clone()).save(&tmp).unwrap();
+        assert!(
+            !tmp.with_extension("tmp").exists(),
+            "Nem maradhat .tmp fájl"
+        );
+        let loaded = Checkpoint::load(&tmp).unwrap();
+        assert_eq!(loaded.schema_version, "3.0");
+        assert_eq!(loaded.results.timeline.len(), results.timeline.len());
+        assert_eq!(
+            loaded.results.baby_universe.len(),
+            results.baby_universe.len()
+        );
         let _ = fs::remove_file(&tmp);
     }
 }
