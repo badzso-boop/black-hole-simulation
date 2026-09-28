@@ -9,6 +9,7 @@ pub mod quantum;
 pub mod radiation;
 pub mod time_evolution;
 pub mod types;
+pub mod units;
 
 // Kényelmes re-export
 pub use black_hole::schwarzschild::SchwarzschildBlackHole;

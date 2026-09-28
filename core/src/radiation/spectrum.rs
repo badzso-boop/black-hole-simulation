@@ -1,29 +1,25 @@
-use crate::constants::{C, HBAR, K_B, SPECTRUM_BINS, WIEN_FREQ};
+use crate::constants::{C, H_PLANCK, K_B, SPECTRUM_BINS, WIEN_FREQ};
 use crate::error::{check_finite, SimulationError};
 use crate::types::Spectrum;
 
-/// Planck-sugárzási spektrum egyetlen frekvencián
-/// B(ν, T) = (2hν³/c²) · 1/(e^(hν/kT) - 1)
+/// Planck-féle spektrális radiancia egyetlen frekvencián (W·m⁻²·sr⁻¹·Hz⁻¹):
+/// B_ν(T) = (2hν³/c²) · 1/(e^(hν/k_BT) − 1)
 pub fn planck_spectrum(freq: f64, temp: f64) -> Result<f64, SimulationError> {
-    if freq <= 0.0 {
+    if freq <= 0.0 || temp <= 0.0 {
         return Ok(0.0);
     }
-    if temp <= 0.0 {
-        return Ok(0.0);
+    let x = H_PLANCK * freq / (K_B * temp);
+    if x > 700.0 {
+        return Ok(0.0); // exp túlcsordulás elkerülése — a Wien-farok itt gyakorlatilag 0
     }
-    let x = HBAR * 2.0 * std::f64::consts::PI * freq / (K_B * temp);
-    // exp_m1(x) = e^x - 1 pontosan számolva — sima `x.exp() - 1.0` nagyon kis
-    // x-re (mély Rayleigh-Jeans tartomány, pl. Gibbons-Hawking-hőmérsékletű
-    // él-spektrum a sokkal alacsonyabb Hawking-frekvenciákon) katasztrofális
-    // kioltással pontosan 0-t adna, mert exp(x)≈1.0 lebegőpontosan kerekítve.
+    // exp_m1(x) = e^x − 1 pontosan: kis x-re (Rayleigh–Jeans) nincs kioltás
     let denominator = x.exp_m1();
     if denominator <= 0.0 || denominator.is_nan() {
         return Ok(0.0);
     }
-    let prefactor = 2.0 * HBAR * (2.0 * std::f64::consts::PI * freq).powi(3) / (C * C);
-    let val = prefactor / denominator;
+    let prefactor = 2.0 * H_PLANCK * freq.powi(3) / (C * C);
     check_finite(
-        val,
+        prefactor / denominator,
         &format!("planck_spectrum(freq={freq:.3e}, temp={temp:.3e})"),
     )
 }

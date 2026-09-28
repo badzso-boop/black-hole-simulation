@@ -43,4 +43,21 @@ mod tests {
         let spectrum = engine.compute_spectrum(&bh).unwrap();
         assert!(spectrum.intensities.iter().all(|&v| v >= 0.0));
     }
+
+    /// Abszolút normálás: π∫B_ν dν = σ_SB·T⁴ (Stefan–Boltzmann).
+    /// A korábbi prefaktor 4π²-szer túl nagy volt — ez a teszt azt fogta volna meg.
+    #[test]
+    fn test_planck_spectrum_integrates_to_stefan_boltzmann() {
+        use crate::constants::{C, HBAR, K_B, PI, WIEN_FREQ};
+        let t = 5000.0;
+        let n = 200_000;
+        let nu_max = 30.0 * WIEN_FREQ * t;
+        let dnu = nu_max / n as f64;
+        let integral: f64 = (0..n)
+            .map(|i| planck_spectrum((i as f64 + 0.5) * dnu, t).unwrap() * dnu)
+            .sum();
+        let sigma = PI * PI * K_B.powi(4) / (60.0 * HBAR.powi(3) * C * C);
+        let rel = (PI * integral - sigma * t.powi(4)).abs() / (sigma * t.powi(4));
+        assert!(rel < 1e-6, "Stefan–Boltzmann eltérés: {rel:e}");
+    }
 }

@@ -4,9 +4,7 @@ import numpy as np
 from numpy.typing import NDArray
 from sklearn.decomposition import PCA
 
-# Fizikai állandók (SI)
-_HBAR = 1.055e-34
-_K_B  = 1.381e-23
+from python.constants import HBAR as _HBAR, K_B as _K_B
 
 
 class ReverseEngineer:
