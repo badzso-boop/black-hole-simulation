@@ -1,0 +1,12 @@
+$ -m python --mass 1e+23 --output output/campaign/2026-09-28/mass_cmb__m1e+23.json
+# kilépési kód: 0
+# falióra-idő: 1.164 s
+
+## stdout
+Eredmény mentve: output/campaign/2026-09-28/mass_cmb__m1e+23.json
+  kezdőtömeg:   1.0000e+23 kg (5.029e-08 M_☉), a* = 0.0
+  13.79 Gyr után: M = 1.000000e+23 kg (ΔM = +1.945e-11 kg), a* = 0.0000
+  ! A fekete lyuk a szimulációs horizontig (4.351e17 s) nem párolgott el (végtömeg 1.000000e23 kg, dM/dt = +4.471e-29 kg/s); M > M_eq = 5.562e22 kg: a környezetéből…
+
+## stderr
+

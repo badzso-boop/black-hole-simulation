@@ -1,0 +1,17 @@
+$ -m python --object m87 --norbi-mode false --output output/campaign/2026-09-28/catalog__m87_norbi-false.json
+# kilépési kód: 0
+# falióra-idő: 1.720 s
+
+## stdout
+Eredmény mentve: output/campaign/2026-09-28/catalog__m87_norbi-false.json
+  kezdőtömeg:   1.2925e+40 kg (6.5e+09 M_☉), a* = 0.9
+  13.79 Gyr után: M = 1.294973e+40 kg (ΔM = +2.467e+37 kg), a* = 0.8966
+  objektum:     M87* (a Messier 87 galaxis központi fekete lyuka)
+  feltevések:   a mai Ṁ állandónak feltételezve a teljes horizonton; ε = 0.1 feltételezett (a tömegnövekedésre alig hat); a tömeg alternatívái: 5.37e9 (Liepold 2023), 3.45e9 M_☉ (gázdinamika)
+  árnyék:       39.7 μas (a* = 0 közelítés)
+  EHT-gyűrű:    várt 42.0 μas, mért 42.0 ± 3.0 μas (δ = -0.000)
+  ! A fekete lyuk a szimulációs horizontig (4.351e17 s) nem párolgott el (végtömeg 1.294973e40 kg, dM/dt = +5.671e19 kg/s); M > M_eq = 1.209e-1 kg: a környezetéből …
+  ! Spin > 0: a belső összeomlás és a kauzalitás-elemzés gömbszimmetrikus (a* = 0) modellel készül — forgó LQC-összeomlásra nincs publikált effektív modell. A klass…
+
+## stderr
+

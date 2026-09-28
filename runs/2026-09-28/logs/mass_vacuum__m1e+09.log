@@ -1,0 +1,12 @@
+$ -m python --mass 1000000000.0 --cmb-temperature 0 --output output/campaign/2026-09-28/mass_vacuum__m1e+09.json
+# kilépési kód: 0
+# falióra-idő: 1.354 s
+
+## stdout
+Eredmény mentve: output/campaign/2026-09-28/mass_vacuum__m1e+09.json
+  kezdőtömeg:   1.0000e+09 kg (5.029e-22 M_☉), a* = 0.0
+  elpárolgott:  4.7381e+08 s (1.501e-08 Gyr) alatt
+  ! A párolgás utolsó szakaszában M < 10 m_P (2.176e-7 kg): itt a szemiklasszikus Hawking-képlet érvényessége kérdéses (semiclassical_valid = false)
+
+## stderr
+

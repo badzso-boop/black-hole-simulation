@@ -1,0 +1,12 @@
+$ -m python --mass 1.98847e+30 --cmb-temperature 0 --max-time 3.15576e17 --output output/campaign/2026-09-28/environment__sun_in_vacuum_10gyr.json
+# kilépési kód: 0
+# falióra-idő: 1.109 s
+
+## stdout
+Eredmény mentve: output/campaign/2026-09-28/environment__sun_in_vacuum_10gyr.json
+  kezdőtömeg:   1.9885e+30 kg (1 M_☉), a* = 0.0
+  10 Gyr után: M = 1.988470e+30 kg (ΔM = -1.824e-27 kg), a* = 0.0000
+  ! A fekete lyuk a szimulációs horizontig (3.156e17 s) nem párolgott el (végtömeg 1.988470e30 kg, dM/dt = -5.780e-45 kg/s)
+
+## stderr
+

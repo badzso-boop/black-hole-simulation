@@ -1,0 +1,18 @@
+$ -m python --object sgr-a --norbi-mode true --output output/campaign/2026-09-28/catalog__sgr-a_norbi-true.json
+# kilépési kód: 0
+# falióra-idő: 1.129 s
+
+## stdout
+Eredmény mentve: output/campaign/2026-09-28/catalog__sgr-a_norbi-true.json
+  kezdőtömeg:   8.5496e+36 kg (4.3e+06 M_☉), a* = 0.9
+  13.79 Gyr után: M = 8.549817e+36 kg (ΔM = +1.915e+32 kg), a* = 0.9000
+  objektum:     Sagittarius A* (a Tejútrendszer központi fekete lyuka)
+  feltevések:   a mai Ṁ állandónak feltételezve a teljes horizonton; ε = 0.002 a mért L_bol ≈ 8e35 erg/s és Ṁ = 7e-9 M_☉/év hányadosa (sugárzásban szegény, forró áramlás — nem vékony korong)
+  árnyék:       53.3 μas (a* = 0 közelítés)
+  EHT-gyűrű:    várt 56.4 μas, mért 51.8 ± 2.3 μas (δ = -0.082)
+  ! A fekete lyuk a szimulációs horizontig (4.351e17 s) nem párolgott el (végtömeg 8.549817e36 kg, dM/dt = +4.402e14 kg/s); M > M_eq = 4.338e1 kg: a környezetéből t…
+  ! Spin > 0: a belső összeomlás és a kauzalitás-elemzés gömbszimmetrikus (a* = 0) modellel készül — forgó LQC-összeomlásra nincs publikált effektív modell. A klass…
+  ! Norbi-mód: a bébiuniverzum széle kauzálisan le van választva a külső megfigyelőről (lásd causal_channel.reason) — az él-sugárzás a külső spektrumhoz nem járul h…
+
+## stderr
+

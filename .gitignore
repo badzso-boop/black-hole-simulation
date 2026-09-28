@@ -61,6 +61,8 @@ Desktop.ini
 # Logok és temporális fájlok
 # =============================================================================
 *.log
+# a szimulációs kampányok naplói szándékosan a repóban vannak
+!runs/**/*.log
 *.tmp
 *.bak
 /tmp/

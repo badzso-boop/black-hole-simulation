@@ -1,0 +1,12 @@
+$ -m python --mass 5.1e11 --emission-model MacGibbon --output output/campaign/2026-09-28/emission__MacGibbon.json
+# kilépési kód: 0
+# falióra-idő: 2.104 s
+
+## stdout
+Eredmény mentve: output/campaign/2026-09-28/emission__MacGibbon.json
+  kezdőtömeg:   5.1000e+11 kg (2.565e-19 M_☉), a* = 0.0
+  elpárolgott:  3.5131e+17 s (11.13 Gyr) alatt
+  ! A párolgás utolsó szakaszában M < 10 m_P (2.176e-7 kg): itt a szemiklasszikus Hawking-képlet érvényessége kérdéses (semiclassical_valid = false)
+
+## stderr
+

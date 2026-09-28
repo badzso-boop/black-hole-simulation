@@ -1,0 +1,16 @@
+## Rust: `cargo test --manifest-path core/Cargo.toml --quiet` — kilépési kód 0, 47.0 s
+
+running 105 tests
+....................................................................................... 87/105
+..................
+test result: ok. 105 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 41.74s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+## Python: `.venv/bin/python3 -m pytest python/tests -q` — kilépési kód 0, 15.7 s
+
+......................                                                   [100%]
+22 passed in 15.37s
