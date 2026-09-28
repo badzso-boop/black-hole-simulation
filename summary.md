@@ -2,7 +2,7 @@
 
 **Készítők:** Norbi & Claude  
 **Időszak:** 2025–2026  
-**Verzió:** 2.0.0
+**Verzió:** 3.0.0
 
 ---
 
@@ -287,3 +287,87 @@ Ez most már **valódi, fokozatos átmenetet** mutat (50%→99,9%+), csak épp n
 
 **A legfontosabb felismerés:**
 Egy szimulációt megírni, ami *fut*, sokkal könnyebb mint megírni egyet, ami *alátámaszt valamit*. A különbség: az előbbiben mi programozzuk be a következtetést, az utóbbiban a természet adja.
+
+---
+
+## 9. fázis — Teljes átvilágítás és javítás (v3.0, 2026-09-28)
+
+### Ami elindította
+
+Egy teljes kód-átvilágítás és a szimuláció tényleges lefuttatása több tömegen
+kimutatta, hogy a v2.0 fő eredményei **numerikus műtermékek** voltak, nem a
+beépített fizika következményei. A javítás előtt egy kutató-alügynök átnézte a
+friss szakirodalmat (LQC, LQG-összeomlás, fehér lyukak, bébiuniverzumok,
+Hawking-emisszió, Page-görbe); minden új képlet és állandó ebből származik.
+
+### Ami műtermék volt
+
+| Állítás (v2.0) | Valójában | Oka |
+|---|---|---|
+| Norbi `edge_fraction = 1.0` | csak pontosan M = m_P-nél; 2.3 m_P-től minden tömegen 0 | `exp(H_inf·dt)` f64-túlcsordulás → skálafaktor ∞ (JSON `null`), sűrűség 0, `breakup_fraction()` → 0 |
+| „9.97 visszanyert bit" (Standard: 0.95) | `edge_fraction · log2(1000)` | a spektrum bin-számának logaritmusa; a payload el sem jutott a szimulációig |
+| thermality_ratio ≈ 138× | két Planck-görbe keverékének KL-je egy rögzített T_H-hoz | termális keverék nem hordoz információt; a KL ráadásul nem a legjobb illesztéshez mért |
+| „Page-görbe" | 1000 bines hisztogram Shannon-entrópiája | felső korlátja ln 1000 ≈ 6.9, a BH entrópiája 12.6 |
+| visszapattanás a beesés végén | mindig a 0. lépésben | `NorbiInterior` sugara 0-ról indult; `initial_radius` sosem volt használva |
+| „nincs több szabad paraméter" | az él-hőmérséklet a `steps = 100`-tól függött | H ≈ 1/dt, dt = t_evap/100 |
+| teljes párolgás | M/M0 = 0.28 a teljes t_evap után | fix lépésközű explicit Euler |
+| energia | lépésenként +0.1% M c² a semmiből | `absorb_energy` sosem vont le a BH-ból |
+| ρ_bounce = ρ_Planck | ρ_c ≈ 0.409 ρ_Pl | γ_BI = 0.2375 (Ashtekar–Singh 2011, LMY 2023) |
+| RK45 integrátor | egyetlen RK4 lépés, be sem volt kötve | — |
+| 58/58 zöld teszt | több tautológia (pl. a Page-„validáció" egy beégetett háromszög-függvényt tesztelt) | — |
+| CI | mindhárom workflow hónapok óta piros | fmt, ruff, 55 mypy-hiba, nem létező `python.main` |
+
+### Mit csináltunk (commitonként)
+
+1. **Takarítás** — Bevy és Tauri törölve (a Tauri a Norbi-módot figyelmen kívül
+   hagyta, a Bevy saját fizikát futtatott), stubok és placeholderek törölve,
+   CLI javítva.
+2. **Állandók** — CODATA 2022 teljes pontossággal; LQC-állandók; a Planck-spektrum
+   prefaktora 4π²-szer túl nagy volt (Stefan–Boltzmann-teszt).
+3. **Párolgás** — MacGibbon/Carr fajtánkénti f(M), Page 2013 foton+graviton α,
+   greybody foton-spektrum; a hátralévő idő visszafelé integrálva ln M-ben
+   (a végfázis is pontos, az eredmény független a lépésszámtól). Útközben
+   kiderült: az `ode_solvers` crate dense kimenete ~1e-4 hibával interpolál —
+   sparse kimenetre váltottunk.
+4. **Belső fizika** — Oppenheimer–Snyder porgömb R0-ról; LQC-visszapattanás
+   ρ_c-nél analitikusan (a numerikus Raychaudhuri-integrálás 1e-8-ra egyezik);
+   bébiuniverzum log-változókban (nincs túlcsordulás); LMY külső metrika,
+   tömegrés (0.83 m_P); **kauzális csatorna**: f(r_b) = 1 és r_b < r_−, a
+   fénysugarak r_−-t csak aszimptotikusan közelítik → nincs kapcsolat kifelé.
+5. **Információ** — egzakt Haar-unitér Page-görbe és Hayden–Preskill kölcsönös
+   információ; félklasszikus Hawking (I = 0); Norbi a kauzalitásból.
+6. **CI** — tömeg-scan mindkét módban, schema 3.0 validátor, explicit ruff-szabályok.
+
+### Az új eredmény
+
+| Mennyiség | v2.0 (csak M = m_P) | v3.0 (minden tömeg) |
+|---|---|---|
+| Norbi külső spektrum | „nem-termális" | azonos a Standard-dal (a belső le van választva) |
+| Norbi visszanyert információ | „9.97 bit" | I(Ref:R) = 0 bit |
+| Unitér referencia (Page/HP) | — | I(Ref:R) = 2k bit, Page-görbe visszafordul |
+| Párolgás | nem fut le | lefut a tömegrésig; τ(5.1e11 kg) ≈ 11 Gyr |
+| Visszapattanás | 0. lépés, ρ_Pl | a dinamikából, ρ_c ≈ 0.41 ρ_Pl, r_b = (αm/2)^(1/3) |
+| Bébiuniverzum | túlcsordul m_P felett | minden tömegen véges, E = Mc² megmarad |
+| Tesztek | 58 + 27 (több tautológia) | 68 Rust + 14 Python, irodalmi/analitikus ellenőrzésekkel |
+
+### A becsületes összefoglalás — v3.0
+
+A bébiuniverzum *létrejötte* konzisztensen modellezhető. A hipotézis döntő
+lépése — hogy a sugárzása kívülről látszik — a jelenlegi legjobb geometriában
+(LMY 2023) **nem teljesül**, és ezt a bébiuniverzum-irodalom is így látja: a
+belső univerzum horizont mögött, kauzálisan leválasztva jön létre. Ezzel a
+Norbi-forgatókönyv információ-szempontból Hawking eredeti, információvesztő
+képével esik egybe.
+
+A továbblépés iránya, ha a hipotézist életben akarjuk tartani: olyan geometria,
+ahol a visszapattanó anyag kauzálisan összeköttetésben marad a külső térrel
+(HKSW 2022 lökéshullám, fekete → fehér lyuk átmenet). Ezek azonban már nem
+bébiuniverzumot írnak le, hanem a mi univerzumunkba visszatérő anyagot — és
+ekkor a jóslat nem „nem-termális Hawking-spektrum", hanem egy késleltetett,
+~M² idő utáni kitörés, amit a gravitációshullám-visszhang keresések és a
+gamma-háttér (Carr et al. 2021) korlátoznak.
+
+**A legfontosabb tanulság (változatlanul):** egy szimulációt megírni, ami *fut*,
+sokkal könnyebb, mint egyet, ami *alátámaszt valamit*. A v2.0-ban a számok egy
+része a numerikából jött, nem a természetből — a v3.0 minden számához teszt
+tartozik, ami egy független (analitikus vagy irodalmi) értékhez méri.
