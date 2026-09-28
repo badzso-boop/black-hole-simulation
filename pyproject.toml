@@ -32,6 +32,11 @@ manifest-path = "core/Cargo.toml"
 line-length = 100
 target-version = "py311"
 
+[tool.ruff.lint]
+# Explicit szabálykészlet, hogy a helyi és a CI-beli (újabb) ruff ugyanazt ellenőrizze
+select = ["E", "F", "W", "I", "B", "UP", "DTZ", "RUF"]
+ignore = ["E501", "RUF001", "RUF002", "RUF003"]  # sorhossz; magyar/matematikai Unicode a szövegekben
+
 [tool.mypy]
 python_version = "3.11"
 strict         = true

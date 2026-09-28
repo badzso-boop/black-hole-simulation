@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+from itertools import pairwise
 
 import numpy as np
 from hypothesis import given, settings
@@ -107,7 +108,7 @@ def test_emission_times_are_monotonic_and_span_lifetime() -> None:
     ]
     times = emission_times(timeline, 10)
     rem = [t["time_to_evaporation"] for t in times]
-    assert all(b <= a for a, b in zip(rem, rem[1:]))
+    assert all(b <= a for a, b in pairwise(rem))
     # a j. qubit akkor megy ki, amikor 1 − (M/M0)² = j/n → t_h/τ = (1 − j/n)^(3/2)
     for j in (2, 5, 8):
         assert abs(rem[j] / tau - (1 - j / 10) ** 1.5) < 0.02

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 import sys
+from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
@@ -34,20 +35,20 @@ def validate(data: dict[str, Any]) -> list[str]:
 
     _walk_numbers(data, "$", errors)
     if len(errors) > 20:
-        return errors[:20] + [f"... és még {len(errors) - 20} hiba"]
+        return [*errors[:20], f"... és még {len(errors) - 20} hiba"]
 
     tl = data.get("timeline", [])
     if not tl:
-        return errors + ["HIBA: üres timeline"]
+        return [*errors, "HIBA: üres timeline"]
 
     masses = [s["mass"] for s in tl]
-    if any(b >= a for a, b in zip(masses, masses[1:])):
+    if any(b >= a for a, b in pairwise(masses)):
         errors.append("HIBA: a tömeg nem szigorúan csökkenő")
     rem = [s["time_to_evaporation"] for s in tl]
-    if any(b >= a for a, b in zip(rem, rem[1:])):
+    if any(b >= a for a, b in pairwise(rem)):
         errors.append("HIBA: a hátralévő idő nem szigorúan csökkenő")
     temps = [s["temperature"] for s in tl]
-    if any(b < a for a, b in zip(temps, temps[1:])):
+    if any(b < a for a, b in pairwise(temps)):
         errors.append("HIBA: a hőmérséklet csökkent")
     if any(s["entropy"] < 0 for s in tl):
         errors.append("HIBA: negatív entrópia")

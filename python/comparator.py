@@ -12,7 +12,7 @@ def compare_exterior_spectra(std: dict[str, Any], norbi: dict[str, Any]) -> dict
     Relatív L1-eltérés lépésenként; 0 = megkülönböztethetetlen.
     """
     diffs: list[float] = []
-    for a, b in zip(std.get("timeline", []), norbi.get("timeline", [])):
+    for a, b in zip(std.get("timeline", []), norbi.get("timeline", []), strict=True):
         ia = np.asarray(a["spectrum"]["intensities"], dtype=np.float64)
         ib = np.asarray(b["spectrum"]["intensities"], dtype=np.float64)
         denom = float(np.sum(np.abs(ia))) or 1.0

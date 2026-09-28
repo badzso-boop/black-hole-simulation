@@ -32,14 +32,23 @@ jobs:
       - name: Teljes projekt build
         run: pip install -e '.[dev]'
 
-      - name: Standard szimulacio (Planck-tomeg)
-        run: python -m python --mass 2.176e-8 --norbi-mode false --no-ui --output output/ci_standard.json
+      - name: Tomeg-scan szimulaciok (Standard + Norbi)
+        run: |
+          # 2 m_P (a tomegres kozeleben), 1 kg, 5.1e11 kg (ma parolgo PBH), Nap
+          for m in 4.35e-8 1 5.1e11 1.98847e30; do
+            for n in false true; do
+              python -m python --mass "$m" --norbi-mode "$n" --output "output/ci_${m}_${n}.json"
+            done
+          done
 
-      - name: Norbi szimulacio
-        run: python -m python --mass 2.176e-8 --norbi-mode true --no-ui --output output/ci_norbi.json
+      - name: Tomegres alatt hibaval kell leallnia
+        run: |
+          if python -m python --mass 1e-8 --output output/ci_gap.json; then
+            echo "A tomegres alatti tomegnek hibat kellett volna adnia"; exit 1
+          fi
 
       - name: Eredmeny validacio
-        run: python scripts/validate_results.py output/ci_standard.json output/ci_norbi.json
+        run: python scripts/validate_results.py output/ci_*_*.json
 
       - name: Artifact mentes
         uses: actions/upload-artifact@v4

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Timeline CSV export."""
 from __future__ import annotations
+
 import csv
 import json
 import sys

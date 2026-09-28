@@ -3,7 +3,7 @@ name: Python Analysis Tests
 on:
   push:
     branches: [main, develop]
-    paths: ['python/**', 'core/**', 'pyproject.toml']
+    paths: ['python/**', 'core/**', 'scripts/**', 'pyproject.toml']
   pull_request:
     branches: [main]
 

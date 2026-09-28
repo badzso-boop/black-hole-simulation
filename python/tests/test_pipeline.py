@@ -9,8 +9,8 @@ import pytest
 
 pytest.importorskip("black_hole_core")
 
-from python.__main__ import main  # noqa: E402
-from python.comparator import (  # noqa: E402
+from python.__main__ import main
+from python.comparator import (
     compare_exterior_spectra,
     compare_information,
     compare_interiors,
