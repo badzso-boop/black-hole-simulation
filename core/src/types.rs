@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::radiation::emission::EmissionModel;
+
 // ---------------------------------------------------------------------------
 // Részecske típusok
 // ---------------------------------------------------------------------------
@@ -40,16 +42,26 @@ impl Particle {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Spectrum {
+    /// Frekvenciák (Hz)
     pub frequencies: Vec<f64>,
+    /// A külső megfigyelő által látott foton-spektrum dP/dν (W/Hz)
     pub intensities: Vec<f64>,
+    /// Hawking-hőmérséklet (K)
     pub temperature: f64,
+    /// Teljes kisugárzott teljesítmény, minden részecskefajta (W)
     pub total_power: f64,
-    /// Mekkora hányad jön a termális Hawking-mechanizmusból [0,1]
+    /// Fotonokban kisugárzott teljesítmény (W) — ennek az alakja az `intensities`
+    pub photon_power: f64,
+    /// Mekkora hányad jön a horizont Hawking-mechanizmusából [0,1]
     pub hawking_fraction: f64,
-    /// Mekkora hányad jön a Norbi él-szétszakadásból [0,1]
+    /// Mekkora hányad jön a (kauzálisan elérhető) Norbi él-sugárzásból [0,1]
     pub edge_fraction: f64,
-    /// KL divergencia a legjobb Planck-illesztéstől (0 = tökéletesen termális)
-    pub thermality_score: f64,
+    /// KL(spektrum ‖ legjobban illeszkedő Planck-görbe). Spektrális diagnosztika —
+    /// NEM információmérték: a greybody-torzítás miatt a standard Hawking-spektrumra
+    /// is > 0, és egy termális keverék is adhat nagy értéket információ nélkül.
+    pub spectral_nonthermality: f64,
+    /// A KL-t minimalizáló Planck-hőmérséklet (K)
+    pub fit_temperature: f64,
 }
 
 // ---------------------------------------------------------------------------
@@ -111,6 +123,16 @@ pub struct SimulationConfig {
     pub external_dt: f64,
     pub norbi_mode: bool,
     pub gravitational_softening: f64,
+    /// Hawking-emissziós modell (részecskefajták)
+    #[serde(default)]
+    pub emission_model: EmissionModel,
+    /// A külső idővonal mintapontjainak száma (a tömegben logaritmikus rács)
+    #[serde(default = "default_steps")]
+    pub steps: usize,
+}
+
+fn default_steps() -> usize {
+    100
 }
 
 impl SimulationConfig {
@@ -123,6 +145,8 @@ impl SimulationConfig {
             external_dt: 1e6,
             norbi_mode: true,
             gravitational_softening: 0.01,
+            emission_model: EmissionModel::MacGibbon,
+            steps: 100,
         }
     }
 
@@ -135,6 +159,8 @@ impl SimulationConfig {
             external_dt: 1e5,
             norbi_mode: true,
             gravitational_softening: 0.001,
+            emission_model: EmissionModel::MacGibbon,
+            steps: 100,
         }
     }
 
@@ -147,6 +173,8 @@ impl SimulationConfig {
             external_dt: 1e4,
             norbi_mode: true,
             gravitational_softening: 0.0001,
+            emission_model: EmissionModel::MacGibbon,
+            steps: 100,
         }
     }
 }

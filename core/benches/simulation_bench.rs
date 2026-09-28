@@ -1,4 +1,6 @@
-use black_hole_core::constants::{M_PLANCK, M_SUN, T_PLANCK};
+use black_hole_core::black_hole::evaporation::evaporation_history;
+use black_hole_core::constants::{M_MIN_LMY, M_SUN};
+use black_hole_core::radiation::emission::EmissionModel;
 use black_hole_core::{BlackHoleTrait, HawkingEngine, RadiationEngine, SchwarzschildBlackHole};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
@@ -24,17 +26,9 @@ fn bench_spectrum_computation(c: &mut Criterion) {
     });
 }
 
-fn bench_full_evaporation_planck(c: &mut Criterion) {
-    c.bench_function("planck_mass_evaporation", |b| {
-        let engine = HawkingEngine::new();
-        b.iter(|| {
-            let mut bh = SchwarzschildBlackHole::new(M_PLANCK).unwrap();
-            while bh.mass() > M_PLANCK * 0.001 {
-                if engine.evolve_step(&mut bh, T_PLANCK).is_err() {
-                    break;
-                }
-            }
-        })
+fn bench_full_evaporation_history(c: &mut Criterion) {
+    c.bench_function("evaporation_history_1e12kg_100_samples", |b| {
+        b.iter(|| evaporation_history(EmissionModel::MacGibbon, 1e12, M_MIN_LMY, 100).unwrap())
     });
 }
 
@@ -43,6 +37,6 @@ criterion_group!(
     bench_hawking_temperature,
     bench_schwarzschild_radius,
     bench_spectrum_computation,
-    bench_full_evaporation_planck
+    bench_full_evaporation_history
 );
 criterion_main!(benches);

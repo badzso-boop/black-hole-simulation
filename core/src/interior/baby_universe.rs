@@ -131,7 +131,7 @@ impl BabyUniverse {
     /// [GH77] Gibbons & Hawking (1977): kozmológiai eseményhorizontnak is van
     /// sugárzási hőmérséklete, pontosan úgy, mint a fekete lyuk horizontjának.
     pub fn edge_temperature(&self) -> f64 {
-        HBAR * self.expansion_rate / (2.0 * PI * K_B)
+        gibbons_hawking_temperature(self.expansion_rate)
     }
 
     /// A belső tágulás szélén szétszakadó anyag sugárzási spektruma —
@@ -191,4 +191,10 @@ impl BabyUniverse {
             breakup_fraction: self.breakup_fraction(),
         }
     }
+}
+
+/// Gibbons–Hawking-hőmérséklet egy H Hubble-rátájú táguló tartomány horizontján:
+/// T = ħH/(2πk_B)  [Gibbons & Hawking 1977]
+pub fn gibbons_hawking_temperature(hubble_rate: f64) -> f64 {
+    HBAR * hubble_rate / (2.0 * PI * K_B)
 }

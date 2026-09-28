@@ -18,8 +18,8 @@ pub enum SimulationError {
     #[error("Planck-határ elérve r={radius:.3e}m-nél")]
     PlanckBoundaryReached { radius: f64 },
 
-    #[error("Integrálás nem konvergált {max_steps} lépés után")]
-    IntegrationFailed { max_steps: usize },
+    #[error("Az integrálás sikertelen: {reason}")]
+    IntegrationFailed { reason: String },
 
     #[error("Checkpoint hiba: {0}")]
     CheckpointFailed(String),

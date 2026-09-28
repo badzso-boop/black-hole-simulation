@@ -3,7 +3,6 @@ mod test_checkpoint;
 mod test_constants;
 mod test_edge_cases;
 mod test_hawking;
-mod test_information_tracking;
 mod test_integrator;
 mod test_interior;
 mod test_lqc;

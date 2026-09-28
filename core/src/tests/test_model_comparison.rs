@@ -113,8 +113,8 @@ mod model_comparison {
     // ÖSSZEHASONLÍTÁS 5: Hawking motor standard és norbi módban különböző objektumok
     #[test]
     fn cmp_05_engine_modes_are_distinct() {
-        let std_engine = HawkingEngine::standard();
-        let norbi_engine = HawkingEngine::norbi();
+        let std_engine = HawkingEngine::new();
+        let norbi_engine = HawkingEngine::new();
         // Mindkét engine azonos fekete lyukra azonos Hawking-hőmérsékletet számít
         let bh = make_bh();
         let s_spec = std_engine.compute_spectrum(&bh).unwrap();

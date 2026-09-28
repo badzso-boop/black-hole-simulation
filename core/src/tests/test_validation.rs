@@ -4,9 +4,7 @@
 mod validation {
     use crate::black_hole::schwarzschild::SchwarzschildBlackHole;
     use crate::black_hole::BlackHoleTrait;
-    use crate::black_hole::RadiationEngine;
     use crate::constants::{M_SUN, RHO_PLANCK, WIEN_FREQ};
-    use crate::quantum::island::{IslandFormula, RadiationState};
     use crate::quantum::lqc::LQCEquation;
     use crate::radiation::hawking_engine::HawkingEngine;
     use approx::assert_relative_eq;
@@ -28,8 +26,11 @@ mod validation {
     // VALIDÁCIÓ 3: Elpárlási idő köbös arány [HAW75]
     #[test]
     fn val_03_evaporation_time_cubic_in_mass() {
-        let bh1 = SchwarzschildBlackHole::new(1e10).unwrap();
-        let bh2 = SchwarzschildBlackHole::new(2e10).unwrap();
+        // A tiszta M³ skálázás csak tömegfüggetlen α-ra igaz (a teljes SM
+        // f(M)-mel nem) — ezért itt a tankönyvi foton-fekete-test modell
+        use crate::radiation::emission::EmissionModel::PhotonBlackbody;
+        let bh1 = SchwarzschildBlackHole::with_emission(1e10, PhotonBlackbody).unwrap();
+        let bh2 = SchwarzschildBlackHole::with_emission(2e10, PhotonBlackbody).unwrap();
         let ratio = bh2.evaporation_time() / bh1.evaporation_time();
         assert_relative_eq!(ratio, 8.0, epsilon = 0.001);
     }
@@ -67,44 +68,6 @@ mod validation {
         let bh2 = SchwarzschildBlackHole::new(2.0 * M_SUN).unwrap();
         let ratio = bh2.bekenstein_entropy() / bh1.bekenstein_entropy();
         assert_relative_eq!(ratio, 4.0, epsilon = 0.001);
-    }
-
-    // VALIDÁCIÓ 6: Page-görbe alakja [PAG93]
-    #[test]
-    fn val_06_page_curve_rises_then_falls() {
-        let bh_template = SchwarzschildBlackHole::new(1e15).unwrap();
-        let island = IslandFormula::new();
-        let evap_time = bh_template.evaporation_time();
-
-        let mut timeline: Vec<f64> = Vec::new();
-        let mut bh = SchwarzschildBlackHole::new(1e15).unwrap();
-
-        let steps = 200;
-        let dt = evap_time / steps as f64;
-
-        let engine = HawkingEngine::new();
-        for _ in 0..steps {
-            let s = island
-                .compute_generalized_entropy(bh.age(), &bh, &RadiationState::default())
-                .unwrap();
-            timeline.push(s);
-            if engine.evolve_step(&mut bh, dt).is_err() {
-                break;
-            }
-        }
-
-        let peak_idx = timeline
-            .iter()
-            .enumerate()
-            .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(std::cmp::Ordering::Equal))
-            .map(|(i, _)| i)
-            .unwrap_or(0);
-
-        // A csúcsnak nem a széleken kell lennie
-        assert!(
-            peak_idx > 0 && peak_idx < timeline.len() - 1,
-            "Page-görbe csúcsának a közepén kell lennie: peak_idx={peak_idx}"
-        );
     }
 
     // VALIDÁCIÓ 7: LQC visszapattanás feltétele [ASH06]

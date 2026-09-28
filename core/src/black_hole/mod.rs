@@ -1,6 +1,8 @@
 use crate::error::SimulationError;
+use crate::radiation::emission::EmissionModel;
 use crate::types::{InteriorState, Particle, Spectrum};
 
+pub mod evaporation;
 pub mod schwarzschild;
 pub mod thermodynamics;
 
@@ -11,14 +13,19 @@ pub mod thermodynamics;
 /// Minden fekete lyuk típus ezt implementálja
 pub trait BlackHoleTrait: Send + Sync {
     fn mass(&self) -> f64;
+    fn initial_mass(&self) -> f64;
     fn schwarzschild_radius(&self) -> f64;
     fn hawking_temperature(&self) -> Result<f64, SimulationError>;
+    /// Bekenstein–Hawking entrópia k_B egységben: S = A/(4ℓ_P²)
     fn bekenstein_entropy(&self) -> f64;
+    /// Teljes kisugárzott teljesítmény az emissziós modell szerint (W)
     fn hawking_power(&self) -> Result<f64, SimulationError>;
+    /// Teljes élettartam a kezdeti tömegből (s)
     fn evaporation_time(&self) -> f64;
-    fn update_mass(&mut self, delta_m: f64) -> Result<(), SimulationError>;
     fn age(&self) -> f64;
-    fn advance_time(&mut self, dt: f64);
+    fn emission_model(&self) -> EmissionModel;
+    /// Állapot beállítása a párolgási történet egy mintapontjára
+    fn set_state(&mut self, mass: f64, age: f64) -> Result<(), SimulationError>;
 }
 
 /// Belső modell — Standard és Norbi egyaránt implementálja
@@ -38,6 +45,4 @@ pub trait InteriorModel: Send + Sync {
 pub trait RadiationEngine: Send + Sync {
     fn compute_spectrum(&self, bh: &dyn BlackHoleTrait) -> Result<Spectrum, SimulationError>;
     fn energy_loss_rate(&self, bh: &dyn BlackHoleTrait) -> Result<f64, SimulationError>;
-    fn evolve_step(&self, bh: &mut dyn BlackHoleTrait, dt: f64) -> Result<f64, SimulationError>;
-    fn greybody_factor(&self, freq: f64, bh: &dyn BlackHoleTrait) -> f64;
 }

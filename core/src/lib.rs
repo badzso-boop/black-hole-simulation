@@ -44,42 +44,43 @@ fn run_simulation_py(mass: f64, norbi_mode: bool, _payload_json: &str) -> PyResu
     }
 }
 
-/// Publikus API Tauri és más Rust crate-ek számára
+/// A külső (Hawking-párolgási) idővonal: tömeg és idő mintapontok.
+/// Végtömeg: az LQC tömegrés (M_min ≈ 0.83 m_P), ez alatt nincs horizont.
+fn exterior_history(
+    mass: f64,
+    config: &SimulationConfig,
+) -> Result<black_hole::evaporation::EvaporationHistory, SimulationError> {
+    black_hole::evaporation::evaporation_history(
+        config.emission_model,
+        mass,
+        constants::M_MIN_LMY,
+        config.steps,
+    )
+}
+
+/// Publikus API más Rust crate-ek számára
 pub fn run_simulation(
     mass: f64,
     config: SimulationConfig,
     _payload_json: &str,
 ) -> Result<SimulationResults, SimulationError> {
-    use radiation::hawking_engine::HawkingEngine;
-
-    let mut bh = SchwarzschildBlackHole::new(mass)?;
+    let history = exterior_history(mass, &config)?;
+    let mut bh = SchwarzschildBlackHole::with_emission(mass, config.emission_model)?;
     let engine = HawkingEngine::new();
     let mut results = SimulationResults::new(config);
-    let steps = 100_usize;
-    // dt = t_evap / steps — így minden futtatás lefedi a teljes elpárlást
-    let dt = (bh.evaporation_time() / steps as f64).max(1e-100);
 
-    for _ in 0..steps {
-        let temp = bh.hawking_temperature()?;
-        let entropy = bh.bekenstein_entropy();
-        let spectrum = engine.compute_spectrum(&bh)?;
-        let interior = InteriorState::default();
-
+    for sample in &history.samples {
+        bh.set_state(sample.mass, sample.time)?;
         results.timeline.push(TimeStep {
             time: bh.age(),
             mass: bh.mass(),
-            temperature: temp,
-            entropy,
-            spectrum,
-            interior,
+            temperature: bh.hawking_temperature()?,
+            entropy: bh.bekenstein_entropy(),
+            spectrum: engine.compute_spectrum(&bh)?,
+            interior: InteriorState::default(),
         });
-
-        if engine.evolve_step(&mut bh, dt).is_err() {
-            results.evaporation_complete = true;
-            break;
-        }
     }
-
+    results.evaporation_complete = history.reached_end_mass;
     Ok(results)
 }
 
@@ -90,59 +91,48 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
     use interior::baby_universe::BabyUniverse;
     use interior::norbi::NorbiInterior;
     use interior::standard::StandardInterior;
-    use radiation::hawking_engine::HawkingEngine;
 
     const BOUNCE_TRANSIENT_STEPS: usize = 80;
-    const BOUNCE_TRANSIENT_DT: f64 = T_PLANCK; // a bébiuniverzum saját, Planck-idő
-                                               // nagyságrendű órája — lásd
-                                               // BabyUniverse::post_bounce_transient
+    const BOUNCE_TRANSIENT_DT: f64 = T_PLANCK;
 
-    let mut bh = SchwarzschildBlackHole::new(mass)?;
-    let engine = if norbi_mode {
-        HawkingEngine::norbi()
-    } else {
-        HawkingEngine::standard()
-    };
     let config = {
         let mut c = SimulationConfig::standard();
         c.norbi_mode = norbi_mode;
         c
     };
-
+    let history = exterior_history(mass, &config)?;
+    let mut bh = SchwarzschildBlackHole::with_emission(mass, config.emission_model)?;
+    let engine = HawkingEngine::new();
     let mut results = SimulationResults::new(config);
-    let steps = 100_usize;
-    let dt = (bh.evaporation_time() / steps as f64).max(1e-100);
 
-    // Belső modell: Norbi vagy Standard
     let mut norbi_interior = NorbiInterior::new();
     let mut std_interior = StandardInterior::new();
 
-    // Reprezentatív részecske a belső szimulációhoz
+    // Reprezentatív részecske a belső szimulációhoz (a 3. fázisban a valódi
+    // Oppenheimer–Snyder összeomlás váltja fel)
     let particle = types::Particle {
-        mass: mass * 0.001,          // beeső részecske tömege (BH tömegének 0.1%-a)
-        energy: mass * 0.001 * 9e16, // E = mc²
+        mass: mass * 0.001,
+        energy: mass * 0.001 * constants::C * constants::C,
         angular_momentum: 0.0,
         initial_radius: bh.schwarzschild_radius() * 10.0,
         particle_type: types::ParticleType::Proton,
     };
 
     let mut bounce_transient_recorded = false;
+    let mut prev_time = 0.0;
 
-    for _ in 0..steps {
+    for sample in &history.samples {
+        bh.set_state(sample.mass, sample.time)?;
+        let dt = (sample.time - prev_time).max(0.0);
+        prev_time = sample.time;
         let temp = bh.hawking_temperature()?;
         let entropy = bh.bekenstein_entropy();
         let spectrum = engine.compute_spectrum(&bh)?;
 
-        // Belső fizika lépés + Norbi spektrum bekötése
         let (spectrum, interior) = if norbi_mode {
             let interior = norbi_interior
                 .simulate_step(&particle, &bh, dt)
                 .unwrap_or_default();
-
-            // A visszapattanás pillanatában rögzítjük a bébiuniverzum saját,
-            // Planck-idő nagyságrendű órája szerinti finom tranzienst —
-            // a külső `dt` (a teljes elpárlási idő százada) sok nagyságrenddel
-            // durvább annál, mint amin a bounce dinamikája ténylegesen lezajlik.
             if interior.bounce_occurred && !bounce_transient_recorded {
                 results.bounce_transient = BabyUniverse::post_bounce_transient(
                     interior.density,
@@ -151,7 +141,6 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
                 );
                 bounce_transient_recorded = true;
             }
-
             let spectrum = match &interior.baby_universe {
                 Some(bu_state) => engine
                     .compute_spectrum_norbi(&bh, bu_state)
@@ -174,12 +163,8 @@ fn run_simulation_json(mass: f64, norbi_mode: bool) -> Result<String, Simulation
             spectrum,
             interior,
         });
-
-        if engine.evolve_step(&mut bh, dt).is_err() {
-            results.evaporation_complete = true;
-            break;
-        }
     }
+    results.evaporation_complete = history.reached_end_mass;
 
     Ok(serde_json::to_string(&results).unwrap_or_default())
 }

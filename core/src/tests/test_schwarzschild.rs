@@ -33,8 +33,9 @@ mod tests {
 
     #[test]
     fn test_evaporation_time_cubic_mass() {
-        let bh1 = SchwarzschildBlackHole::new(1e10).unwrap();
-        let bh2 = SchwarzschildBlackHole::new(2e10).unwrap();
+        use crate::radiation::emission::EmissionModel::PageGammaGraviton;
+        let bh1 = SchwarzschildBlackHole::with_emission(1e10, PageGammaGraviton).unwrap();
+        let bh2 = SchwarzschildBlackHole::with_emission(2e10, PageGammaGraviton).unwrap();
         let ratio = bh2.evaporation_time() / bh1.evaporation_time();
         assert_relative_eq!(ratio, 8.0, epsilon = 0.001);
     }

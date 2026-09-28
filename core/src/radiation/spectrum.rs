@@ -1,4 +1,4 @@
-use crate::constants::{C, H_PLANCK, K_B, SPECTRUM_BINS, WIEN_FREQ};
+use crate::constants::{C, H_PLANCK, K_B, WIEN_FREQ};
 use crate::error::{check_finite, SimulationError};
 use crate::types::Spectrum;
 
@@ -29,31 +29,6 @@ pub fn peak_frequency(temp: f64) -> f64 {
     WIEN_FREQ * temp
 }
 
-/// Teljes Hawking-sugárzási spektrum generálása (SPECTRUM_BINS bin)
-pub fn build_spectrum(temp: f64, total_power: f64, greybody_fn: impl Fn(f64) -> f64) -> Spectrum {
-    let freq_max = peak_frequency(temp) * 10.0;
-    let df = freq_max / SPECTRUM_BINS as f64;
-
-    let mut frequencies = Vec::with_capacity(SPECTRUM_BINS);
-    let mut intensities = Vec::with_capacity(SPECTRUM_BINS);
-
-    for i in 0..SPECTRUM_BINS {
-        let freq = (i as f64 + 0.5) * df;
-        let planck = planck_spectrum(freq, temp).unwrap_or(0.0);
-        let gamma = greybody_fn(freq);
-        frequencies.push(freq);
-        intensities.push(planck * gamma);
-    }
-
-    Spectrum {
-        frequencies,
-        intensities,
-        temperature: temp,
-        total_power,
-        ..Default::default()
-    }
-}
-
 impl Spectrum {
     /// Spektrum csúcsfrekvenciájának megkeresése (Wien-törvény ellenőrzés)
     pub fn peak_frequency(&self) -> f64 {
@@ -71,4 +46,64 @@ impl Spectrum {
             self.intensities.iter_mut().for_each(|v| *v /= max);
         }
     }
+}
+
+/// Planck-alak (ν³/(e^x−1)) normálva a megadott frekvenciarácson
+fn planck_shape(frequencies: &[f64], temp: f64) -> Vec<f64> {
+    let raw: Vec<f64> = frequencies
+        .iter()
+        .map(|&f| planck_spectrum(f, temp).unwrap_or(0.0))
+        .collect();
+    let sum: f64 = raw.iter().sum();
+    if sum > 0.0 {
+        raw.iter().map(|v| v / sum).collect()
+    } else {
+        raw
+    }
+}
+
+fn kl_divergence(p: &[f64], q: &[f64]) -> f64 {
+    p.iter()
+        .zip(q)
+        .filter(|(&pi, _)| pi > 0.0)
+        .map(|(&pi, &qi)| pi * (pi / qi.max(1e-300)).ln())
+        .sum::<f64>()
+        .max(0.0)
+}
+
+/// Spektrális nem-termalitás: min_T KL(p ‖ Planck(T)), aranymetszéses kereséssel
+/// ln T-ben a [0.2, 5]·T_guess intervallumon. Visszaadja: (KL, T_fit).
+pub fn spectral_nonthermality(
+    frequencies: &[f64],
+    intensities: &[f64],
+    t_guess: f64,
+) -> (f64, f64) {
+    let sum: f64 = intensities.iter().sum();
+    if sum <= 0.0 || t_guess <= 0.0 || frequencies.len() != intensities.len() {
+        return (0.0, t_guess);
+    }
+    let p: Vec<f64> = intensities.iter().map(|v| v / sum).collect();
+    let cost = |ln_t: f64| kl_divergence(&p, &planck_shape(frequencies, ln_t.exp()));
+    let (mut a, mut b) = ((0.2 * t_guess).ln(), (5.0 * t_guess).ln());
+    let phi = (5f64.sqrt() - 1.0) / 2.0;
+    let mut c = b - phi * (b - a);
+    let mut d = a + phi * (b - a);
+    let (mut fc, mut fd) = (cost(c), cost(d));
+    for _ in 0..80 {
+        if fc < fd {
+            b = d;
+            d = c;
+            fd = fc;
+            c = b - phi * (b - a);
+            fc = cost(c);
+        } else {
+            a = c;
+            c = d;
+            fc = fd;
+            d = a + phi * (b - a);
+            fd = cost(d);
+        }
+    }
+    let ln_t = 0.5 * (a + b);
+    (cost(ln_t), ln_t.exp())
 }
