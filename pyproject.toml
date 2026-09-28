@@ -38,7 +38,8 @@ select = ["E", "F", "W", "I", "B", "UP", "DTZ", "RUF"]
 ignore = ["E501", "RUF001", "RUF002", "RUF003"]  # sorhossz; magyar/matematikai Unicode a szövegekben
 
 [tool.mypy]
-python_version = "3.11"
+# python_version szándékosan nincs rögzítve: a futtató interpreter verzióját
+# használja, így a CI-mátrix minden eleme a hozzá telepített numpy-stubokkal megy
 strict         = true
 
 [[tool.mypy.overrides]]
