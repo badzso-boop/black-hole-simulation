@@ -41,10 +41,10 @@ jobs:
         run: pip install -e '.[dev,thesis]'
 
       - name: Ruff lint
-        run: ruff check python/ thesis/ scripts/run_thesis.py
+        run: ruff check python/ thesis/ scripts/run_thesis.py scripts/analyze_mcmc.py
 
       - name: Mypy
-        run: mypy python/ thesis/ scripts/run_thesis.py
+        run: mypy python/ thesis/ scripts/run_thesis.py scripts/analyze_mcmc.py
 
       - name: Pytest
         run: pytest python/tests/ thesis/tests/ -v --cov=python --cov=thesis --cov-report=xml

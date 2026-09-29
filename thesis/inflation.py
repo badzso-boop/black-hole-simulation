@@ -75,6 +75,28 @@ class Starobinsky:
 
 
 @dataclass(frozen=True)
+class PolyAttractor:
+    """Polinomiális α-attraktor, k = 2 (Kallosh & Linde 2022, arXiv:2202.06492):
+    V = V0 φ²/(φ² + μ²) → V0 (1 − μ²/φ² + …) nagy φ-nél; kis μ-re n_s = 1 − 3/(2N) (Eq. 1.5),
+    ami N ≈ 55-nél 0.973 — az ACT DR6 értéke. V0-t az A_s normálás rögzíti (`normalized`).
+    """
+
+    v0: float = 1e-12
+    mu: float = 0.2  # m_Pl egységben (≈ 1 redukált Planck-tömeg)
+    name: str = "poly-attractor-k2"
+
+    def v(self, phi: float) -> float:
+        return self.v0 * phi * phi / (phi * phi + self.mu**2)
+
+    def dv(self, phi: float) -> float:
+        return self.v0 * 2 * phi * self.mu**2 / (phi * phi + self.mu**2) ** 2
+
+    def d2v(self, phi: float) -> float:
+        d = phi * phi + self.mu**2
+        return self.v0 * 2 * self.mu**2 * (self.mu**2 - 3 * phi * phi) / d**3
+
+
+@dataclass(frozen=True)
 class Quadratic:
     """V = m²φ²/2, m = 1.21e-6 (Ashtekar & Sloan 2011, WMAP-7 normálás)."""
 

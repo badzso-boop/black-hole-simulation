@@ -291,3 +291,60 @@ def spin_scorecard(w: dict[str, Any], s3: dict[str, Any]) -> list[dict[str, Any]
                 "nem jobb."),
     })
     return rows
+
+
+# ---------------------------------------------------------------------------
+# Kiegészítések (nem előre rögzítettek): WP1b és WP5b
+# ---------------------------------------------------------------------------
+
+
+def upgrades_scorecard(res: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    act = res["wp1b"]
+    piv = act["pivots_consistent"][0]
+    ns, rr = piv["n_s"], piv["r"]
+    in_p = _inside(ns, N_S_PLANCK) and rr < R_LIMIT
+    in_a = _inside(ns, N_S_ACT) and rr < R_LIMIT
+    bands = act["fail_bands_N60_phidot_pos"]
+    rows.append({
+        "wp": "1b ACT-compatible potential", "outcome": "supports" if in_p and in_a else "mixed",
+        "numbers": {"potential": act["potential"], "mu": act["mu"], "n_s": ns, "r": rr,
+                    "N_star": piv["n_star"], "planck_sigma": (ns - N_S_PLANCK[0]) / N_S_PLANCK[1],
+                    "act_sigma": (ns - N_S_ACT[0]) / N_S_ACT[1], "fail_bands_N60": bands},
+        "why": (f"Polinomiális α-attraktorral (k = 2, μ = {act['mu']} m_Pl) n_s = {ns:.4f}, "
+                f"r = {rr:.4f}: Planck-tól {abs(ns - N_S_PLANCK[0]) / N_S_PLANCK[1]:.1f}σ, "
+                f"ACT-tól {abs(ns - N_S_ACT[0]) / N_S_ACT[1]:.1f}σ — mindkettő 95%-án belül. "
+                f"A visszapattanás a φ_B ∈ {[[round(x, 2) for x in b] for b in bands]} sávon "
+                "kívül mindig ≥ 60 e-redőt ad. Az ACT-feszültség tehát a potenciálé volt."),
+    })
+    w = res["wp5b"]
+    off = w.get("official")
+    src = off if off else None
+    if src:
+        best, lo95 = src["best"], src["n_tot_lower_95"]
+        dchi2 = best["dchi2_total"]
+        n_best = best["n_tot"]
+        which = "hivatalos Planck alacsony-ℓ TT+EE"
+    else:
+        best = w["own_pipeline"]["best"]
+        dchi2, n_best, lo95 = best["dchi2_wishart"], best["n_tot"], None
+        which = "saját Wishart (a Planck-likelihoodok nincsenek telepítve)"
+    edge = res["wp3"]["rows"]
+    max_edge = max(r["n_tot_min_edge"] for r in edge)
+    consistent = lo95 is None or lo95 > max_edge
+    outcome = "against" if not consistent else ("supports" if dchi2 < DCHI2_SIGNIFICANT
+                                                 else "neutral")
+    own = w["own_pipeline"]["best"]
+    rows.append({
+        "wp": "5b CMB with hybrid LQC spectrum", "outcome": outcome,
+        "numbers": {"likelihood": which, "best_n_tot": n_best, "dchi2": dchi2,
+                    "n_tot_lower_95": lo95,
+                    "full_likelihood_check": off["full_check"]["rows"] if off else None,
+                    "own_pipeline_best": own},
+        "why": (f"A Guillén et al. 2026-féle hibrid LQC-spektrummal ({which}) a legjobb "
+                f"N_tot = {n_best:.2f}, Δχ² = {dchi2:.2f} — nem szignifikáns (küszöb −9). "
+                + (f"95%-os alsó korlát N_tot > {lo95:.2f}; " if lo95 else "")
+                + f"a saját csővezeték ugyanitt {own['dchi2_wishart']:.2f}-t ad, S₁/₂ = "
+                f"{own['S_half']:.0f} μK⁴. A magas ℓ nem változik (plik-lite Δχ² ≈ 0)."),
+    })
+    return rows

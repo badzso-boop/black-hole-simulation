@@ -68,13 +68,19 @@ def power_cutoff(k: np.ndarray, k_c: float | None) -> np.ndarray:
     return pk
 
 
-def dl_tt(k_c: float | None, lmax: int = 200, lensing: bool = False) -> np.ndarray:
+def dl_tt(k_c: float | None, lmax: int = 200, lensing: bool = False,
+          n_tot_lqc: float | None = None) -> np.ndarray:
     """D_ℓ^TT μK²-ben, ℓ = 0…lmax (k_c = None: tiszta hatványtörvény)."""
     import camb
 
     p = _params(lmax, lensing)
     k = np.logspace(-7, 1, 3000)
-    p.set_initial_power_table(k, power_cutoff(k, k_c), effective_ns_for_nonlinear=PLANCK_BF["ns"])
+    pk = power_cutoff(k, k_c)
+    if n_tot_lqc is not None:  # WP5b: a hibrid LQC-spektrum (thesis.lqc_spectrum)
+        from thesis.lqc_spectrum import suppression_today
+
+        pk = pk * suppression_today(k, n_tot_lqc)
+    p.set_initial_power_table(k, pk, effective_ns_for_nonlinear=PLANCK_BF["ns"])
     res = camb.get_results(p)
     key = "total" if lensing else "unlensed_scalar"
     cl = res.get_cmb_power_spectra(p, CMB_unit="muK", lmax=lmax)[key]
@@ -170,3 +176,24 @@ def run(n_grid: int = 61) -> dict[str, Any]:
                    "best_cutoff": best_dl[2:61].tolist(),
                    "data": data[data[:, 0] <= 60].tolist()},
     }
+
+
+def run_lqc_own(n_values: list[float]) -> dict[str, Any]:
+    """WP5b keresztellenőrzés a saját csővezetékkel: a hibrid LQC-spektrum Wishart-Δχ²-e és
+    S_1/2-je N_tot függvényében (ugyanaz, mint a WP5-sablonnál)."""
+    data = load_tt_full()
+    lmax_s = 100
+    ells = np.arange(lmax_s + 1)
+    base = dl_tt(None, lmax=lmax_s)
+    chi_base = chi2_low(base, data)
+    rows = []
+    for n in n_values:
+        dl = dl_tt(None, lmax=lmax_s, n_tot_lqc=n)
+        cl = np.zeros_like(dl)
+        cl[2:] = _cl(dl[2:], ells[2:])
+        chi = chi2_low(dl, data)
+        rows.append({"n_tot": n, "dchi2_wishart": chi["wishart"] - chi_base["wishart"],
+                     "S_half": s_half(cl), "D2": float(dl[2])})
+    best = min(rows, key=lambda r: r["dchi2_wishart"])
+    return {"rows": rows, "best": best,
+            "curve_best": dl_tt(None, lmax=60, n_tot_lqc=best["n_tot"])[2:61].tolist()}

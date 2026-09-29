@@ -66,3 +66,6 @@ Desktop.ini
 *.tmp
 *.bak
 /tmp/
+
+# cobaya MCMC-láncok (nagyok; az összefoglaló a runs/mcmc/ alá kerül)
+chains/

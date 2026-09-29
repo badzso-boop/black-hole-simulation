@@ -48,6 +48,20 @@ def _timed(name: str) -> tuple[str, Any, float]:
     elif name == "wp4b_s3":
         from thesis import spin
         out = spin.run_shear()
+    elif name == "wp1b":
+        from thesis import wp1
+        out = wp1.run_act()
+    elif name == "wp5b":
+        from thesis import cmb, cobaya_lqc
+        n_own = [139.5, 140.0, 140.25, 140.5, 140.75, 141.0, 141.25, 141.5, 142.0, 143.0, 145.0]
+        out = {"own_pipeline": cmb.run_lqc_own(n_own)}
+        if cobaya_lqc.available():
+            out["official"] = cobaya_lqc.run()
+        else:
+            out["official"] = None
+            out["note"] = ("a Planck-likelihoodok nincsenek telepítve: cobaya-install "
+                           "planck_2018_lowl.TT planck_2018_lowl.EE "
+                           "planck_2018_highl_plik.TTTEEE_lite_native -p ~/cobaya_packages")
     else:
         raise ValueError(name)
     return name, out, time.perf_counter() - t0
@@ -202,6 +216,34 @@ def figures(res: dict[str, Any], out: Path) -> list[str]:
     fig.tight_layout()
     fig.savefig(out / "wp4b_spin.png", dpi=120)
     made.append("wp4b_spin.png")
+
+    # 7. WP5b: a hibrid LQC-spektrum — Δχ²(N_tot) három módon, és a C_ℓ
+    w5b = res["wp5b"]
+    fig, (b1, b2) = plt.subplots(1, 2, figsize=(12, 4))
+    own = w5b["own_pipeline"]
+    b1.plot([r["n_tot"] for r in own["rows"]], [r["dchi2_wishart"] for r in own["rows"]], "o-",
+            label="LQC-spektrum, saját Wishart")
+    if w5b["official"]:
+        rows_o = [r for r in w5b["official"]["low_ell"]["rows"] if np.isfinite(r["dchi2_total"])]
+        b1.plot([r["n_tot"] for r in rows_o], [r["dchi2_total"] for r in rows_o], "s-",
+                label="LQC-spektrum, hivatalos Planck alacsony-ℓ TT+EE")
+    rr = res["wp5"]["rows"]
+    b1.plot([r["n_tot"] for r in rr], [r["dchi2_wishart"] for r in rr], ":", label="WP5 levágás-sablon")
+    b1.axhline(0, color="k", lw=0.8)
+    b1.set(xlim=(139.5, 145), ylim=(-2, 8), xlabel="N_tot", ylabel="Δχ² vs ΛCDM",
+           title="WP5b: negatív = jobb, mint ΛCDM")
+    b1.legend(fontsize=7)
+    c5 = res["wp5"]["curves"]
+    data = c5["data"]
+    b2.errorbar([d[0] for d in data], [d[1] for d in data],
+                yerr=[[d[2] for d in data], [d[3] for d in data]], fmt="k.", label="Planck 2018")
+    b2.plot(c5["ell"], c5["lcdm"], label="ΛCDM")
+    b2.plot(c5["ell"], own["curve_best"], label=f"hibrid LQC, N_tot = {own['best']['n_tot']}")
+    b2.set(xscale="log", xlabel="ℓ", ylabel="D_ℓ^TT [μK²]", title="alacsony ℓ")
+    b2.legend(fontsize=7)
+    fig.tight_layout()
+    fig.savefig(out / "wp5b_lqc_spectrum.png", dpi=120)
+    made.append("wp5b_lqc_spectrum.png")
     plt.close("all")
     return made
 
@@ -238,6 +280,15 @@ def scorecard_md(res: dict[str, Any]) -> str:
     for row in res["spin_scorecard"]:
         lines += [f"#### {row['wp']}", "```json",
                   json.dumps(row["numbers"], indent=1, ensure_ascii=False, default=str), "```"]
+    lines += ["", "## Kiegészítések: WP1b (ACT-kompatibilis potenciál), WP5b (hibrid LQC-spektrum)",
+              "", "Nem előre rögzített tesztek; a WP1/WP5 ítéletét nem írják felül, a WP5b a WP5 "
+              "szabályát (Δχ² < −9) alkalmazza.", "",
+              "| Kérdés | Eredmény | Indoklás |", "|---|---|---|"]
+    for row in res["upgrades_scorecard"]:
+        lines.append(f"| {row['wp']} | **{row['outcome']}** | {row['why']} |")
+    for row in res["upgrades_scorecard"]:
+        lines += [f"#### {row['wp']}", "```json",
+                  json.dumps(row["numbers"], indent=1, ensure_ascii=False, default=str), "```"]
     lines += ["", "## Validáció", "",
               f"- CAMB vs Planck minimum-theory (ℓ 2–2500): max eltérés "
               f"{res['wp5']['baseline_validation']['max_rel_dev']:.2%}",
@@ -258,7 +309,7 @@ def main() -> int:
     t0 = time.perf_counter()
     res: dict[str, Any] = {"timings_s": {}}
     with ProcessPoolExecutor(max_workers=4) as ex:
-        for name, val, secs in ex.map(_timed, ["wp1", "wp2", "wp5", "wp6", "wp4b_s3"]):
+        for name, val, secs in ex.map(_timed, ["wp5b", "wp1", "wp5", "wp2", "wp4b_s3", "wp1b", "wp6"]):
             res[name] = val
             res["timings_s"][name] = round(secs, 1)
             print(f"[{name}] kész, {secs:.1f} s", flush=True)
@@ -267,6 +318,9 @@ def main() -> int:
 
     res["scorecard"] = scorecard(res)
     res["spin_scorecard"] = spin_scorecard(res["wp4b"], res["wp4b_s3"])
+    from thesis.verdict import upgrades_scorecard
+
+    res["upgrades_scorecard"] = upgrades_scorecard(res)
     import camb
     import numpy
     import scipy
@@ -282,7 +336,7 @@ def main() -> int:
     log = [f"{k}: {v}" for k, v in res["meta"].items()]
     log += [f"timing {k}: {v} s" for k, v in res["timings_s"].items()]
     (out / "run.log").write_text("\n".join(log) + "\n")
-    for row in res["scorecard"] + res["spin_scorecard"]:
+    for row in res["scorecard"] + res["spin_scorecard"] + res["upgrades_scorecard"]:
         print(f"{row['wp']:<26} {row['outcome']}")
     print(f"→ {out.relative_to(ROOT)}  ({res['meta']['total_s']} s)")
     return 0

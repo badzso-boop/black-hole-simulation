@@ -11,12 +11,14 @@ Minden itt az `inflation.evolve` trajektóriáira épül:
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np
 
 from thesis.history import max_reheat_temperature_gev, post_inflation
 from thesis.inflation import (
+    PolyAttractor,
     Potential,
     Quadratic,
     Starobinsky,
@@ -59,6 +61,30 @@ def threshold_phi_b(pot: Potential, sign: int, n_target: float, lo: float, hi: f
     return 0.5 * (lo + hi)
 
 
+def fail_bands(fails: Callable[[float], bool], inner: float, step: float) -> list[list[float]]:
+    """A φ_B-tengely kudarc-sávjai |φ_B| ≤ inner-ben: rács, majd biszekciós szélek."""
+    grid = np.arange(-inner, inner + step / 2, step)
+    flags = [fails(float(p)) for p in grid]
+    if flags[0] or flags[-1]:
+        raise RuntimeError("a kudarc-sáv eléri a rács szélét — növeld az `inner`-t")
+    bands: list[list[float]] = []
+    for i in range(1, len(grid)):
+        if flags[i] != flags[i - 1]:
+            lo, hi = float(grid[i - 1]), float(grid[i])
+            for _ in range(20):
+                mid = 0.5 * (lo + hi)
+                if fails(mid) == flags[i - 1]:
+                    lo = mid
+                else:
+                    hi = mid
+            edge = 0.5 * (lo + hi)
+            if flags[i]:
+                bands.append([edge, float("nan")])
+            else:
+                bands[-1][1] = edge
+    return bands
+
+
 def phi2_fraction(n_required: float = 68.0, inner: float = 15.0, step: float = 0.05,
                   shear_fraction: float = 0.0) -> dict[str, Any]:
     """Ashtekar–Sloan 2011 (§IV D): a φ² bounce-adatok mekkora hányada ad < n_required e-redőt.
@@ -78,25 +104,7 @@ def phi2_fraction(n_required: float = 68.0, inner: float = 15.0, step: float = 0
     def fails(phi: float) -> bool:
         return evolve(pot, phi, 1, shear_fraction=shear_fraction).n_infl < n_required
 
-    grid = np.arange(-inner, inner + step / 2, step)
-    flags = [fails(float(p)) for p in grid]
-    bands: list[list[float]] = []
-    for i in range(1, len(grid)):
-        if flags[i] != flags[i - 1]:
-            lo, hi = float(grid[i - 1]), float(grid[i])
-            for _ in range(20):
-                mid = 0.5 * (lo + hi)
-                if fails(mid) == flags[i - 1]:
-                    lo = mid
-                else:
-                    hi = mid
-            edge = 0.5 * (lo + hi)
-            if flags[i]:
-                bands.append([edge, float("nan")])
-            else:
-                bands[-1][1] = edge
-    if flags[0] or flags[-1]:
-        raise RuntimeError("a kudarc-sáv eléri a rács szélét — növeld az `inner`-t")
+    bands = fail_bands(fails, inner, step)
     outer_failures = [
         {"phi_b": float(ph), "n_infl": evolve(pot, float(ph), 1, shear_fraction=shear_fraction).n_infl}
         for mag in np.geomspace(inner, 0.999 * phi_max, 12) for ph in (mag, -mag) if fails(float(ph))
@@ -187,3 +195,37 @@ def run() -> dict[str, Any]:
             "phi_end_starobinsky": phi_end, "rho_end_starobinsky": rho_end,
             "t_reh_max_gev": t_max, "pivots_consistent": pivots, "pivots_fixed": fixed,
             "energy_budget_1msun": budget}
+
+
+# ---------------------------------------------------------------------------
+# WP1b: ACT-kompatibilis potenciál (a terv §12 kockázat-táblája szerint). Külön sor a
+# pontozólapon — a WP1 előre rögzített ítéletét NEM írja felül.
+# ---------------------------------------------------------------------------
+
+A_S_TARGET = 2.1e-9  # Planck 2018: ln(1e10 A_s) = 3.044
+
+
+def normalized_poly_attractor(mu: float = 0.2, n_star: float = 55.0) -> PolyAttractor:
+    """V0 úgy, hogy A_s = 2.1e-9 legyen N* = 55-nél (A_s ∝ V0, ε független tőle)."""
+    trial = PolyAttractor(v0=1e-12, mu=mu)
+    phi_end = phi_end_slow_roll(trial, 1e-4, 50.0)
+    a_s = pivot_observables(trial, n_star, phi_end, 60.0)["A_s"]
+    return PolyAttractor(v0=1e-12 * A_S_TARGET / a_s, mu=mu)
+
+
+def run_act() -> dict[str, Any]:
+    pot = normalized_poly_attractor()
+    phi_end = phi_end_slow_roll(pot, 1e-4, 50.0)
+    rho_end = 1.5 * pot.v(phi_end)
+    t_max = max_reheat_temperature_gev(rho_end)
+    pivots = [n_star_consistent(pot, phi_end, 60.0, rho_end, t) for t in (t_max, 1e9, 1e3, 4e-3)]
+    curve = scan_phi_b(pot, np.linspace(-6, 6, 97), 1)
+
+    def fails(phi: float) -> bool:
+        return evolve(pot, phi, 1).n_infl < 60.0
+
+    bands = fail_bands(fails, 15.0, 0.05)
+    return {"potential": pot.name, "mu": pot.mu, "v0": pot.v0, "phi_end": phi_end,
+            "rho_end": rho_end, "t_reh_max_gev": t_max, "pivots_consistent": pivots,
+            "curve": curve, "fail_bands_N60_phidot_pos": bands,
+            "note": "V páros: (φ_B, −φ̇) ≡ (−φ_B, +φ̇), elég φ̇_B > 0; a tér nem kompakt"}
