@@ -45,6 +45,9 @@ def _timed(name: str) -> tuple[str, Any, float]:
     elif name == "wp6":
         from thesis import cns
         out = cns.run()
+    elif name == "wp4b_s3":
+        from thesis import spin
+        out = spin.run_shear()
     else:
         raise ValueError(name)
     return name, out, time.perf_counter() - t0
@@ -69,6 +72,12 @@ def _dependent(res: dict[str, Any]) -> None:
     res["wp4"] = rotation.run(curvature.PARENTS_KG, n_onset, h_inf, n_hor,
                               PostInflation(**piv[0]["post"]))
     res["timings_s"]["wp3_wp4"] = time.perf_counter() - t0
+    # WP4b (docs/spin-plan.md): a WP1 és a WP5 kimenetére épül
+    from thesis import spin
+
+    t0 = time.perf_counter()
+    res["wp4b"] = spin.run(wp1, res["wp5"])
+    res["timings_s"]["wp4b"] = round(time.perf_counter() - t0, 1)
 
 
 def figures(res: dict[str, Any], out: Path) -> list[str]:
@@ -157,6 +166,42 @@ def figures(res: dict[str, Any], out: Path) -> list[str]:
     fig.tight_layout()
     fig.savefig(out / "wp5_cmb.png", dpi=120)
     made.append("wp5_cmb.png")
+
+    # 6. WP4b: a szükséges N_tot a szülő spinjének függvényében (kulcsábra)
+    import numpy as np
+
+    from thesis import spin
+
+    w = res["wp4b"]
+    fig = plt.figure(figsize=(13, 6.5))
+    gs = fig.add_gridspec(2, 2, height_ratios=[3, 2])
+    a1 = fig.add_subplot(gs[0, 0])
+    a3 = fig.add_subplot(gs[1, 0], sharex=a1)
+    a2 = fig.add_subplot(gs[:, 1])
+    aa = np.geomspace(1e-3, 1.0, 200)
+    for lab, c in w["c_values"].items():
+        a1.plot(aa, [spin.n_tot_needed(a, c) for a in aa], label=f"{lab}")
+    lo, hi = res["wp3"]["lqc_natural_n_tot"]
+    a1.axhspan(lo, hi, alpha=0.15, color="C1", label="LQC természetes N_tot")
+    a1.axhline(w["n_best_cmb"], color="C3", ls="--", lw=0.8, label="CMB legjobb (WP5)")
+    a1.set(xscale="log", ylabel="szükséges N_tot", ylim=(133, 146),
+           title="WP4b: tengely-mag — szükséges e-redők")
+    a1.legend(fontsize=6, loc="upper left")
+    pops = spin.populations()
+    for i, (_name, p) in enumerate(pops.items()):
+        a3.plot(p["a"], [i] * len(p["a"]), "|", ms=10, color=f"C{i % 10}")
+    a3.set_yticks(range(len(pops)), list(pops), fontsize=6)
+    a3.set(xscale="log", xlabel="a* (a szülő spinje)", ylim=(-0.7, len(pops) - 0.3))
+    for lab, c in w["c_values"].items():
+        a2.plot(aa, [spin.seed_mass_max(a, c) for a in aa], label=lab)
+    a2.axhline(spin.M_GAP, color="k", ls="--", lw=0.8, label="LMY tömegrés (0.83 m_P)")
+    a2.axhline(10, color="k", ls=":", lw=0.8, label="10 m_P")
+    a2.set(xscale="log", yscale="log", xlabel="a*", ylabel="a mag max. tömege [m_P]",
+           title="a mag tömege (N_tot-tól független)")
+    a2.legend(fontsize=6)
+    fig.tight_layout()
+    fig.savefig(out / "wp4b_spin.png", dpi=120)
+    made.append("wp4b_spin.png")
     plt.close("all")
     return made
 
@@ -182,6 +227,17 @@ def scorecard_md(res: dict[str, Any]) -> str:
         lines.append("```json")
         lines.append(json.dumps(row["numbers"], indent=1, ensure_ascii=False, default=str))
         lines.append("```")
+    from thesis.verdict import EXPECTED_SPIN
+
+    lines += ["", "## WP4b — a forgó szülő (docs/spin-plan.md §6)", "",
+              "| Kérdés | Eredmény | Várt (§6) | Indoklás |", "|---|---|---|---|"]
+    for row in res["spin_scorecard"]:
+        lines.append(f"| {row['wp']} | **{row['outcome']}** | "
+                     f"{EXPECTED_SPIN.get(row['wp'], '—')} | {row['why']} |")
+    lines += ["", "### WP4b számok", ""]
+    for row in res["spin_scorecard"]:
+        lines += [f"#### {row['wp']}", "```json",
+                  json.dumps(row["numbers"], indent=1, ensure_ascii=False, default=str), "```"]
     lines += ["", "## Validáció", "",
               f"- CAMB vs Planck minimum-theory (ℓ 2–2500): max eltérés "
               f"{res['wp5']['baseline_validation']['max_rel_dev']:.2%}",
@@ -202,14 +258,15 @@ def main() -> int:
     t0 = time.perf_counter()
     res: dict[str, Any] = {"timings_s": {}}
     with ProcessPoolExecutor(max_workers=4) as ex:
-        for name, val, secs in ex.map(_timed, ["wp1", "wp2", "wp5", "wp6"]):
+        for name, val, secs in ex.map(_timed, ["wp1", "wp2", "wp5", "wp6", "wp4b_s3"]):
             res[name] = val
             res["timings_s"][name] = round(secs, 1)
             print(f"[{name}] kész, {secs:.1f} s", flush=True)
     _dependent(res)
-    from thesis.verdict import scorecard
+    from thesis.verdict import scorecard, spin_scorecard
 
     res["scorecard"] = scorecard(res)
+    res["spin_scorecard"] = spin_scorecard(res["wp4b"], res["wp4b_s3"])
     import camb
     import numpy
     import scipy
@@ -225,7 +282,7 @@ def main() -> int:
     log = [f"{k}: {v}" for k, v in res["meta"].items()]
     log += [f"timing {k}: {v} s" for k, v in res["timings_s"].items()]
     (out / "run.log").write_text("\n".join(log) + "\n")
-    for row in res["scorecard"]:
+    for row in res["scorecard"] + res["spin_scorecard"]:
         print(f"{row['wp']:<26} {row['outcome']}")
     print(f"→ {out.relative_to(ROOT)}  ({res['meta']['total_s']} s)")
     return 0

@@ -189,3 +189,105 @@ EXPECTED = {  # thesis-plan §0 „várható becsületes eredmény"
     "3b Edge beyond horizon": "supports", "4 Parent spin": "neutral",
     "5 CMB imprint": "neutral", "6 Natural selection": "against",
 }
+
+
+# ---------------------------------------------------------------------------
+# WP4b: a forgó szülő (docs/spin-plan.md §6, rögzítve 2026-09-29 a számolás előtt).
+# Rögzített részletek, amiket a §6 táblázat nem adott meg számmal:
+#   „a populáció zöme" = ≥ 50%-a; a profil-együttható fiduciális értéke az n = 3 merev
+#   politróp (vasmag); „O(1) torzulás" = D ≤ 10; a mag átlépési ideje v_seed = 10 m.
+#   Utólag hozzáadott érvényességi feltétel (az implementáció közben levezetve, a
+#   hipotézis ELLEN hat): a mag tömege ≥ a LMY tömegrés (0.83 m_P).
+# ---------------------------------------------------------------------------
+
+EXPECTED_SPIN = {"S1+S2 observed spins": "supports", "S3 axial core inflates": "open",
+                 "S4 crossing r_-": "open", "S5 rotation today": "neutral",
+                 "CMB consistency": "supports"}
+
+
+def spin_scorecard(w: dict[str, Any], s3: dict[str, Any]) -> list[dict[str, Any]]:
+    fid = "n=3 rigid (fiducial)"
+    obs = {k: v for k, v in w["populations"].items() if v["observed"]}
+    n145, n142 = f"{w['n_grid'][3]:.1f}", f"{w['n_grid'][2]:.1f}"
+    gw = obs["GW (GWTC-4, Beta fit)"]["by_C"][fid]["fraction_allowed"]
+    bulk = {k: v["by_C"][fid]["fraction_allowed"][n145] >= 0.5 for k, v in obs.items()}
+    if all(bulk.values()) and gw[n142] >= 0.5:
+        o12 = "supports"
+    elif gw[n145] < 0.5:
+        o12 = "against"
+    else:
+        o12 = "mixed"
+    pess = {k: v["by_C"]["min over profiles"]["fraction_allowed"][n145] for k, v in obs.items()}
+    rel = w["relations"][fid]
+    rows = [{
+        "wp": "S1+S2 observed spins", "outcome": o12,
+        "numbers": {"C_fiducial": w["c_fiducial"], "C_range": [w["c_values"]["min over profiles"],
+                                                                w["c_values"]["max over profiles"]],
+                    "a_star_gap_fiducial": rel["a_star_gap"],
+                    "a_star_semiclassical_10mP_fiducial": rel["a_star_gap_10mP"],
+                    "seed_mass_max_a0.9_mP": rel["seed_mass_max_a0.9"],
+                    "fraction_allowed_N145_fiducial": {k: v["by_C"][fid]["fraction_allowed"][n145]
+                                                       for k, v in obs.items()},
+                    "fraction_allowed_N145_pessimistic_C": pess,
+                    "gw_fraction_allowed_N142": gw[n142]},
+        "why": (f"Reális (n = 3) magprofillal C = {w['c_fiducial']:.2f}: minden megfigyelt "
+                f"populáció zöme belefér N_tot ≤ 145-be, a GW-populáció {gw[n142]:.0%}-a már "
+                f"N_tot ≤ 142-nél. A tömegrés-korlát a* ≤ {rel['a_star_gap']:.2f} — de a mag "
+                f"a* = 0.9-nél csak {rel['seed_mass_max_a0.9']:.1f} m_P: Planck-méretű, ahol az "
+                "effektív LQC a határán van. Legpesszimistább profillal (C = "
+                f"{w['c_values']['min over profiles']:.2f}) a gyorsan forgó (röntgen, SMBH) "
+                "populációk kiesnek."),
+    }]
+    thr = s3["thresholds_N60"]
+    reachable = any(v is not None for v in thr.values())
+    rows.append({
+        "wp": "S3 axial core inflates", "outcome": "supports" if reachable else "against",
+        "numbers": {"omega_sigma": s3["omega_sigma"], "thresholds_N60": thr,
+                    "phi2_fraction_fail": s3["phi2_fraction"]["fraction_fail_liouville"],
+                    "saturating_sigma_over_h": [r["saturating_sigma_over_h"]
+                                                for r in w["s3_detachment"]]},
+        "why": ("Klasszikusan bármely σ/H > 10⁻¹⁴…10⁻⁴⁸ kezdeti anizotrópia ρ_c-ig telíti az LQC "
+                "nyírás-korlátot, ezért a legrosszabb esetet (σ² = 11.57, Ω_σ = 0.5625) számoltuk: "
+                f"az infláció így is elérhető (Starobinsky φ̇ > 0: φ_B ≥ {thr['plus_N60']:.2f}; "
+                f"φ²: kudarc {s3['phi2_fraction']['fraction_fail_liouville']:.1e}). A merev-folyadék "
+                "közelítés itt a határán van."),
+    })
+    s4 = w["s4"]
+    ok = [(not r["planck_first"]) and r["tidal_distortion"] <= 10 for r in s4]
+    o4 = "supports" if all(ok) else ("against" if all(r["planck_first"] for r in s4) else "open")
+    rows.append({
+        "wp": "S4 crossing r_-", "outcome": o4,
+        "numbers": {r["case"]: {"a": r["a"], "v_planck_over_m": r["v_planck_over_m"],
+                                "planck_first": r["planck_first"], "D": r["tidal_distortion"]}
+                    for r in s4},
+        "why": ("Gyors spinnél (a* ≥ 0.9) a tengely-mag ~50–140-szer hamarabb lépi át r₋-t, mint "
+                "ahogy a tömeg-infláció Planck-görbületet ér el, és a torzulás O(1) (1.3–1.8). "
+                "Lassú spinnél (a* ~ 0.01) r₋ apró, a Planck-görbület előbb alakul ki "
+                "(D ~ 2·10⁴); a GW-medián (0.26) határeset. Rendkívül durva becslés: a forgó "
+                "összeomlás kvantumos számolása hiányzik az irodalomból."),
+    })
+    worst = max(max(v.values()) for v in w["s5"].values())
+    rows.append({
+        "wp": "S5 rotation today", "outcome": "against" if worst > math.log10(VORTICITY_LIMIT)
+        else "neutral",
+        "numbers": {"max_log10_omega_over_h_today": worst, "n_infl_used": w["s5_n_infl"]},
+        "why": f"(ω/H)₀ ≤ 10^{worst:.0f} ≪ 7.6e-10 — nincs mérhető forgás, tengely sem.",
+    })
+    gw_best = obs["GW (GWTC-4, Beta fit)"]["by_C"][fid]["fraction_allowed"][f"{w['n_best_cmb']:.1f}"]
+    rows.append({
+        "wp": "CMB consistency", "outcome": "supports" if gw_best >= 0.5 else "open",
+        "numbers": {"n_best": w["n_best_cmb"], "a_star_max_at_best_fiducial": rel["a_star_max_at_best"],
+                    "gw_fraction_allowed_at_best": gw_best},
+        "why": (f"Ha az alacsony-ℓ hiány a visszapattanás (N_tot = {w['n_best_cmb']:.1f}), a szülő "
+                f"spinje a* ≲ {rel['a_star_max_at_best']:.2f} (fiduciális C) — ez a GW-populáció "
+                f"{gw_best:.0%}-ára igaz. Gyorsabb szülőnél a nyom ℓ ≲ 2-n van, láthatatlan."),
+    })
+    rows.append({
+        "wp": "S6 torsion (info)", "outcome": "info",
+        "numbers": w["s6"],
+        "why": (f"Popławski-torzió (ρ ≈ {w['s6']['rho_torsion_over_rho_pl']:.0f} ρ_Pl): ugyanahhoz a "
+                f"spinhez {w['s6']['extra_efolds_vs_lqc']:.1f} e-redővel több kell, és a tömegrés-"
+                f"szerű korlát (1 m_P) a* ≤ {w['s6']['a_star_gap_fiducial']:.2f}: a torzió rosszabb, "
+                "nem jobb."),
+    })
+    return rows
