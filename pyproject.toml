@@ -49,5 +49,5 @@ ignore = ["E501", "RUF001", "RUF002", "RUF003"]  # sorhossz; magyar/matematikai 
 strict         = true
 
 [[tool.mypy.overrides]]
-module = ["black_hole_core"]
+module = ["black_hole_core", "camb", "camb.*", "scipy", "scipy.*"]
 ignore_missing_imports = true

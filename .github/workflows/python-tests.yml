@@ -3,7 +3,7 @@ name: Python Analysis Tests
 on:
   push:
     branches: [main, develop]
-    paths: ['python/**', 'core/**', 'scripts/**', 'pyproject.toml']
+    paths: ['python/**', 'thesis/**', 'data/**', 'core/**', 'scripts/**', 'pyproject.toml']
   pull_request:
     branches: [main]
 
@@ -38,16 +38,16 @@ jobs:
           echo "VIRTUAL_ENV=$(pwd)/.venv" >> $GITHUB_ENV
 
       - name: Fuggosegek telepitese (Rust build + Python)
-        run: pip install -e '.[dev]'
+        run: pip install -e '.[dev,thesis]'
 
       - name: Ruff lint
-        run: ruff check python/
+        run: ruff check python/ thesis/ scripts/run_thesis.py
 
       - name: Mypy
-        run: mypy python/
+        run: mypy python/ thesis/ scripts/run_thesis.py
 
       - name: Pytest
-        run: pytest python/tests/ -v --cov=python --cov-report=xml
+        run: pytest python/tests/ thesis/tests/ -v --cov=python --cov=thesis --cov-report=xml
 
       - name: Codecov
         uses: codecov/codecov-action@v4

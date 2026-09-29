@@ -1,0 +1,235 @@
+#!/usr/bin/env python3
+"""A tézis-terv (docs/thesis-plan.md) hat számolása egyben, pontozólappal.
+
+Használat (a repó gyökeréből, `pip install -e '.[dev,thesis]'` után):
+    python scripts/run_thesis.py [--id AZONOSÍTÓ]
+
+Kimenet: runs/thesis-<id>/
+    results.json    minden szám (WP1–WP6), a pontozólap és a futási idők
+    SCORECARD.md    WP-nként: előre rögzített kritérium → eredmény → indoklás
+    figures/*.png   a fő ábrák
+    run.log         gép, verziók, futási idők
+Az i5-2500S-en ~4–5 perc (a WP-k párhuzamosan futnak).
+"""
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import math
+import os
+import platform
+import sys
+import time
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+
+
+def _timed(name: str) -> tuple[str, Any, float]:
+    t0 = time.perf_counter()
+    if name == "wp1":
+        from thesis import wp1
+        out: Any = wp1.run()
+    elif name == "wp2":
+        from thesis import anisotropy
+        out = anisotropy.run()
+    elif name == "wp5":
+        from thesis import cmb
+        out = {**cmb.run(), "baseline_validation": cmb.validate_baseline()}
+    elif name == "wp6":
+        from thesis import cns
+        out = cns.run()
+    else:
+        raise ValueError(name)
+    return name, out, time.perf_counter() - t0
+
+
+def _dependent(res: dict[str, Any]) -> None:
+    """WP3/3b és WP4: a WP1 kimenetére épülnek (gyorsak)."""
+    from thesis import curvature, rotation
+    from thesis.history import PostInflation
+
+    wp1 = res["wp1"]
+    piv = wp1["pivots_consistent"]
+    h_inf = math.sqrt(8 * math.pi * piv[0]["V_star"] / 3)
+    onsets = [r["n_onset"] for c in wp1["curves"].values() for r in c
+              if r["n_infl"] >= 60 and math.isfinite(r["n_onset"]) and r["n_onset"] > 0]
+    n_onset = sorted(onsets)[len(onsets) // 2]  # medián (≈ 4.8, alig függ φ_B-től)
+    by_treh = {f"{p['t_reh_gev']:.3g} GeV": p["n_post"] for p in piv}
+    t0 = time.perf_counter()
+    res["wp3"] = curvature.run(n_onset, by_treh, h_inf)
+    # WP4 konzervatívan: épp elég infláció, azonnali felmelegedés (a legkevesebb hígulás)
+    n_hor = curvature.n_hor(piv[0]["n_post"], h_inf)
+    res["wp4"] = rotation.run(curvature.PARENTS_KG, n_onset, h_inf, n_hor,
+                              PostInflation(**piv[0]["post"]))
+    res["timings_s"]["wp3_wp4"] = time.perf_counter() - t0
+
+
+def figures(res: dict[str, Any], out: Path) -> list[str]:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    out.mkdir(parents=True, exist_ok=True)
+    made = []
+
+    # 1. N_infl(φ_B)
+    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+    for ax, key, title in zip(axes, ["starobinsky_plus", "starobinsky_minus", "phi2_plus"],
+                              ["Starobinsky, φ̇_B > 0", "Starobinsky, φ̇_B < 0", "φ², φ̇_B > 0"],
+                              strict=True):
+        rows = res["wp1"]["curves"][key]
+        ax.plot([r["phi_b"] for r in rows], [min(r["n_infl"], 150) for r in rows], "o-", ms=3)
+        for y, ls in ((60, "--"), (68, ":")):
+            ax.axhline(y, color="k", ls=ls, lw=0.8)
+        ax.set(title=title, xlabel="φ_B [m_Pl]", ylabel="N_infl (plafon 150)")
+    fig.tight_layout()
+    fig.savefig(out / "wp1_efolds_vs_phiB.png", dpi=120)
+    made.append("wp1_efolds_vs_phiB.png")
+
+    # 2. (n_s, r)
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.axvspan(0.9649 - 2 * 0.0042, 0.9649 + 2 * 0.0042, alpha=0.2, label="Planck 2018 (95%)")
+    ax.axvspan(0.974 - 2 * 0.003, 0.974 + 2 * 0.003, alpha=0.2, color="C1", label="ACT DR6 (95%)")
+    ax.axhline(0.036, color="k", ls="--", lw=0.8, label="BK18: r < 0.036")
+    for p in res["wp1"]["pivots_consistent"]:
+        ax.plot(p["n_s"], p["r"], "ko")
+        ax.annotate(f"T_reh={p['t_reh_gev']:.0e} GeV", (p["n_s"], p["r"]), fontsize=7)
+    ax.set(xlabel="n_s", ylabel="r", yscale="log", title="Starobinsky a visszapattanás után")
+    ax.legend(fontsize=7)
+    fig.tight_layout()
+    fig.savefig(out / "wp1_ns_r.png", dpi=120)
+    made.append("wp1_ns_r.png")
+
+    # 3. N_infl(Ω_σ)
+    fig, ax = plt.subplots(figsize=(6, 4))
+    for key, rows in res["wp2"]["cases"].items():
+        ax.plot([max(r["omega_sigma"], 1e-7) for r in rows], [r["n_infl"] for r in rows],
+                "o-", label=key)
+    ax.axvline(res["wp2"]["omega_sigma_bh"], color="r", ls="--", label="fekete-lyuk nyírás")
+    ax.axhline(60, color="k", ls=":", lw=0.8)
+    ax.set(xscale="log", xlabel="Ω_σ a visszapattanáskor", ylabel="N_infl",
+           title="WP2: a nyírás rövidíti az inflációt")
+    ax.legend(fontsize=7)
+    fig.tight_layout()
+    fig.savefig(out / "wp2_efolds_vs_shear.png", dpi=120)
+    made.append("wp2_efolds_vs_shear.png")
+
+    # 4. WP3b: N_min(M) vs N_tot
+    rows = [r for r in res["wp3"]["rows"] if r["T_reh"] == next(iter({r["T_reh"] for r in res["wp3"]["rows"]}))]
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    ax.plot([r["mass_kg"] for r in rows], [r["n_tot_min_edge"] for r in rows], "o-",
+            label="szükséges: széle a horizonton túl")
+    ax.axhline(rows[0]["n_tot_minimal_inflation"], color="C2", ls="--",
+               label="a horizont-problémát épp megoldó infláció")
+    lo, hi = res["wp3"]["lqc_natural_n_tot"]
+    ax.axhspan(lo, hi, alpha=0.2, color="C1", label="LQC természetes N_tot")
+    ax.axhline(res["wp5"]["n_tot_lower_95"], color="C3", ls=":", label="CMB (WP5): 95% alsó korlát")
+    ax.set(xscale="log", xlabel="szülő fekete lyuk tömege [kg]", ylabel="N_tot (visszapattanás → ma)",
+           title="WP3b: a bébiuniverzum széle")
+    ax.legend(fontsize=7)
+    fig.tight_layout()
+    fig.savefig(out / "wp3b_edge.png", dpi=120)
+    made.append("wp3b_edge.png")
+
+    # 5. CMB alacsony ℓ + Δχ²(N_tot)
+    c = res["wp5"]["curves"]
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(12, 4))
+    data = c["data"]
+    a1.errorbar([d[0] for d in data], [d[1] for d in data],
+                yerr=[[d[2] for d in data], [d[3] for d in data]], fmt="k.", label="Planck 2018")
+    a1.plot(c["ell"], c["lcdm"], label="ΛCDM")
+    a1.plot(c["ell"], c["best_cutoff"], label="LQC-levágás (legjobb)")
+    a1.set(xscale="log", xlabel="ℓ", ylabel="D_ℓ^TT [μK²]", title="WP5: alacsony ℓ")
+    a1.legend(fontsize=7)
+    rr = res["wp5"]["rows"]
+    a2.plot([r["n_tot"] for r in rr], [r["dchi2_wishart"] for r in rr], "o-", ms=3)
+    a2.axhline(0, color="k", lw=0.8)
+    a2.set(ylim=(-3, 15), xlabel="N_tot (k_c-ből)", ylabel="Δχ² (ℓ < 30)",
+           title="negatív = jobb, mint ΛCDM")
+    fig.tight_layout()
+    fig.savefig(out / "wp5_cmb.png", dpi=120)
+    made.append("wp5_cmb.png")
+    plt.close("all")
+    return made
+
+
+def scorecard_md(res: dict[str, Any]) -> str:
+    from thesis.verdict import EXPECTED
+
+    lines = [
+        f"# Tézis-számolások — pontozólap ({res['meta']['date']})",
+        "",
+        "Előre rögzített kritériumok: `docs/thesis-plan.md` §0 (2026-09-28).",
+        "Küszöbök, amiket a táblázat nem adott meg számmal: `thesis/verdict.py` fejléce.",
+        "",
+        "| WP | Eredmény | Várt (§0) | Indoklás |",
+        "|---|---|---|---|",
+    ]
+    for row in res["scorecard"]:
+        exp = EXPECTED.get(row["wp"], "—")
+        lines.append(f"| {row['wp']} | **{row['outcome']}** | {exp} | {row['why']} |")
+    lines += ["", "## Számok", ""]
+    for row in res["scorecard"]:
+        lines.append(f"### {row['wp']}")
+        lines.append("```json")
+        lines.append(json.dumps(row["numbers"], indent=1, ensure_ascii=False, default=str))
+        lines.append("```")
+    lines += ["", "## Validáció", "",
+              f"- CAMB vs Planck minimum-theory (ℓ 2–2500): max eltérés "
+              f"{res['wp5']['baseline_validation']['max_rel_dev']:.2%}",
+              f"- φ² kudarc-sáv (φ̇_B > 0): {res['wp1']['phi2_fraction']['fail_bands_phidot_pos']} "
+              "(Ashtekar–Sloan: [−5.5, 0.94])",
+              f"- Bonga–Gupt küszöbök (60 e-redő): {res['wp1']['thresholds']['plus_N60']:.3f} / "
+              f"{res['wp1']['thresholds']['minus_N60']:.3f} (cikk: −1.45 / 3.63)",
+              "", f"Futási idők (s): {json.dumps(res['timings_s'])}", ""]
+    return "\n".join(lines)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--id", default=dt.datetime.now(dt.UTC).date().isoformat())
+    args = ap.parse_args()
+    out = ROOT / "runs" / f"thesis-{args.id}"
+    out.mkdir(parents=True, exist_ok=True)
+    t0 = time.perf_counter()
+    res: dict[str, Any] = {"timings_s": {}}
+    with ProcessPoolExecutor(max_workers=4) as ex:
+        for name, val, secs in ex.map(_timed, ["wp1", "wp2", "wp5", "wp6"]):
+            res[name] = val
+            res["timings_s"][name] = round(secs, 1)
+            print(f"[{name}] kész, {secs:.1f} s", flush=True)
+    _dependent(res)
+    from thesis.verdict import scorecard
+
+    res["scorecard"] = scorecard(res)
+    import camb
+    import numpy
+    import scipy
+
+    res["meta"] = {"date": args.id, "python": sys.version.split()[0], "numpy": numpy.__version__,
+                   "scipy": scipy.__version__, "camb": camb.__version__,
+                   "machine": f"{platform.node()} {platform.machine()} {os.cpu_count()} CPU",
+                   "total_s": round(time.perf_counter() - t0, 1)}
+    res["timings_s"]["total"] = res["meta"]["total_s"]
+    res["figures"] = figures(res, out / "figures")
+    (out / "results.json").write_text(json.dumps(res, indent=1, ensure_ascii=False, default=str))
+    (out / "SCORECARD.md").write_text(scorecard_md(res))
+    log = [f"{k}: {v}" for k, v in res["meta"].items()]
+    log += [f"timing {k}: {v} s" for k, v in res["timings_s"].items()]
+    (out / "run.log").write_text("\n".join(log) + "\n")
+    for row in res["scorecard"]:
+        print(f"{row['wp']:<26} {row['outcome']}")
+    print(f"→ {out.relative_to(ROOT)}  ({res['meta']['total_s']} s)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
