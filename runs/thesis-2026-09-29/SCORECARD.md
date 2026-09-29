@@ -234,10 +234,72 @@ Küszöbök, amiket a táblázat nem adott meg számmal: `thesis/verdict.py` fej
 }
 ```
 
+## Kiegészítések: WP1b (ACT-kompatibilis potenciál), WP5b (hibrid LQC-spektrum)
+
+Nem előre rögzített tesztek; a WP1/WP5 ítéletét nem írják felül, a WP5b a WP5 szabályát (Δχ² < −9) alkalmazza.
+
+| Kérdés | Eredmény | Indoklás |
+|---|---|---|
+| 1b ACT-compatible potential | **supports** | Polinomiális α-attraktorral (k = 2, μ = 0.2 m_Pl) n_s = 0.9722, r = 0.0036: Planck-tól 1.7σ, ACT-tól 0.6σ — mindkettő 95%-án belül. A visszapattanás a φ_B ∈ [[-3.45, -1.64]] sávon kívül mindig ≥ 60 e-redőt ad. Az ACT-feszültség tehát a potenciálé volt. |
+| 5b CMB with hybrid LQC spectrum | **neutral** | A Guillén et al. 2026-féle hibrid LQC-spektrummal (hivatalos Planck alacsony-ℓ TT+EE) a legjobb N_tot = 141.00, Δχ² = -0.53 — nem szignifikáns (küszöb −9). 95%-os alsó korlát N_tot > 140.25; a saját csővezeték ugyanitt -0.59-t ad, S₁/₂ = 19439 μK⁴. A magas ℓ nem változik (plik-lite Δχ² ≈ 0). |
+#### 1b ACT-compatible potential
+```json
+{
+ "potential": "poly-attractor-k2",
+ "mu": 0.2,
+ "n_s": 0.9722466158260569,
+ "r": 0.003567236690219819,
+ "N_star": 55.481688889407316,
+ "planck_sigma": 1.7491942442992596,
+ "act_sigma": -0.5844613913143689,
+ "fail_bands_N60": [
+  [
+   -3.450295138358906,
+   -1.6356827497480402
+  ]
+ ]
+}
+```
+#### 5b CMB with hybrid LQC spectrum
+```json
+{
+ "likelihood": "hivatalos Planck alacsony-ℓ TT+EE",
+ "best_n_tot": 141.0,
+ "dchi2": -0.5340023350785259,
+ "n_tot_lower_95": 140.25,
+ "full_likelihood_check": [
+  {
+   "n_tot": 141.0,
+   "dchi2_total": -0.5455371565105338,
+   "dchi2_by_likelihood": {
+    "planck_2018_lowl.TT": -0.7228845690383423,
+    "planck_2018_lowl.EE": 0.1765358747778123,
+    "planck_2018_highl_plik.TTTEEE_lite_native": 0.0008115377499962051
+   }
+  },
+  {
+   "n_tot": 140.25,
+   "dchi2_total": 2.155765289305009,
+   "dchi2_by_likelihood": {
+    "planck_2018_lowl.TT": 1.254192378116329,
+    "planck_2018_lowl.EE": 0.8929920345590858,
+    "planck_2018_highl_plik.TTTEEE_lite_native": 0.008580876629594059
+   }
+  }
+ ],
+ "own_pipeline_best": {
+  "n_tot": 141.0,
+  "dchi2_wishart": -0.5944049333230303,
+  "S_half": 19438.979830404525,
+  "D2": 779.108887174027
+ }
+}
+```
+
 ## Validáció
 
 - CAMB vs Planck minimum-theory (ℓ 2–2500): max eltérés 0.28%
 - φ² kudarc-sáv (φ̇_B > 0): [[-5.5006144762037845, 1.0295583963396444]] (Ashtekar–Sloan: [−5.5, 0.94])
 - Bonga–Gupt küszöbök (60 e-redő): -1.460 / 3.621 (cikk: −1.45 / 3.63)
 
-Futási idők (s): {"wp1": 72.1, "wp2": 51.8, "wp5": 104.1, "wp6": 1.2, "wp4b_s3": 51.5, "wp3_wp4": 0.00045414500345941633, "wp4b": 0.2, "total": 105.1}
+Futási idők (s): {"wp5b": 69.2, "wp1": 74.3, "wp5": 114.3, "wp2": 50.8, "wp4b_s3": 47.3, "wp1b": 45.3, "wp6": 0.5, "wp3_wp4": 0.0004966140040778555, "wp4b": 0.2, "total": 115.5}

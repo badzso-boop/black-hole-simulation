@@ -282,7 +282,8 @@ scripts/
   validate_results.py, export_csv.py, checkpoint_inspect.py, benchmark_compare.py
 runs/2026-09-28/             kampány: logs/, tests.log, system.txt, summary.csv, RESULTS.md, ANALYSIS.md
 docs/                        elemzések és a tézis-terv (lásd Dokumentáció)
-thesis/                      a tézis-számolások Python-csomagja (WP0–WP6, CAMB) — scripts/run_thesis.py
+thesis/                      a tézis-számolások Python-csomagja (WP0–WP6, WP1b, WP4b, WP5b; CAMB, cobaya) — scripts/run_thesis.py
+scripts/cobaya/              teljes Planck-MCMC konfiguráció (WP5c) — scripts/run_mcmc.sh, scripts/analyze_mcmc.py
 data/                        observations.json (forrásokkal), planck/ (CMB-spektrumok)
 ```
 

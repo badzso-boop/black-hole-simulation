@@ -3,6 +3,10 @@
 **Status:** plan written 2026-09-28; §0 criteria fixed on that date. **All WPs implemented and
 run on 2026-09-29** — code in `thesis/`, results and scorecard in
 [thesis-progress.md](thesis-progress.md) and `runs/thesis-2026-09-29/`.
+Add-ons the same day:
+- WP1b: an ACT-compatible potential.
+- WP5b: the Guillén et al. 2026 LQC spectrum, fit with the official Planck likelihoods.
+- WP5c: the full MCMC, ready for the Ryzen (`scripts/run_mcmc.sh`).
 
 **Inputs:**
 - `data/observations.json`: every observational number, with its source.

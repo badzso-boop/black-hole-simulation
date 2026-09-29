@@ -12,7 +12,7 @@ The scorecard is in [`runs/thesis-2026-09-29/SCORECARD.md`](../runs/thesis-2026-
 ```bash
 pip install -e '.[dev,thesis]'          # camb, getdist, matplotlib
 python scripts/run_thesis.py            # → runs/thesis-<date>/  (~100 s on the i5)
-python -m pytest thesis/tests -q        # 24 tests, ~15 s
+python -m pytest thesis/tests -q        # 30 tests, ~45 s
 ```
 
 ## Scorecard
@@ -27,6 +27,8 @@ python -m pytest thesis/tests -q        # 24 tests, ~15 s
 | 5 | Does the bounce show up at low ℓ in the CMB? | **neutral** | neutral |
 | 6 | Smolin's natural selection vs neutron stars | **against (falsified)** | against |
 | 4b | Can a *spinning* parent still work? ([spin-plan.md](spin-plan.md)) | **partly: see WP4b below** | — |
+| 1b | Does bounce + inflation work with a potential that fits ACT too? (add-on) | **supports** | — |
+| 5b | CMB with the real LQC spectrum and the official Planck likelihoods (add-on) | **neutral** | — |
 
 Five of the six WPs gave exactly the outcome expected in advance. The two surprises are
 WP1's ACT tension and WP4's model limit; both are explained below.
@@ -186,6 +188,93 @@ a* ~ 0.01–0.998 (`observations.json` → `4b_spin`).
 - **S4 is the weakest link:** a real rotating-collapse calculation in effective LQG does not exist
   yet.
 
+### WP1b: an ACT-compatible potential (`inflation.PolyAttractor`, `wp1.run_act`)
+
+**Why.** WP1 is "mixed" only because Starobinsky inflation sits 2.9σ from ACT DR6's n_s = 0.974.
+The plan's risk table named the fix: another plateau potential. This is an **add-on**, reported as
+its own row; the pre-registered WP1 verdict stays as it is.
+
+**Potential.** The polynomial α-attractor with k = 2 (Kallosh & Linde 2022, arXiv:2202.06492):
+- V = V₀ φ²/(φ² + μ²), with μ = 0.2 m_Pl (about one reduced Planck mass);
+- V₀ is fixed by A_s = 2.1×10⁻⁹;
+- the paper's attractor prediction is n_s = 1 − 3/(2N). Our numerical n_s matches it to 2×10⁻⁴
+  (test).
+
+**Result:**
+- n_s = 0.9722 and r = 0.0036 (instant reheating, N* = 55.5). That is 1.7σ from Planck and
+  0.6σ from ACT, inside both 95% ranges.
+- Through the bounce, fewer than 60 e-folds occur only for φ_B ∈ [−3.45, −1.64] (φ̇ > 0; the
+  potential is even). Everything else inflates.
+- **So the ACT tension belonged to the Starobinsky potential, not to the black-hole origin.**
+
+### WP5b: the real LQC spectrum (`lqc_spectrum.py`, `cobaya_lqc.py`)
+
+**Why.** WP5 used a phenomenological cutoff template. WP5b uses the hybrid-LQC primordial spectrum
+of Guillén, Langer, Mena Marugán et al. 2026 (arXiv:2605.14657), and the **official Planck 2018
+likelihoods** in their native Python versions via cobaya:
+- low-ℓ TT (Gibbs);
+- low-ℓ EE;
+- plik-lite TT/TE/EE.
+
+**How the spectrum is computed.** The paper's closed form (hypergeometric and Hankel functions) was
+not transcribed. Instead the same physics is computed numerically:
+1. Kinetic bounce a(t) = (1 + 24πρ_c t²)^{1/6}, with the end of the bounce period at t₀ = 0.4.
+2. Pöschl–Teller mass U₀/cosh²(αη).
+3. NO-AHD vacuum, which for this mass is the plane wave in the far past.
+4. Mode integration to η₀, then matching to the exact kinetic Hankel solutions.
+5. P_R = (|A_k| − |B_k|)² P_ΛCDM (the paper's Eq. 3.5).
+
+**Checks against independent values:**
+
+| Check | Ours | Reference |
+|---|---|---|
+| η₀ | 0.351 | paper: ≈ 0.35 |
+| suppression scale k₀ | 1.02 | paper: ~1 |
+| Pöschl–Teller scattering | agrees to 10⁻¹⁰ | exact analytic formula |
+| Wronskian \|A\|² − \|B\|² | 1 (to 10⁻⁸) | exact identity |
+| factor at high k | → 1 | — |
+| plug-in at N_tot = 150 | reproduces ΛCDM | — |
+
+The dressed-metric variant is not implemented.
+
+**Result:**
+
+| | best N_tot | Δχ² vs ΛCDM | 95% lower bound |
+|---|---|---|---|
+| Official Planck low-ℓ TT+EE | **141.0** | **−0.53** (TT −0.72, EE +0.19) | **N_tot > 140.25** |
+| Full set incl. plik-lite, at 141.0 | — | −0.55 (high ℓ: +0.001) | — |
+| Own Wishart pipeline, same spectrum | 141.0 | −0.59 | — |
+| WP5 cutoff template (for comparison) | 141.2 | −1.2 | 140.8 |
+
+- S₁/₂ drops from 34 290 to 19 440 μK⁴ at the best fit.
+- **Not significant** (threshold −9), so the WP5 rule gives **neutral**.
+- The N_tot constraint agrees with WP3b (edge > horizon needs > 126.8) and with WP4b (at 140.25
+  the spin window reaches a* ≲ 0.35 with the fiducial core).
+
+### WP5c: the full MCMC (prepared for the Ryzen; not yet run)
+
+**Files:**
+- `scripts/cobaya/lqc_mcmc.yaml`: 6 ΛCDM parameters + N_tot (prior 138–150), same likelihoods.
+- `lcdm_mcmc.yaml`: the ΛCDM reference.
+- `*_bestfit.yaml`: minimizers for the true best-fit Δχ².
+- `scripts/run_mcmc.sh`: MPI, 8 chains × 4 threads by default.
+- `scripts/analyze_mcmc.py`: N_tot posterior, Δχ²_min, and the consequences for WP3b/WP4b, written
+  to `runs/mcmc-<date>/`.
+
+**Tested here:** both configs pass `cobaya-run --test`, and a 30-sample chain of each model ran
+through the analysis script (on the i5, 2026-09-29).
+
+**On the Ryzen:**
+
+```bash
+git pull
+sudo apt install openmpi-bin libopenmpi-dev
+pip install -e '.[dev,thesis]' mpi4py
+cobaya-install planck_2018_lowl.TT planck_2018_lowl.EE planck_2018_highl_plik.TTTEEE_lite_native -p ~/cobaya_packages
+bash scripts/run_mcmc.sh          # ΛCDM, then LQC, then both minimizers (hours)
+python scripts/analyze_mcmc.py    # → runs/mcmc-<date>/RESULTS.md; then commit runs/mcmc-*
+```
+
 ### WP5: the CMB (`cmb.py`)
 
 **Validation.** CAMB reproduces Planck 2018's best-fit theory spectrum over ℓ = 2–2500 to within
@@ -227,6 +316,11 @@ origin**, which does not need it.
   - It uses a phenomenological cutoff, not the analytic LQC spectrum of Guillén et al. 2026.
   - The ΛCDM parameters are held fixed.
   - There is no MCMC (that job is for the Ryzen).
+- **WP5b:**
+  - Only the hybrid approach is implemented, not the dressed-metric one.
+  - The asymptotic kinetic → inflation matching (k ≫ k_i) is used; this is valid for N_tot ≳ 135.
+  - In the grid, the other ΛCDM parameters are held at the Planck best fit. The MCMC (WP5c)
+    frees them.
 - **Measure problem:** for Starobinsky the φ_B space is non-compact, so we give thresholds, not probabilities.
 
 ## Log
@@ -241,3 +335,6 @@ origin**, which does not need it.
   - WP4b (spinning parent): research pass, plan (`spin-plan.md`), then `thesis/spin.py` with
     S1–S6, 9 tests, and scorecard rows. The implementation added the seed-mass/mass-gap condition,
     which the plan had missed.
+  - WP1b (polynomial α-attractor) and WP5b (hybrid LQC spectrum with official Planck
+    likelihoods via cobaya) are implemented, 6 more tests.
+  - WP5c (full MCMC) is prepared and smoke-tested; it runs on the Ryzen.

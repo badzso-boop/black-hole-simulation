@@ -566,3 +566,33 @@ Nyitott kérdés a forgó szülő (WP4). Opcionálisan jöhet még:
 
 Egy valódi forgó összeomlás effektív LQG-ben. Ez az irodalomban sincs meg, és ez döntené el
 az S4-et.
+
+## 15. fázis — ACT-kompatibilis potenciál, valódi LQC-spektrum, MCMC-előkészítés (2026-09-29)
+
+### Mit csináltunk
+
+- **WP1b:** polinomiális α-attraktor (Kallosh & Linde 2022; `inflation.PolyAttractor`).
+  - Az n_s a cikk 1 − 3/(2N) formulájával egyezik.
+  - Futtatás a visszapattanáson át.
+- **WP5b:** a Guillén et al. 2026-féle hibrid LQC primordiális spektrum (`thesis/lqc_spectrum.py`).
+  - Pöschl–Teller visszapattanás, NO-AHD vákuum, numerikus módus-integrálás, Hankel-illesztés.
+  - Ellenőrzés: η₀, k₀, egzakt PT-szórás, Wronski-azonosság.
+  - A hivatalos Planck 2018 likelihoodok natív Python-változatai cobaya-n át
+    (`thesis/cobaya_lqc.py`; adatok: `~/cobaya_packages`, 19 MB, a repón kívül).
+- **WP5c:** teljes MCMC a Ryzenre (`scripts/cobaya/*.yaml`, `scripts/run_mcmc.sh`,
+  `scripts/analyze_mcmc.py`).
+  - Itt `--test`-tel és 30 mintás láncokkal végig kipróbálva.
+- **Tesztek:** 6 új teszt.
+- **Futási idő:** a teljes futtató (`run_thesis.py`) ~2 perc az i5-ön.
+
+### Amit megtudtunk
+
+| Kérdés | Eredmény |
+|---|---|
+| Az ACT-feszültség a fekete-lyuk-eredet hibája? | Nem, a Starobinsky-potenciálé. ACT-kompatibilis potenciállal (n_s = 0.972, r = 0.004) a visszapattanás ugyanúgy inflál, a φ_B ∈ [−3.45, −1.64] sávon kívül mindig. |
+| Mit mond a valódi LQC-spektrum a hivatalos Planck-adatokkal? | Legjobb N_tot = 141.0, Δχ² = −0.53: nem szignifikáns (semleges). A CMB szerint N_tot > 140.25 (95%), összhangban a WP3b-vel és a WP4b-vel. |
+
+### Következő lépés
+
+A WP5c MCMC lefuttatása a Ryzenen (`bash scripts/run_mcmc.sh`, órák), majd az eredmények
+(`runs/mcmc-*`) commitolása.

@@ -83,6 +83,8 @@ are preparing a thesis on it.
 | 4 | **neutral + model limit** | A homogeneous bounce works only for a* ≲ 1e-7, so spinning black holes are not described. This is an open problem. |
 | 5 | **neutral** | Best N_tot = 141.2, Δχ² = −1.2 (not significant); N_tot > 140.8 at 95%. |
 | 6 | **against** | 3.2σ. |
+| 1b (add-on) | **supports** | Polynomial α-attractor: n_s 0.972, inside Planck and ACT 95%; the bounce inflates outside φ_B ∈ [−3.45, −1.64]. The ACT tension was Starobinsky's. |
+| 5b (add-on) | **neutral** | Real hybrid-LQC spectrum (Guillén+ 2026) with the official Planck likelihoods (cobaya native, data in `~/cobaya_packages`): best N_tot = 141.0, Δχ² = −0.53; N_tot > 140.25 at 95%. |
 
 **Open items:**
 - a spinning (Kerr) parent: **WP4b is implemented** (`thesis/spin.py`, `docs/spin-plan.md` §9).
@@ -93,8 +95,9 @@ are preparing a thesis on it.
   - Catch: fast spin gives a Planck-mass seed; slow (natal ~0.01) spin loses to mass inflation at
     r₋ (crude S4). The comfortable window is a* ≈ 0.44–0.52.
   - The decisive missing piece is a rotating collapse in effective LQG, which is not in the literature;
-- WP5 with the analytic LQC spectrum;
-- MCMC on the Ryzen.
+- **WP5c MCMC:** prepared and smoke-tested but not yet run.
+  - Run it on the Ryzen with `bash scripts/run_mcmc.sh` (hours), then `python scripts/analyze_mcmc.py`, then commit `runs/mcmc-*`.
+  - `chains/` is gitignored.
 
 ## How to work in this repo (agreed with the author)
 
@@ -105,7 +108,7 @@ are preparing a thesis on it.
 - **Honest results:** report what the physics gives, even when it hurts the
   hypothesis. Keep assumptions and limitations explicit in code comments and docs.
 - **Validation:** every new feature gets tests against an independent analytic or
-  literature value, not against its own output. Current suite: 105 Rust + 22 Python + 24 thesis tests.
+  literature value, not against its own output. Current suite: 105 Rust + 22 Python + 30 thesis tests.
 - **Literature data:** use a background research agent with "cite everything,
   mark UNVERIFIED" instructions. Then check its numbers for internal
   consistency before use; this caught a typo in Dong et al. 2016's neutrino column.
