@@ -29,6 +29,13 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+
+# A numpy mellé csomagolt OpenBLAS alapból magonként szálat indít — az itteni
+# apró mátrixokon ez nem gyorsít, párhuzamos futásoknál viszont (--jobs N)
+# N×magszám szál versenyez (Ryzen 5950X, --jobs 16: ~500 szál, 326 s vs ~20 s).
+# Futásonként egy BLAS-szál; az eredményekre nincs hatása (determinisztikus).
+CHILD_ENV = {**os.environ, "OMP_NUM_THREADS": "1", "OPENBLAS_NUM_THREADS": "1",
+             "MKL_NUM_THREADS": "1"}
 M_SUN = 1.98847e30
 M_PLANCK = 2.176434e-8
 
@@ -83,7 +90,7 @@ def run_one(py: str, out_dir: Path, log_dir: Path, group: str, name: str,
     cmd = [py, "-m", "python", *args, "--output", str(out.relative_to(ROOT))]
     t0 = time.perf_counter()
     proc = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            text=True)
+                            text=True, env=CHILD_ENV)
     stdout, stderr = proc.communicate()
     wall = time.perf_counter() - t0
     rec = {"id": run_id, "group": group, "name": name, "args": args,
@@ -103,7 +110,7 @@ def measure_peak_rss(py: str, args: list[str], out: Path) -> float:
         fd = os.open(os.devnull, os.O_WRONLY)
         os.dup2(fd, 1)
         os.dup2(fd, 2)
-        os.execv(py, [py, "-m", "python", *args, "--output", str(out)])
+        os.execve(py, [py, "-m", "python", *args, "--output", str(out)], CHILD_ENV)
     _, _, usage = os.wait4(pid, 0)
     return usage.ru_maxrss / 1024.0
 
