@@ -528,3 +528,41 @@ reprodukálása), majd WP1 (infláció a visszapattanás után) — a többi err
 Nyitott kérdés a forgó szülő (WP4). Opcionálisan jöhet még:
 - a WP5 MCMC-je a Ryzenen,
 - a Guillén et al. 2026-féle analitikus LQC-spektrum.
+
+## 14. fázis — A forgó szülő (WP4b): kutatás, terv, számolás (2026-09-29)
+
+### Mit csináltunk
+
+- **Kutató-alügynök** a spinekről és a forgó belsőről. Minden szám forrással és verified-jelzővel
+  került a `data/observations.json` → `4b_spin` szakaszba:
+  - röntgen-kettősök, GWTC-4, SMBH-k;
+  - születési perdület (Heger+ 2005, Fuller & Ma 2019);
+  - tömeg-infláció;
+  - torzió;
+  - a forgó-univerzum állítások.
+- **`docs/spin-plan.md`** (angol): a probléma geometriai jelentése (r_c ≈ 2 r₋; a belső horizont
+  10²¹–10³²-szer nagyobb r_b-nél), két kiút, S1–S6 számolások, előre rögzített kimenetek.
+- **`thesis/spin.py`:**
+  - tengely-menti kis perdületű mag (önkonzisztens, saját tömege alatt);
+  - politróp-profilok (Lane–Emden);
+  - populációk;
+  - maximális LQC-nyírás;
+  - belső-horizont becslés;
+  - örökölt forgás;
+  - torzió.
+- **Tesztek:** 9 új teszt, analitikus és nyers-erő ellenőrzéssel. A pontozólap WP4b-része és az
+  új ábra (`wp4b_spin.png`) a `runs/thesis-2026-09-29/` alatt.
+
+### Amit megtudtunk
+
+| Kérdés | Eredmény |
+|---|---|
+| Befér-e a mért spin? | Igen, reális (n = 3) magprofillal: N_tot ≈ 137–142 kell. A GW-populáció a CMB-legjobb N_tot = 141.2-nél 98%-ban belefér. |
+| Inflál-e a mag? | Igen, még maximális LQC-nyírással is. |
+| Túléli-e a belső horizontot? | **Nyitott.** Gyors spinnél igen, lassú (születési ~0.01) spinnél a becslés szerint nem. |
+| Hol a csapda? | Gyors spinnél a mag csak 1–2 Planck-tömeg. Minden feltétel együtt: a* ≈ 0.44–0.52 (tömegrés-korláttal 0.44–1.19). |
+
+### Következő lépés
+
+Egy valódi forgó összeomlás effektív LQG-ben. Ez az irodalomban sincs meg, és ez döntené el
+az S4-et.

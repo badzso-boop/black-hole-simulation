@@ -85,10 +85,14 @@ are preparing a thesis on it.
 | 6 | **against** | 3.2σ. |
 
 **Open items:**
-- a spinning (Kerr) parent. The plan is in `docs/spin-plan.md` (WP4b, pre-registered 2026-09-29;
-  data in `data/observations.json` → `4b_spin`). First estimate (axial low-spin core):
-  a*_max = 0.6·√(α/2)·ℓ_P·e^{N_tot}/R_obs, independent of the parent mass. Every observed spin
-  works if N_tot ≳ 142. S1–S6 are not implemented yet;
+- a spinning (Kerr) parent: **WP4b is implemented** (`thesis/spin.py`, `docs/spin-plan.md` §9).
+  - Idea: an axial low-j seed with M_s ≤ C³√(α/2)/a*³ m_P, independent of mass and N_tot. It must
+    be at least the mass gap (0.83 m_P), and needs N_tot ≈ 137–142.
+  - Fiducial n = 3 profile, C = 1.23. Scorecard: S1+S2 supports, S3 supports, S4 **open**,
+    S5 neutral, CMB consistency supports.
+  - Catch: fast spin gives a Planck-mass seed; slow (natal ~0.01) spin loses to mass inflation at
+    r₋ (crude S4). The comfortable window is a* ≈ 0.44–0.52.
+  - The decisive missing piece is a rotating collapse in effective LQG, which is not in the literature;
 - WP5 with the analytic LQC spectrum;
 - MCMC on the Ryzen.
 
@@ -101,7 +105,7 @@ are preparing a thesis on it.
 - **Honest results:** report what the physics gives, even when it hurts the
   hypothesis. Keep assumptions and limitations explicit in code comments and docs.
 - **Validation:** every new feature gets tests against an independent analytic or
-  literature value, not against its own output. Current suite: 105 Rust + 22 Python + 15 thesis tests.
+  literature value, not against its own output. Current suite: 105 Rust + 22 Python + 24 thesis tests.
 - **Literature data:** use a background research agent with "cite everything,
   mark UNVERIFIED" instructions. Then check its numbers for internal
   consistency before use; this caught a typo in Dong et al. 2016's neutrino column.

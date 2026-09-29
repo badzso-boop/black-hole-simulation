@@ -92,10 +92,152 @@ Küszöbök, amiket a táblázat nem adott meg számmal: `thesis/verdict.py` fej
 }
 ```
 
+## WP4b — a forgó szülő (docs/spin-plan.md §6)
+
+| Kérdés | Eredmény | Várt (§6) | Indoklás |
+|---|---|---|---|
+| S1+S2 observed spins | **supports** | supports | Reális (n = 3) magprofillal C = 1.23: minden megfigyelt populáció zöme belefér N_tot ≤ 145-be, a GW-populáció 100%-a már N_tot ≤ 142-nél. A tömegrés-korlát a* ≤ 1.19 — de a mag a* = 0.9-nél csak 1.9 m_P: Planck-méretű, ahol az effektív LQC a határán van. Legpesszimistább profillal (C = 0.45) a gyorsan forgó (röntgen, SMBH) populációk kiesnek. |
+| S3 axial core inflates | **supports** | open | Klasszikusan bármely σ/H > 10⁻¹⁴…10⁻⁴⁸ kezdeti anizotrópia ρ_c-ig telíti az LQC nyírás-korlátot, ezért a legrosszabb esetet (σ² = 11.57, Ω_σ = 0.5625) számoltuk: az infláció így is elérhető (Starobinsky φ̇ > 0: φ_B ≥ -0.60; φ²: kudarc 8.4e-06). A merev-folyadék közelítés itt a határán van. |
+| S4 crossing r_- | **open** | open | Gyors spinnél (a* ≥ 0.9) a tengely-mag ~50–140-szer hamarabb lépi át r₋-t, mint ahogy a tömeg-infláció Planck-görbületet ér el, és a torzulás O(1) (1.3–1.8). Lassú spinnél (a* ~ 0.01) r₋ apró, a Planck-görbület előbb alakul ki (D ~ 2·10⁴); a GW-medián (0.26) határeset. Rendkívül durva becslés: a forgó összeomlás kvantumos számolása hiányzik az irodalomból. |
+| S5 rotation today | **neutral** | neutral | (ω/H)₀ ≤ 10^-28 ≪ 7.6e-10 — nincs mérhető forgás, tengely sem. |
+| CMB consistency | **supports** | supports | Ha az alacsony-ℓ hiány a visszapattanás (N_tot = 141.2), a szülő spinje a* ≲ 0.76 (fiduciális C) — ez a GW-populáció 98%-ára igaz. Gyorsabb szülőnél a nyom ℓ ≲ 2-n van, láthatatlan. |
+| S6 torsion (info) | **info** | — | Popławski-torzió (ρ ≈ 237 ρ_Pl): ugyanahhoz a spinhez 3.2 e-redővel több kell, és a tömegrés-szerű korlát (1 m_P) a* ≤ 0.39: a torzió rosszabb, nem jobb. |
+
+### WP4b számok
+
+#### S1+S2 observed spins
+```json
+{
+ "C_fiducial": 1.2255540597751917,
+ "C_range": [
+  0.44680982896638893,
+  3.3918529853784682
+ ],
+ "a_star_gap_fiducial": 1.1913373853449376,
+ "a_star_semiclassical_10mP_fiducial": 0.5199533265839128,
+ "seed_mass_max_a0.9_mP": 1.9282598343358637,
+ "fraction_allowed_N145_fiducial": {
+  "GW (GWTC-4, Beta fit)": 1.0,
+  "X-ray binaries (continuum fitting)": 1.0,
+  "X-ray binaries (reflection, 36)": 1.0,
+  "SMBH (reflection)": 1.0
+ },
+ "fraction_allowed_N145_pessimistic_C": {
+  "GW (GWTC-4, Beta fit)": 0.77,
+  "X-ray binaries (continuum fitting)": 0.3333333333333333,
+  "X-ray binaries (reflection, 36)": 0.0,
+  "SMBH (reflection)": 0.0
+ },
+ "gw_fraction_allowed_N142": 1.0
+}
+```
+#### S3 axial core inflates
+```json
+{
+ "omega_sigma": 0.5624999994375001,
+ "thresholds_N60": {
+  "plus_N60": -0.599090576171875,
+  "minus_N60": 2.761077880859375
+ },
+ "phi2_fraction_fail": 8.41649745809112e-06,
+ "saturating_sigma_over_h": [
+  8.358381534184881e-37,
+  2.4368459283337854e-39,
+  2.6664055680559162e-45,
+  1.7639298373292983e-48,
+  3.2589001822118845e-14
+ ]
+}
+```
+#### S4 crossing r_-
+```json
+{
+ "PBH 5.1e11 kg": {
+  "a": 0.01,
+  "v_planck_over_m": [
+   0.006410092892395335,
+   0.010555056934678522
+  ],
+  "planck_first": true,
+  "D": 19999.499987503958
+ },
+ "10 M_sun natal": {
+  "a": 0.01,
+  "v_planck_over_m": [
+   0.015432734959980566,
+   0.019577699002263752
+  ],
+  "planck_first": true,
+  "D": 19999.499987503958
+ },
+ "10 M_sun GW median": {
+  "a": 0.2561138904629572,
+  "v_planck_over_m": [
+   11.995348658043605,
+   14.855509086658197
+  ],
+  "planck_first": false,
+  "D": 29.98196287120077
+ },
+ "10 M_sun XRB": {
+  "a": 0.97,
+  "v_planck_over_m": [
+   1140.7094926621555,
+   1398.79292966774
+  ],
+  "planck_first": false,
+  "D": 1.3211870715515617
+ },
+ "Sgr A*": {
+  "a": 0.9,
+  "v_planck_over_m": [
+   539.0209992892715,
+   646.2976655485979
+  ],
+  "planck_first": false,
+  "D": 1.7727035732766259
+ },
+ "M87*": {
+  "a": 0.9,
+  "v_planck_over_m": [
+   576.9188047938583,
+   684.1954710531849
+  ],
+  "planck_first": false,
+  "D": 1.7727035732766259
+ }
+}
+```
+#### S5 rotation today
+```json
+{
+ "max_log10_omega_over_h_today": -27.538352480914305,
+ "n_infl_used": 60.98916948259854
+}
+```
+#### CMB consistency
+```json
+{
+ "n_best": 141.24525126491068,
+ "a_star_max_at_best_fiducial": 0.7556160497628078,
+ "gw_fraction_allowed_at_best": 0.985
+}
+```
+#### S6 torsion (info)
+```json
+{
+ "rho_torsion_over_rho_pl": 237.42988002237814,
+ "extra_efolds_vs_lqc": 3.1814994507566507,
+ "a_star_gap_fiducial": 0.38790776736574334,
+ "n_needed_a0.9_fiducial": 144.6016121025062,
+ "n_needed_a0.9_lqc_fiducial": 141.42011265174958
+}
+```
+
 ## Validáció
 
 - CAMB vs Planck minimum-theory (ℓ 2–2500): max eltérés 0.28%
 - φ² kudarc-sáv (φ̇_B > 0): [[-5.5006144762037845, 1.0295583963396444]] (Ashtekar–Sloan: [−5.5, 0.94])
 - Bonga–Gupt küszöbök (60 e-redő): -1.460 / 3.621 (cikk: −1.45 / 3.63)
 
-Futási idők (s): {"wp1": 64.7, "wp2": 43.5, "wp5": 97.0, "wp6": 1.1, "wp3_wp4": 0.00044753000111086294, "total": 97.5}
+Futási idők (s): {"wp1": 72.1, "wp2": 51.8, "wp5": 104.1, "wp6": 1.2, "wp4b_s3": 51.5, "wp3_wp4": 0.00045414500345941633, "wp4b": 0.2, "total": 105.1}

@@ -12,7 +12,7 @@ The scorecard is in [`runs/thesis-2026-09-29/SCORECARD.md`](../runs/thesis-2026-
 ```bash
 pip install -e '.[dev,thesis]'          # camb, getdist, matplotlib
 python scripts/run_thesis.py            # → runs/thesis-<date>/  (~100 s on the i5)
-python -m pytest thesis/tests -q        # 15 tests, ~15 s
+python -m pytest thesis/tests -q        # 24 tests, ~15 s
 ```
 
 ## Scorecard
@@ -26,6 +26,7 @@ python -m pytest thesis/tests -q        # 15 tests, ~15 s
 | 4 | Does the parent's spin leave an axis? | **neutral + model limit** | neutral |
 | 5 | Does the bounce show up at low ℓ in the CMB? | **neutral** | neutral |
 | 6 | Smolin's natural selection vs neutron stars | **against (falsified)** | against |
+| 4b | Can a *spinning* parent still work? ([spin-plan.md](spin-plan.md)) | **partly: see WP4b below** | — |
 
 Five of the six WPs gave exactly the outcome expected in advance. The two surprises are
 WP1's ACT tension and WP4's model limit; both are explained below.
@@ -144,6 +145,47 @@ That is **unmeasurable**: the detection limit is 1e-3.
 **Bug fixed.** The first run's scoring wrongly used the formal a* = 0.9 row (10^−6.8), which
 extrapolates outside the model. This is corrected; the formal number is still reported in the JSON.
 
+### WP4b: the spinning parent (`spin.py`, plan: [spin-plan.md](spin-plan.md))
+
+**Why.** WP4 showed that the homogeneous bounce needs a* ≲ 10⁻⁷…10⁻²¹. Real black holes have
+a* ~ 0.01–0.998 (`observations.json` → `4b_spin`).
+
+**Tested way out: the axial core.** Matter near the rotation axis has almost no angular momentum.
+
+**Model.** The low-j mass fraction is F(j) = C·j/j̄. From this:
+- The seed bounces under its own mass only if M_s ≤ C³√(α/2)/a*³ m_P. This is independent of
+  both the parent mass and N_tot.
+- It must be at least the LMY mass gap (0.83 m_P).
+- Its edge must lie beyond our horizon, which requires N_tot ≥ ln(a* R_obs/(C√(α/2) ℓ_P)).
+
+**S1: profile coefficient** (polytropes, rotation Ω ∝ r^−β):
+- C = 0.6 for a uniform sphere (checked analytically);
+- 0.7604 for n = 1 (checked analytically);
+- **1.23 for an n = 3 iron core** (the fiducial value);
+- 0.45–3.4 across the scanned profiles.
+
+**Results:**
+
+| Question | Result | Key numbers |
+|---|---|---|
+| S1+S2 observed spins | **supports** | With C = 1.23, the bulk of every observed population fits at N_tot ≤ 145, and all of the GW population at ≤ 142. With the pessimistic C = 0.45, the X-ray binaries and SMBHs fail. |
+| S3 axial core inflates | **supports** | Classically the core's shear saturates the LQC bound. Even at that maximum (Ω_σ = 0.5625), 60 e-folds are reachable (Starobinsky φ̇ > 0: φ_B ≥ −0.60). |
+| S4 crossing the inner horizon | **open** | Fast spin: the seed crosses 50–140× before Planck curvature, with distortion 1.3–1.8. Slow spin (0.01): Planck curvature comes first. |
+| S5 rotation today | **neutral** | ≤ 10⁻²⁸ |
+| CMB consistency | **supports** | At N_tot = 141.2, a* ≲ 0.76 is allowed (98% of the GW population). |
+| S6 torsion | info | Worse than LQC: 3.2 more e-folds needed. |
+
+**The honest catch (found during implementation, not anticipated in the plan).**
+- **Fast spin makes the seed a Planck-mass nugget:** 1.9 m_P at a* = 0.9. Staying above 10 m_P
+  needs a* ≤ 0.52.
+- **Slow spin makes the inner horizon so small** that mass inflation wins, by the rough S4 estimate.
+  Keeping distortion O(1) needs a* ≥ 0.44.
+- **Only a* ≈ 0.44–0.52 satisfies everything comfortably.** That is 8.5% of the GW population and
+  none of the predicted natal spins, and the natal spin is the one that counts, because the bounce
+  happens at formation. With the hard mass gap alone, the window is 0.44–1.19.
+- **S4 is the weakest link:** a real rotating-collapse calculation in effective LQG does not exist
+  yet.
+
 ### WP5: the CMB (`cmb.py`)
 
 **Validation.** CAMB reproduces Planck 2018's best-fit theory spectrum over ℓ = 2–2500 to within
@@ -175,7 +217,12 @@ origin**, which does not need it.
 - **WP2:** uses the Bianchi-I stiff-fluid approximation, not full Kantowski–Sachs LQC.
 - **WP3b:** does not model the transition region at the edge (LMY exterior ↔ Friedmann interior).
   A homogeneous ball is exact only for Oppenheimer–Snyder collapse.
-- **WP4:** the model is not valid for a spinning parent (see above).
+- **WP4:** the homogeneous model is not valid for a spinning parent (see above).
+- **WP4b:**
+  - Newtonian centrifugal estimates with polytropic profiles, not tabulated stellar models.
+  - S4 is an order-of-magnitude mass-inflation argument (Ori-type m(v) ≈ εm e^{κ₋v}, with
+    v_seed = 10 m).
+  - The seed's post-bounce evolution uses the same homogeneous stiff-shear model as WP2.
 - **WP5:**
   - It uses a phenomenological cutoff, not the analytic LQC spectrum of Guillén et al. 2026.
   - The ΛCDM parameters are held fixed.
@@ -191,3 +238,6 @@ origin**, which does not need it.
   - a cap event for potential-dominated bounces;
   - the WP4 scoring.
   - This document was translated to English, per the repo's language rule for `docs/`.
+  - WP4b (spinning parent): research pass, plan (`spin-plan.md`), then `thesis/spin.py` with
+    S1–S6, 9 tests, and scorecard rows. The implementation added the seed-mass/mass-gap condition,
+    which the plan had missed.

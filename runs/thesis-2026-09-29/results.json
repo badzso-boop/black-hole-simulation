@@ -1,11 +1,13 @@
 {
  "timings_s": {
-  "wp1": 64.7,
-  "wp2": 43.5,
-  "wp5": 97.0,
-  "wp6": 1.1,
-  "wp3_wp4": 0.00044753000111086294,
-  "total": 97.5
+  "wp1": 72.1,
+  "wp2": 51.8,
+  "wp5": 104.1,
+  "wp6": 1.2,
+  "wp4b_s3": 51.5,
+  "wp3_wp4": 0.00045414500345941633,
+  "wp4b": 0.2,
+  "total": 105.1
  },
  "wp1": {
   "curves": {
@@ -3659,6 +3661,195 @@
    "verified": true
   }
  },
+ "wp4b_s3": {
+  "omega_sigma": 0.5624999994375001,
+  "scan": [
+   {
+    "phi_b": -1.5,
+    "sign": 1,
+    "n_infl": 0.0
+   },
+   {
+    "phi_b": -1.25,
+    "sign": 1,
+    "n_infl": 2.942152494602733
+   },
+   {
+    "phi_b": -1.0,
+    "sign": 1,
+    "n_infl": 10.289427803039171
+   },
+   {
+    "phi_b": -0.75,
+    "sign": 1,
+    "n_infl": 31.452810230292375
+   },
+   {
+    "phi_b": -0.5,
+    "sign": 1,
+    "n_infl": 91.08325304496127
+   },
+   {
+    "phi_b": -0.25,
+    "sign": 1,
+    "n_infl": 165.2643648031506
+   },
+   {
+    "phi_b": 0.0,
+    "sign": 1,
+    "n_infl": 165.26485935261357
+   },
+   {
+    "phi_b": 0.25,
+    "sign": 1,
+    "n_infl": 165.26503677580052
+   },
+   {
+    "phi_b": 0.5,
+    "sign": 1,
+    "n_infl": 165.2651005002599
+   },
+   {
+    "phi_b": 0.75,
+    "sign": 1,
+    "n_infl": 165.26512339748407
+   },
+   {
+    "phi_b": 1.0,
+    "sign": 1,
+    "n_infl": 165.26513162612122
+   },
+   {
+    "phi_b": 1.25,
+    "sign": 1,
+    "n_infl": 165.26513458305894
+   },
+   {
+    "phi_b": 1.5,
+    "sign": 1,
+    "n_infl": 165.26513564583655
+   },
+   {
+    "phi_b": 1.75,
+    "sign": 1,
+    "n_infl": 165.26513602792838
+   },
+   {
+    "phi_b": 2.0,
+    "sign": 1,
+    "n_infl": 165.2651361651929
+   },
+   {
+    "phi_b": 2.25,
+    "sign": 1,
+    "n_infl": 165.26513621474763
+   },
+   {
+    "phi_b": 2.5,
+    "sign": 1,
+    "n_infl": 165.26513623233004
+   },
+   {
+    "phi_b": 2.75,
+    "sign": 1,
+    "n_infl": 165.26513623846142
+   },
+   {
+    "phi_b": 3.0,
+    "sign": 1,
+    "n_infl": 165.26513624078163
+   },
+   {
+    "phi_b": 1.0,
+    "sign": -1,
+    "n_infl": 0.0
+   },
+   {
+    "phi_b": 1.25,
+    "sign": -1,
+    "n_infl": 0.0
+   },
+   {
+    "phi_b": 1.5,
+    "sign": -1,
+    "n_infl": 0.0
+   },
+   {
+    "phi_b": 1.75,
+    "sign": -1,
+    "n_infl": 0.0
+   },
+   {
+    "phi_b": 2.0,
+    "sign": -1,
+    "n_infl": 1.2262062458106149
+   },
+   {
+    "phi_b": 2.25,
+    "sign": -1,
+    "n_infl": 5.8363829960694185
+   },
+   {
+    "phi_b": 2.5,
+    "sign": -1,
+    "n_infl": 19.235992122411865
+   },
+   {
+    "phi_b": 2.75,
+    "sign": -1,
+    "n_infl": 57.237238959846344
+   },
+   {
+    "phi_b": 3.0,
+    "sign": -1,
+    "n_infl": 163.71967335475946
+   },
+   {
+    "phi_b": 3.25,
+    "sign": -1,
+    "n_infl": 165.26462306699673
+   },
+   {
+    "phi_b": 3.5,
+    "sign": -1,
+    "n_infl": 165.26495198799378
+   },
+   {
+    "phi_b": 3.75,
+    "sign": -1,
+    "n_infl": 165.26507004482383
+   },
+   {
+    "phi_b": 4.0,
+    "sign": -1,
+    "n_infl": 165.26511245404447
+   }
+  ],
+  "thresholds_N60": {
+   "plus_N60": -0.599090576171875,
+   "minus_N60": 2.761077880859375
+  },
+  "phi2_fraction": {
+   "n_required": 68.0,
+   "shear_fraction": 0.5624999994375001,
+   "phi_max": 494627.98862103553,
+   "fail_bands_phidot_pos": [
+    [
+     -4.748254942893835,
+     1.7910254716875555
+    ]
+   ],
+   "fail_width_mPl": 6.539280414581391,
+   "fraction_fail_uniform": 6.610301645901734e-06,
+   "fraction_fail_liouville": 8.41649745809112e-06,
+   "ashtekar_sloan_band": [
+    -5.5,
+    0.94
+   ],
+   "ashtekar_sloan_quoted": 2.74e-06,
+   "outer_failures": []
+  }
+ },
  "wp3": {
   "rows": [
    {
@@ -4810,6 +5001,654 @@
   "n_onset": 4.230771490956384,
   "h_onset": 1.2392887678758036e-06
  },
+ "wp4b": {
+  "m_gap": 0.8313593232800022,
+  "profiles": [
+   {
+    "n": 0.0,
+    "beta": 0.0,
+    "C": 0.5999999999999999
+   },
+   {
+    "n": 1.0,
+    "beta": 0.0,
+    "C": 0.7603642013339854
+   },
+   {
+    "n": 1.5,
+    "beta": 0.0,
+    "C": 0.8490665848572408
+   },
+   {
+    "n": 3.0,
+    "beta": 0.0,
+    "C": 1.2255540597751917
+   },
+   {
+    "n": 3.0,
+    "beta": 0.5,
+    "C": 0.6611761212729836
+   },
+   {
+    "n": 3.0,
+    "beta": 1.0,
+    "C": 0.44680982896638893
+   },
+   {
+    "n": 3.0,
+    "beta": -0.5,
+    "C": 3.3918529853784682
+   }
+  ],
+  "c_values": {
+   "uniform rigid (C=0.6)": 0.6,
+   "n=3 rigid (fiducial)": 1.2255540597751917,
+   "min over profiles": 0.44680982896638893,
+   "max over profiles": 3.3918529853784682
+  },
+  "c_fiducial": 1.2255540597751917,
+  "n_grid": [
+   140.76993605868932,
+   141.24525126491068,
+   142.0,
+   145.0
+  ],
+  "n_best_cmb": 141.24525126491068,
+  "populations": {
+   "GW (GWTC-4, Beta fit)": {
+    "observed": true,
+    "source": "LVK 2025, arXiv:2508.18083 (Beta fit: mode 0.12, 90% < 0.57)",
+    "by_C": {
+     "uniform rigid (C=0.6)": {
+      "median_a": 0.2561138904629572,
+      "p90_a": 0.5672009908917962,
+      "n_needed_median": 140.87755877779668,
+      "fraction_below_gap_limit": 0.91,
+      "fraction_allowed": {
+       "140.8": 0.45,
+       "141.2": 0.69,
+       "142.0": 0.91,
+       "145.0": 0.91
+      }
+     },
+     "n=3 rigid (fiducial)": {
+      "median_a": 0.2561138904629572,
+      "p90_a": 0.5672009908917962,
+      "n_needed_median": 140.16334011859394,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 0.81,
+       "141.2": 0.985,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "min over profiles": {
+      "median_a": 0.2561138904629572,
+      "p90_a": 0.5672009908917962,
+      "n_needed_median": 141.17235536747785,
+      "fraction_below_gap_limit": 0.77,
+      "fraction_allowed": {
+       "140.8": 0.33,
+       "141.2": 0.535,
+       "142.0": 0.77,
+       "145.0": 0.77
+      }
+     },
+     "max over profiles": {
+      "median_a": 0.2561138904629572,
+      "p90_a": 0.5672009908917962,
+      "n_needed_median": 139.14535677861505,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     }
+    }
+   },
+   "X-ray binaries (continuum fitting)": {
+    "observed": true,
+    "source": "Zhao+ 2021; McClintock+ 2014 Table 1",
+    "by_C": {
+     "uniform rigid (C=0.6)": {
+      "median_a": 0.8,
+      "p90_a": 0.9597,
+      "n_needed_median": 142.01654827529595,
+      "fraction_below_gap_limit": 0.3333333333333333,
+      "fraction_allowed": {
+       "140.8": 0.2222222222222222,
+       "141.2": 0.3333333333333333,
+       "142.0": 0.3333333333333333,
+       "145.0": 0.3333333333333333
+      }
+     },
+     "n=3 rigid (fiducial)": {
+      "median_a": 0.8,
+      "p90_a": 0.9597,
+      "n_needed_median": 141.30232961609317,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 0.3333333333333333,
+       "141.2": 0.4444444444444444,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "min over profiles": {
+      "median_a": 0.8,
+      "p90_a": 0.9597,
+      "n_needed_median": 142.31134486497712,
+      "fraction_below_gap_limit": 0.3333333333333333,
+      "fraction_allowed": {
+       "140.8": 0.1111111111111111,
+       "141.2": 0.2222222222222222,
+       "142.0": 0.3333333333333333,
+       "145.0": 0.3333333333333333
+      }
+     },
+     "max over profiles": {
+      "median_a": 0.8,
+      "p90_a": 0.9597,
+      "n_needed_median": 140.28434627611432,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     }
+    }
+   },
+   "X-ray binaries (reflection, 36)": {
+    "observed": true,
+    "source": "Draghis+ 2024 (fractions → synthetic sample)",
+    "by_C": {
+     "uniform rigid (C=0.6)": {
+      "median_a": 0.97,
+      "p90_a": 0.97,
+      "n_needed_median": 142.20923261912543,
+      "fraction_below_gap_limit": 0.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 0.0,
+       "145.0": 0.0
+      }
+     },
+     "n=3 rigid (fiducial)": {
+      "median_a": 0.97,
+      "p90_a": 0.97,
+      "n_needed_median": 141.4950139599227,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "min over profiles": {
+      "median_a": 0.97,
+      "p90_a": 0.97,
+      "n_needed_median": 142.50402920880663,
+      "fraction_below_gap_limit": 0.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 0.0,
+       "145.0": 0.0
+      }
+     },
+     "max over profiles": {
+      "median_a": 0.97,
+      "p90_a": 0.97,
+      "n_needed_median": 140.4770306199438,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     }
+    }
+   },
+   "SMBH (reflection)": {
+    "observed": true,
+    "source": "Reynolds 2021 Table 1 (flux-selected, biased high)",
+    "by_C": {
+     "uniform rigid (C=0.6)": {
+      "median_a": 0.98,
+      "p90_a": 0.99,
+      "n_needed_median": 142.21948911929263,
+      "fraction_below_gap_limit": 0.16666666666666666,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 0.16666666666666666,
+       "145.0": 0.16666666666666666
+      }
+     },
+     "n=3 rigid (fiducial)": {
+      "median_a": 0.98,
+      "p90_a": 0.99,
+      "n_needed_median": 141.5052704600899,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.16666666666666666,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "min over profiles": {
+      "median_a": 0.98,
+      "p90_a": 0.99,
+      "n_needed_median": 142.5142857089738,
+      "fraction_below_gap_limit": 0.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 0.0,
+       "145.0": 0.0
+      }
+     },
+     "max over profiles": {
+      "median_a": 0.98,
+      "p90_a": 0.99,
+      "n_needed_median": 140.487287120111,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     }
+    }
+   },
+   "natal (theory)": {
+    "observed": false,
+    "source": "Fuller & Ma 2019; Heger+ 2005 Table 4; NS birth spin proxy",
+    "by_C": {
+     "uniform rigid (C=0.6)": {
+      "median_a": 0.03,
+      "p90_a": 0.06859820040303428,
+      "n_needed_median": 138.73313392929018,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "n=3 rigid (fiducial)": {
+      "median_a": 0.03,
+      "p90_a": 0.06859820040303428,
+      "n_needed_median": 138.0189152700874,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "min over profiles": {
+      "median_a": 0.03,
+      "p90_a": 0.06859820040303428,
+      "n_needed_median": 139.02793051897135,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "max over profiles": {
+      "median_a": 0.03,
+      "p90_a": 0.06859820040303428,
+      "n_needed_median": 137.00093193010855,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     }
+    }
+   },
+   "PBH radiation era (theory)": {
+    "observed": false,
+    "source": "De Luca+ 2019; Harada+ 2021",
+    "by_C": {
+     "uniform rigid (C=0.6)": {
+      "median_a": 0.007,
+      "p90_a": 0.0094,
+      "n_needed_median": 137.27784669668333,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "n=3 rigid (fiducial)": {
+      "median_a": 0.007,
+      "p90_a": 0.0094,
+      "n_needed_median": 136.56362803748058,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "min over profiles": {
+      "median_a": 0.007,
+      "p90_a": 0.0094,
+      "n_needed_median": 137.5726432863645,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "max over profiles": {
+      "median_a": 0.007,
+      "p90_a": 0.0094,
+      "n_needed_median": 135.5456446975017,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     }
+    }
+   },
+   "PBH matter era (theory)": {
+    "observed": false,
+    "source": "Harada+ 2017",
+    "by_C": {
+     "uniform rigid (C=0.6)": {
+      "median_a": 0.99,
+      "p90_a": 0.99,
+      "n_needed_median": 142.22964149075665,
+      "fraction_below_gap_limit": 0.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 0.0,
+       "145.0": 0.0
+      }
+     },
+     "n=3 rigid (fiducial)": {
+      "median_a": 0.99,
+      "p90_a": 0.99,
+      "n_needed_median": 141.5154228315539,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "min over profiles": {
+      "median_a": 0.99,
+      "p90_a": 0.99,
+      "n_needed_median": 142.52443808043782,
+      "fraction_below_gap_limit": 0.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 0.0,
+       "145.0": 0.0
+      }
+     },
+     "max over profiles": {
+      "median_a": 0.99,
+      "p90_a": 0.99,
+      "n_needed_median": 140.49743949157502,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     }
+    }
+   },
+   "supermassive-star collapse": {
+    "observed": false,
+    "source": "Shibata & Shapiro 2002",
+    "by_C": {
+     "uniform rigid (C=0.6)": {
+      "median_a": 0.75,
+      "p90_a": 0.75,
+      "n_needed_median": 141.95200975415838,
+      "fraction_below_gap_limit": 0.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 0.0,
+       "145.0": 0.0
+      }
+     },
+     "n=3 rigid (fiducial)": {
+      "median_a": 0.75,
+      "p90_a": 0.75,
+      "n_needed_median": 141.2377910949556,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     },
+     "min over profiles": {
+      "median_a": 0.75,
+      "p90_a": 0.75,
+      "n_needed_median": 142.24680634383955,
+      "fraction_below_gap_limit": 0.0,
+      "fraction_allowed": {
+       "140.8": 0.0,
+       "141.2": 0.0,
+       "142.0": 0.0,
+       "145.0": 0.0
+      }
+     },
+     "max over profiles": {
+      "median_a": 0.75,
+      "p90_a": 0.75,
+      "n_needed_median": 140.21980775497673,
+      "fraction_below_gap_limit": 1.0,
+      "fraction_allowed": {
+       "140.8": 1.0,
+       "141.2": 1.0,
+       "142.0": 1.0,
+       "145.0": 1.0
+      }
+     }
+    }
+   }
+  },
+  "relations": {
+   "uniform rigid (C=0.6)": {
+    "a_star_gap": 0.5832483891718997,
+    "a_star_gap_10mP": 0.2545558830816275,
+    "a_star_max_at_best": 0.36993033986672774,
+    "seed_mass_max_a0.1": 164.9488969302638,
+    "seed_mass_max_a0.9": 0.22626734832683654
+   },
+   "n=3 rigid (fiducial)": {
+    "a_star_gap": 1.1913373853449376,
+    "a_star_gap_10mP": 0.5199533265839128,
+    "a_star_max_at_best": 0.7556160497628078,
+    "seed_mass_max_a0.1": 1405.7014192308445,
+    "seed_mass_max_a0.9": 1.9282598343358637
+   },
+   "min over profiles": {
+    "a_star_gap": 0.4343351883513639,
+    "a_star_gap_10mP": 0.18956345097015015,
+    "a_star_max_at_best": 0.27548085314221793,
+    "seed_mass_max_a0.1": 68.11830284653519,
+    "seed_mass_max_a0.9": 0.09344074464545295
+   },
+   "max over profiles": {
+    "a_star_gap": 3.2971546500498174,
+    "a_star_gap_10mP": 1.4390268866267844,
+    "a_star_max_at_best": 2.09124887943172,
+    "seed_mass_max_a0.1": 29799.345462288427,
+    "seed_mass_max_a0.9": 40.87701709504586
+   }
+  },
+  "s3_detachment": [
+   {
+    "parent": "10 M_sun",
+    "a": 0.1,
+    "rho_det_over_rho_c": 6.98625418710028e-73,
+    "saturating_sigma_over_h": 8.358381534184881e-37
+   },
+   {
+    "parent": "10 M_sun",
+    "a": 0.7,
+    "rho_det_over_rho_c": 5.938218078436949e-78,
+    "saturating_sigma_over_h": 2.4368459283337854e-39
+   },
+   {
+    "parent": "Sgr A*",
+    "a": 0.9,
+    "rho_det_over_rho_c": 7.109718653359594e-90,
+    "saturating_sigma_over_h": 2.6664055680559162e-45
+   },
+   {
+    "parent": "M87*",
+    "a": 0.9,
+    "rho_det_over_rho_c": 3.111448471020565e-96,
+    "saturating_sigma_over_h": 1.7639298373292983e-48
+   },
+   {
+    "parent": "PBH 5.1e11 kg",
+    "a": 0.01,
+    "rho_det_over_rho_c": 1.0620430397620654e-27,
+    "saturating_sigma_over_h": 3.2589001822118845e-14
+   }
+  ],
+  "s4": [
+   {
+    "case": "PBH 5.1e11 kg",
+    "a": 0.01,
+    "r_minus_over_m": 5.000125006249245e-05,
+    "kappa_minus_m": 9999.249993749685,
+    "v_planck_over_m": [
+     0.006410092892395335,
+     0.010555056934678522
+    ],
+    "v_seed_over_m": 10.0,
+    "planck_first": true,
+    "tidal_distortion": 19999.499987503958
+   },
+   {
+    "case": "10 M_sun natal",
+    "a": 0.01,
+    "r_minus_over_m": 5.000125006249245e-05,
+    "kappa_minus_m": 9999.249993749685,
+    "v_planck_over_m": [
+     0.015432734959980566,
+     0.019577699002263752
+    ],
+    "v_seed_over_m": 10.0,
+    "planck_first": true,
+    "tidal_distortion": 19999.499987503958
+   },
+   {
+    "case": "10 M_sun GW median",
+    "a": 0.2561138904629572,
+    "r_minus_over_m": 0.03335338664435983,
+    "kappa_minus_m": 14.490981435600357,
+    "v_planck_over_m": [
+     11.995348658043605,
+     14.855509086658197
+    ],
+    "v_seed_over_m": 10.0,
+    "planck_first": false,
+    "tidal_distortion": 29.98196287120077
+   },
+   {
+    "case": "10 M_sun XRB",
+    "a": 0.97,
+    "r_minus_over_m": 0.7568950843771356,
+    "kappa_minus_m": 0.16059353577578087,
+    "v_planck_over_m": [
+     1140.7094926621555,
+     1398.79292966774
+    ],
+    "v_seed_over_m": 10.0,
+    "planck_first": false,
+    "tidal_distortion": 1.3211870715515617
+   },
+   {
+    "case": "Sgr A*",
+    "a": 0.9,
+    "r_minus_over_m": 0.5641101056459328,
+    "kappa_minus_m": 0.386351786638313,
+    "v_planck_over_m": [
+     539.0209992892715,
+     646.2976655485979
+    ],
+    "v_seed_over_m": 10.0,
+    "planck_first": false,
+    "tidal_distortion": 1.7727035732766259
+   },
+   {
+    "case": "M87*",
+    "a": 0.9,
+    "r_minus_over_m": 0.5641101056459328,
+    "kappa_minus_m": 0.386351786638313,
+    "v_planck_over_m": [
+     576.9188047938583,
+     684.1954710531849
+    ],
+    "v_seed_over_m": 10.0,
+    "planck_first": false,
+    "tidal_distortion": 1.7727035732766259
+   }
+  ],
+  "s5": {
+   "dust": {
+    "dust": -52.54183510013104,
+    "radiation": -27.538352480914305
+   },
+   "perfect_fluid": {
+    "dust": -132.00361438659527,
+    "radiation": -107.00013176737855
+   }
+  },
+  "s5_n_infl": 60.98916948259854,
+  "s6": {
+   "rho_torsion_over_rho_pl": 237.42988002237814,
+   "extra_efolds_vs_lqc": 3.1814994507566507,
+   "a_star_gap_fiducial": 0.38790776736574334,
+   "n_needed_a0.9_fiducial": 144.6016121025062,
+   "n_needed_a0.9_lqc_fiducial": 141.42011265174958
+  }
+ },
  "scorecard": [
   {
    "wp": "1 Inflation",
@@ -4902,6 +5741,148 @@
    "why": "P(minden mért neutroncsillag < 2 M☉) = 7.8e-04 (3.2σ): Smolin kozmológiai természetes szelekciója a publikált formájában cáfolt. A fekete-lyuk-eredetet ez NEM cáfolja — csak egy javasolt tesztjét."
   }
  ],
+ "spin_scorecard": [
+  {
+   "wp": "S1+S2 observed spins",
+   "outcome": "supports",
+   "numbers": {
+    "C_fiducial": 1.2255540597751917,
+    "C_range": [
+     0.44680982896638893,
+     3.3918529853784682
+    ],
+    "a_star_gap_fiducial": 1.1913373853449376,
+    "a_star_semiclassical_10mP_fiducial": 0.5199533265839128,
+    "seed_mass_max_a0.9_mP": 1.9282598343358637,
+    "fraction_allowed_N145_fiducial": {
+     "GW (GWTC-4, Beta fit)": 1.0,
+     "X-ray binaries (continuum fitting)": 1.0,
+     "X-ray binaries (reflection, 36)": 1.0,
+     "SMBH (reflection)": 1.0
+    },
+    "fraction_allowed_N145_pessimistic_C": {
+     "GW (GWTC-4, Beta fit)": 0.77,
+     "X-ray binaries (continuum fitting)": 0.3333333333333333,
+     "X-ray binaries (reflection, 36)": 0.0,
+     "SMBH (reflection)": 0.0
+    },
+    "gw_fraction_allowed_N142": 1.0
+   },
+   "why": "Reális (n = 3) magprofillal C = 1.23: minden megfigyelt populáció zöme belefér N_tot ≤ 145-be, a GW-populáció 100%-a már N_tot ≤ 142-nél. A tömegrés-korlát a* ≤ 1.19 — de a mag a* = 0.9-nél csak 1.9 m_P: Planck-méretű, ahol az effektív LQC a határán van. Legpesszimistább profillal (C = 0.45) a gyorsan forgó (röntgen, SMBH) populációk kiesnek."
+  },
+  {
+   "wp": "S3 axial core inflates",
+   "outcome": "supports",
+   "numbers": {
+    "omega_sigma": 0.5624999994375001,
+    "thresholds_N60": {
+     "plus_N60": -0.599090576171875,
+     "minus_N60": 2.761077880859375
+    },
+    "phi2_fraction_fail": 8.41649745809112e-06,
+    "saturating_sigma_over_h": [
+     8.358381534184881e-37,
+     2.4368459283337854e-39,
+     2.6664055680559162e-45,
+     1.7639298373292983e-48,
+     3.2589001822118845e-14
+    ]
+   },
+   "why": "Klasszikusan bármely σ/H > 10⁻¹⁴…10⁻⁴⁸ kezdeti anizotrópia ρ_c-ig telíti az LQC nyírás-korlátot, ezért a legrosszabb esetet (σ² = 11.57, Ω_σ = 0.5625) számoltuk: az infláció így is elérhető (Starobinsky φ̇ > 0: φ_B ≥ -0.60; φ²: kudarc 8.4e-06). A merev-folyadék közelítés itt a határán van."
+  },
+  {
+   "wp": "S4 crossing r_-",
+   "outcome": "open",
+   "numbers": {
+    "PBH 5.1e11 kg": {
+     "a": 0.01,
+     "v_planck_over_m": [
+      0.006410092892395335,
+      0.010555056934678522
+     ],
+     "planck_first": true,
+     "D": 19999.499987503958
+    },
+    "10 M_sun natal": {
+     "a": 0.01,
+     "v_planck_over_m": [
+      0.015432734959980566,
+      0.019577699002263752
+     ],
+     "planck_first": true,
+     "D": 19999.499987503958
+    },
+    "10 M_sun GW median": {
+     "a": 0.2561138904629572,
+     "v_planck_over_m": [
+      11.995348658043605,
+      14.855509086658197
+     ],
+     "planck_first": false,
+     "D": 29.98196287120077
+    },
+    "10 M_sun XRB": {
+     "a": 0.97,
+     "v_planck_over_m": [
+      1140.7094926621555,
+      1398.79292966774
+     ],
+     "planck_first": false,
+     "D": 1.3211870715515617
+    },
+    "Sgr A*": {
+     "a": 0.9,
+     "v_planck_over_m": [
+      539.0209992892715,
+      646.2976655485979
+     ],
+     "planck_first": false,
+     "D": 1.7727035732766259
+    },
+    "M87*": {
+     "a": 0.9,
+     "v_planck_over_m": [
+      576.9188047938583,
+      684.1954710531849
+     ],
+     "planck_first": false,
+     "D": 1.7727035732766259
+    }
+   },
+   "why": "Gyors spinnél (a* ≥ 0.9) a tengely-mag ~50–140-szer hamarabb lépi át r₋-t, mint ahogy a tömeg-infláció Planck-görbületet ér el, és a torzulás O(1) (1.3–1.8). Lassú spinnél (a* ~ 0.01) r₋ apró, a Planck-görbület előbb alakul ki (D ~ 2·10⁴); a GW-medián (0.26) határeset. Rendkívül durva becslés: a forgó összeomlás kvantumos számolása hiányzik az irodalomból."
+  },
+  {
+   "wp": "S5 rotation today",
+   "outcome": "neutral",
+   "numbers": {
+    "max_log10_omega_over_h_today": -27.538352480914305,
+    "n_infl_used": 60.98916948259854
+   },
+   "why": "(ω/H)₀ ≤ 10^-28 ≪ 7.6e-10 — nincs mérhető forgás, tengely sem."
+  },
+  {
+   "wp": "CMB consistency",
+   "outcome": "supports",
+   "numbers": {
+    "n_best": 141.24525126491068,
+    "a_star_max_at_best_fiducial": 0.7556160497628078,
+    "gw_fraction_allowed_at_best": 0.985
+   },
+   "why": "Ha az alacsony-ℓ hiány a visszapattanás (N_tot = 141.2), a szülő spinje a* ≲ 0.76 (fiduciális C) — ez a GW-populáció 98%-ára igaz. Gyorsabb szülőnél a nyom ℓ ≲ 2-n van, láthatatlan."
+  },
+  {
+   "wp": "S6 torsion (info)",
+   "outcome": "info",
+   "numbers": {
+    "rho_torsion_over_rho_pl": 237.42988002237814,
+    "extra_efolds_vs_lqc": 3.1814994507566507,
+    "a_star_gap_fiducial": 0.38790776736574334,
+    "n_needed_a0.9_fiducial": 144.6016121025062,
+    "n_needed_a0.9_lqc_fiducial": 141.42011265174958
+   },
+   "why": "Popławski-torzió (ρ ≈ 237 ρ_Pl): ugyanahhoz a spinhez 3.2 e-redővel több kell, és a tömegrés-szerű korlát (1 m_P) a* ≤ 0.39: a torzió rosszabb, nem jobb."
+  }
+ ],
  "meta": {
   "date": "2026-09-29",
   "python": "3.13.5",
@@ -4909,13 +5890,14 @@
   "scipy": "1.17.1",
   "camb": "2.0.4",
   "machine": "debian x86_64 4 CPU",
-  "total_s": 97.5
+  "total_s": 105.1
  },
  "figures": [
   "wp1_efolds_vs_phiB.png",
   "wp1_ns_r.png",
   "wp2_efolds_vs_shear.png",
   "wp3b_edge.png",
-  "wp5_cmb.png"
+  "wp5_cmb.png",
+  "wp4b_spin.png"
  ]
 }

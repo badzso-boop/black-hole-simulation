@@ -1,7 +1,9 @@
 # Plan: the spin problem (WP4b)
 
-**Status:** plan, 2026-09-29. The first estimates below were computed while writing it.
-Everything in §5 is still to do.
+**Status:** plan written and **implemented on 2026-09-29**. The code is `thesis/spin.py`,
+with 9 tests in `thesis/tests/test_wp4b_spin.py`. Results are in `runs/thesis-2026-09-29/SCORECARD.md`
+(WP4b section) and in [thesis-progress.md](thesis-progress.md). The implementation refined §3;
+see the correction note there and §9.
 
 **Inputs:**
 - Data: `data/observations.json` → `4b_spin`. It holds a research pass of 2026-09-29 with sources
@@ -114,6 +116,14 @@ parents with a* ≲ 0.35 work.
 - If the parent spun fast (a* ≳ 0.7), the mark is at ℓ ≲ 2, invisible, and the low-ℓ deficit
   has another cause.
 
+> **Correction from the implementation (2026-09-29).** The seed's own spin parameter is a*/C,
+> so its mass is capped at **M_s ≤ C³·√(α/2)/a*³ Planck masses, independently of N_tot.** Below
+> the LMY mass gap (0.83 m_P) it cannot bounce at all. With the uniform-sphere C = 0.6, spins above
+> 0.58 are excluded no matter how large N_tot is, so "every observed spin" was too strong.
+>
+> With a realistic iron-core profile (n = 3 polytrope, C = 1.23), the limit is 1.19, which is
+> above every physical spin. But for a* ≳ 0.5 the seed is then only a few Planck masses. §9 has the details.
+
 **What this estimate ignores** (all addressed in §5):
 - real, differentially rotating cores instead of rigid rotation;
 - the shape of the core: a thin two-sided "needle" of infall is strongly anisotropic;
@@ -212,3 +222,64 @@ Each item gets code in `thesis/`, tests against an independent value, and a line
 - **Torsion:** Popławski (1007.0587, 1410.3881, 1910.10819).
 - **Our universe:** Planck 2015 XVIII (1502.01593); Saadeh+ 2016 (1605.07178); Szigeti+ 2025
   (2503.13525); Patel & Desmond 2024 (2404.06617); Iye+ 2021 (2011.00662).
+
+## 9. Results (2026-09-29)
+
+Run: `python scripts/run_thesis.py` → `runs/thesis-2026-09-29/` (WP4b section of `SCORECARD.md`,
+figure `figures/wp4b_spin.png`). How each step was carried out:
+
+- **S1: polytropes instead of published tables.** The published j(m) profiles are not available
+  as tables, so S1 uses polytropic stars (Lane–Emden) with rotation Ω ∝ r^−β.
+  - For shellular rotation, the low-j mass fraction is exactly F(j) = C j/j̄, with
+    C = ⅓⟨Ωr²⟩⟨1/(Ωr²)⟩ ≥ ⅓.
+  - Fiducial profile: n = 3 (a presupernova iron core) with near-rigid rotation (magnetic
+    coupling), giving **C = 1.23**.
+  - Across the scanned profiles C runs from 0.45 to 3.4.
+- **S2: populations.** They come from `observations.json` → `4b_spin`. The GW spin distribution is
+  a Beta fit to the GWTC-4 summary (mode 0.12, 90% below 0.57). The reflection sample is rebuilt
+  from its published fractions.
+- **One condition was added during implementation, and it cuts against the hypothesis:** the seed
+  mass must be at least the LMY mass gap.
+- **The unspecified §6 details were fixed in code before running** (`thesis/verdict.py`):
+  - "bulk" means ≥ 50% of a population;
+  - "O(1) distortion" means D ≤ 10;
+  - the seed crosses r₋ at v_seed = 10 m.
+
+| Question | Result | Expected | Key numbers |
+|---|---|---|---|
+| S1+S2 observed spins | **supports** | supports | With C = 1.23, the bulk of every observed population is allowed at N_tot ≤ 145, and 100% of the GW population at N_tot ≤ 142. Mass-gap limit: a* ≤ 1.19. **But:** at a* = 0.9 the seed is at most 1.9 m_P. With the most pessimistic profile (C = 0.45), the X-ray binary and SMBH populations fail. |
+| S3 axial core inflates | **supports** | open | Any initial anisotropy above 10⁻¹⁴–10⁻⁴⁸ saturates the LQC shear bound by ρ_c, so we computed the worst case, Ω_σ = 0.5625. Inflation is still reachable: Starobinsky φ̇ > 0 threshold at φ_B ≥ −0.60 and φ̇ < 0 at ≥ 2.76; φ² failing fraction 8.4×10⁻⁶. |
+| S4 crossing r₋ | **open** | open | Fast spins (≥ 0.9): the seed crosses r₋ 50–140× before mass inflation reaches Planck curvature, with distortion 1.3–1.8. Slow spins (0.01): Planck curvature comes first (distortion ~2×10⁴). The GW median (0.26) is marginal. |
+| S5 rotation today | **neutral** | neutral | (ω/H)₀ ≤ 10⁻²⁸ |
+| CMB consistency | **supports** | supports | At the WP5 best fit (N_tot = 141.2), a* ≲ 0.76 is allowed, which covers 98% of the GW population. |
+| S6 torsion (info) | info | — | Popławski's bounce needs 3.2 more e-folds, and its 1 m_P limit is a* ≤ 0.39: worse than LQC. |
+
+**Plain-language summary.**
+- A spinning parent is not excluded outright. Matter along the rotation axis can bounce and, after
+  N_tot ≈ 137–142 e-folds, becomes a universe whose edge is beyond our horizon (S1+S2, S3).
+- But the two ends of the spin range fail for different reasons, found only by implementing it.
+
+**Fast spin makes the seed tiny.** At a* ≈ 0.9 the seed is a Planck-mass nugget (1–2 m_P). That is
+at the edge of where effective LQC can be trusted. Above about 10 m_P requires a* ≤ 0.52.
+
+**Slow spin makes the inner horizon tiny.** Mass inflation then reaches Planck curvature before the
+seed arrives, which is the rough S4 estimate. Keeping distortion O(1) (D ≤ 10) requires a* ≥ 0.44.
+
+**All conditions together** leave a window of a* ≈ 0.44–0.52, or 0.44–1.19 if only the hard mass
+gap counts. How much of each population falls inside it:
+
+| Population | In the narrow window (0.44–0.52) | In the wide window (0.44–1.19) |
+|---|---|---|
+| LIGO/Virgo (GW) | 8.5% | 23% |
+| X-ray binaries (continuum fitting) | — | 67% |
+| X-ray binaries (reflection) | — | 100% |
+| Supermassive black holes | — | 100% |
+| Predicted natal spins (0.002–0.09) | 0% | 0% |
+
+**Which spin counts: the natal spin.** The bounce happens when the black hole forms, so what
+matters is its spin at birth, not today's (which accretion may have raised). The theory predictions
+for natal spins, 0.002–0.09, all fall on the S4-failing side.
+
+**Status of S4.** S4 is the crudest estimate in the whole project, and the pre-registered outcome
+for it is "open". It is exactly where a real calculation (rotating collapse in effective LQG) would
+decide the question.
