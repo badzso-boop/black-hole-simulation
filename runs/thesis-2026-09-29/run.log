@@ -1,0 +1,13 @@
+date: 2026-09-29
+python: 3.13.5
+numpy: 2.4.6
+scipy: 1.17.1
+camb: 2.0.4
+machine: debian x86_64 4 CPU
+total_s: 97.5
+timing wp1: 64.7 s
+timing wp2: 43.5 s
+timing wp5: 97.0 s
+timing wp6: 1.1 s
+timing wp3_wp4: 0.00044753000111086294 s
+timing total: 97.5 s

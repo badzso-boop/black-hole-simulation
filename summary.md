@@ -493,3 +493,38 @@ tesztcsomag ~1 perc.
 
 A tézis-terv megvalósítása: WP0 (Python-csomag, a Rust-mag LQC-eredményeinek
 reprodukálása), majd WP1 (infláció a visszapattanás után) — a többi erre épül.
+
+## 13. fázis — A tézis-számolások kódja és első futása (2026-09-29)
+
+### Mit csináltunk
+
+- **`thesis/` Python-csomag** a terv hat számolására (WP0–WP6), 15 teszttel.
+  - Rust-keresztellenőrzés: r_b, H_max 1e-15-ön.
+  - Bonga–Gupt- és Ashtekar–Sloan-reprodukció.
+  - CAMB-validáció: 0.28%.
+- **`scripts/run_thesis.py`:** egy parancs, ~100 s az i5-ön. Kimenete a `runs/thesis-2026-09-29/`:
+  - `results.json`,
+  - `SCORECARD.md`,
+  - 5 ábra,
+  - `run.log`.
+- **`thesis/verdict.py`:** a §0 előre rögzített kritériumait gépiesen alkalmazza.
+- **CI:** a Python-munkafolyamat a `thesis/`-t is lintolja, típusellenőrzi és teszteli (camb-bal).
+- **Részletek:** [docs/thesis-progress.md](docs/thesis-progress.md).
+
+### Amit megtudtunk
+
+| WP | Eredmény |
+|---|---|
+| 1 Infláció | **vegyes**:<br>• φ²: csak 5.6e-6 hányad kap < 68 e-redőt;<br>• Starobinsky n_s = 0.9653 a Planck 95%-ban, az ACT-tól 2.9σ-ra (a potenciál gondja, nem a fekete lyuké). |
+| 2 Anizotrópia | **semleges**:<br>• a fekete-lyuk-belső nyírása (Ω_σ = 0.2, tömegfüggetlen) rövidíti az inflációt, de nem öli meg;<br>• ma ≤ 1e-113. |
+| 3 Görbület | **semleges**: \|Ω_K\| ≤ 2.4e-5. |
+| 3b Szél | **támogat**:<br>• a horizont-problémát megoldó infláció a szelet minden szülőtömegre a horizontunkon túl viszi;<br>• ≥ 4.2 e-redő ráhagyás, T_reh-től függetlenül. |
+| 4 Forgás | **semleges + modell-korlát**:<br>• a homogén visszapattanás csak a* ≲ 1e-7 spinnel működik;<br>• valódi, forgó fekete lyukat a modell nem ír le. |
+| 5 CMB | **semleges**:<br>• legjobb N_tot = 141.2, Δχ² = −1.2 (nem szignifikáns);<br>• N_tot > 140.8 (95%). |
+| 6 Szelekció | **ellene**: 3.2σ. |
+
+### Következő lépés
+
+Nyitott kérdés a forgó szülő (WP4). Opcionálisan jöhet még:
+- a WP5 MCMC-je a Ryzenen,
+- a Guillén et al. 2026-féle analitikus LQC-spektrum.

@@ -26,7 +26,9 @@ are preparing a thesis on it.
 - **README.md**: model, formulas, install, CLI, output schema 3.2.
 - **summary.md**: development log, phases 1–12. Phase 9 explains why v2.0's results were artifacts.
 - **docs/are-we-in-a-black-hole.md**: what the project can and cannot say about the big question.
-- **docs/thesis-plan.md**: the six-calculation thesis plan. **Not implemented yet.**
+- **docs/thesis-plan.md**: the six-calculation thesis plan, with pre-registered outcomes in §0.
+- **docs/thesis-progress.md** + **runs/thesis-2026-09-29/SCORECARD.md**: the implemented
+  calculations (`thesis/` package, `scripts/run_thesis.py`) and their results.
 - **runs/2026-09-28/ANALYSIS.md**: 71-run validation campaign and interpretation.
 - **data/observations.json**: observational numbers with sources, plus a `verified` flag.
 - **data/planck/**: Planck 2018 CMB spectra, with checksums.
@@ -62,24 +64,29 @@ are preparing a thesis on it.
   - LQC predicts 130–145, so no parent mass is excluded.
   - Smolin's cosmological natural selection is falsified at ~3σ by neutron stars above 2 M☉.
 
-## Next step (thesis)
+## Thesis calculations (implemented 2026-09-29)
 
-`docs/thesis-plan.md` defines the work packages:
-- WP0: a Python `thesis/` package that first reproduces the Rust core's LQC results.
-- WP1: inflation after the bounce.
-- WP2: anisotropy.
-- WP3 and WP3b: curvature, and the edge of the baby universe (novel).
-- WP4: parent spin.
-- WP5: CMB low-ℓ imprint with CAMB.
-- WP6: natural selection.
+- **Code:** the `thesis/` Python package (WP0–WP6). Run it with `python scripts/run_thesis.py`
+  (~100 s on the i5) and test it with `python -m pytest thesis/tests`.
+- **Verdict:** `thesis/verdict.py` applies the §0 criteria mechanically. Do not change a
+  threshold after seeing results; if one must change, document why in `docs/thesis-progress.md`.
 
-Rules for this work:
-- Implement in order, starting WP0 → WP1.
-- Respect the **pre-registered outcomes table** in §0: the thesis tests a
-  stated model and never claims "we live in a black hole".
-- Before citing any `verified: false` entry in `data/observations.json`, check it against the paper.
-- Only WP5's optional cobaya MCMC needs a big machine; everything else runs in
-  minutes on a 4-core CPU.
+**Scorecard (2026-09-29):**
+
+| WP | Outcome | Numbers |
+|---|---|---|
+| 1 | **mixed** | Inflation is almost certain (φ² failing fraction 5.6e-6). Starobinsky n_s = 0.9653 is inside Planck 95% but 2.9σ from ACT DR6; that tension belongs to the potential, not to the black-hole origin. |
+| 2 | **neutral** | Black-hole interior shear Ω_σ = 0.2 (mass-independent). It shortens inflation but is erased; (σ/H)₀ ≤ 1e-113. |
+| 3 | **neutral** | \|Ω_K\| ≤ 2.4e-5. |
+| 3b | **supports** | Any inflation that solves the horizon problem puts the baby universe's edge beyond our horizon for every parent mass, with ≥ 4.2 e-folds to spare. |
+| 4 | **neutral + model limit** | A homogeneous bounce works only for a* ≲ 1e-7, so spinning black holes are not described. This is an open problem. |
+| 5 | **neutral** | Best N_tot = 141.2, Δχ² = −1.2 (not significant); N_tot > 140.8 at 95%. |
+| 6 | **against** | 3.2σ. |
+
+**Open items:**
+- a spinning (Kerr) parent;
+- WP5 with the analytic LQC spectrum;
+- MCMC on the Ryzen.
 
 ## How to work in this repo (agreed with the author)
 

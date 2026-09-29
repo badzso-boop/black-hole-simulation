@@ -1,7 +1,8 @@
 # Thesis plan: "Was our Big Bang a quantum bounce inside a black hole?"
 
-**Status:** plan, 2026-09-28. Nothing below is implemented yet except the existing
-simulator (v3.2) and `scripts/cosmology_checks.py`.
+**Status:** plan written 2026-09-28; §0 criteria fixed on that date. **All WPs implemented and
+run on 2026-09-29** — code in `thesis/`, results and scorecard in
+[thesis-progress.md](thesis-progress.md) and `runs/thesis-2026-09-29/`.
 
 **Inputs:**
 - `data/observations.json`: every observational number, with its source.
