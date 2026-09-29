@@ -21,10 +21,10 @@ are preparing a thesis on it.
 - Explain results in plain language with concrete numbers, and let the code do the heavy math.
 - They converse in **English**.
 
-## Current state (v3.2, 2026-09-28): read these first
+## Current state (v3.2 simulator + thesis calculations, 2026-09-29): read these first
 
 - **README.md**: model, formulas, install, CLI, output schema 3.2.
-- **summary.md**: development log, phases 1–12. Phase 9 explains why v2.0's results were artifacts.
+- **summary.md**: development log, phases 1–13. Phase 9 explains why v2.0's results were artifacts.
 - **docs/are-we-in-a-black-hole.md**: what the project can and cannot say about the big question.
 - **docs/thesis-plan.md**: the six-calculation thesis plan, with pre-registered outcomes in §0.
 - **docs/thesis-progress.md** + **runs/thesis-2026-09-29/SCORECARD.md**: the implemented
@@ -59,9 +59,10 @@ are preparing a thesis on it.
   reports −0.08 ± 0.09) and δ(M87*) = 0.000.
 - **"Do we live in a black hole?" remains open.** Causal disconnection is
   *required* for it.
-  - First estimate (WP3b): the baby universe's edge is beyond our horizon if
-    N_tot > 95–127 e-folds, depending on the parent mass.
-  - LQC predicts 130–145, so no parent mass is excluded.
+  - WP3b (computed 2026-09-29): the baby universe's edge is beyond our horizon if
+    N_tot > 95–127 e-folds, depending on the parent mass. Any inflation that solves the
+    horizon problem gives N_tot ≈ 131, so no parent mass is excluded.
+  - Open problem: the homogeneous bounce only works for spin a* ≲ 1e-7 (WP4).
   - Smolin's cosmological natural selection is falsified at ~3σ by neutron stars above 2 M☉.
 
 ## Thesis calculations (implemented 2026-09-29)
@@ -97,7 +98,7 @@ are preparing a thesis on it.
 - **Honest results:** report what the physics gives, even when it hurts the
   hypothesis. Keep assumptions and limitations explicit in code comments and docs.
 - **Validation:** every new feature gets tests against an independent analytic or
-  literature value, not against its own output. Current suite: 105 Rust + 22 Python tests.
+  literature value, not against its own output. Current suite: 105 Rust + 22 Python + 15 thesis tests.
 - **Literature data:** use a background research agent with "cite everything,
   mark UNVERIFIED" instructions. Then check its numbers for internal
   consistency before use; this caught a typo in Dong et al. 2016's neutrino column.
