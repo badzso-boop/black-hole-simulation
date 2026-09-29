@@ -54,6 +54,62 @@
     "isotropy_reanalyses": {"source": ["Patel & Desmond 2024, MNRAS 534, 1553, arXiv:2404.06617", "Stiskalek & Desmond, arXiv:2410.18884"], "verified": true, "note": "consistent with isotropy"}
   },
 
+  "4b_spin": {
+    "_about": "Spin data for the spin problem of WP4 (docs/spin-plan.md). Research pass 2026-09-29; 'derived' = computed from verified inputs, arithmetic in the note.",
+    "xray_binaries": {
+      "Cyg_X-1": {"cf_3sigma_lower": 0.9985, "source": "Zhao et al. 2021, arXiv:2102.09093", "verified": true, "also": "reflection 0.95 +0.04/-0.084 (Draghis et al. 2024, arXiv:2311.16225)"},
+      "LMC_X-1": {"value": 0.92, "err_plus": 0.05, "err_minus": 0.07, "method": "CF", "source": "McClintock, Narayan & Steiner 2014, arXiv:1303.1583, Table 1", "verified": true},
+      "M33_X-7": {"value": 0.84, "err": 0.05, "method": "CF", "source": "arXiv:1303.1583", "verified": true},
+      "GRS_1915+105": {"cf_lower": 0.95, "reflection": [0.976, 0.018, 0.056], "source": "arXiv:1303.1583; arXiv:2311.16225", "verified": true},
+      "4U_1543-47": {"cf": [0.8, 0.1], "reflection": [0.959, 0.031, 0.079], "source": "arXiv:1303.1583; arXiv:2311.16225", "verified": true},
+      "GRO_J1655-40": {"value": 0.7, "err": 0.1, "method": "CF", "source": "arXiv:1303.1583", "verified": true},
+      "XTE_J1550-564": {"value": 0.34, "err_plus": 0.2, "err_minus": 0.28, "method": "CF", "source": "arXiv:1303.1583", "verified": true},
+      "H1743-322": {"cf": [0.2, 0.3], "reflection": [0.949, 0.039, 0.127], "source": "arXiv:1303.1583; arXiv:2311.16225", "verified": true},
+      "A0620-00": {"value": 0.12, "err": 0.19, "method": "CF", "source": "arXiv:1303.1583", "verified": true},
+      "GX_339-4": {"value": 0.97, "err_plus": 0.026, "err_minus": 0.076, "method": "reflection", "source": "arXiv:2311.16225", "verified": true},
+      "reflection_sample_36": {"frac_a_ge_0.95": 0.86, "frac_a_ge_0.9": 0.94, "frac_a_ge_0.7": 1.0, "cl": "within 1 sigma", "source": "Draghis et al. 2024, ApJ 969, 40, arXiv:2311.16225", "verified": true},
+      "note": "CF and reflection disagree for several low-spin sources; reflection tends high"
+    },
+    "gravitational_waves": {
+      "gwtc4_population": {"chi_90pct_below": 0.57, "peak_range": [0.01, 0.23], "frac_chi_eff_negative": [0.24, 0.42], "source": "LVK 2025, arXiv:2508.18083", "verified": true},
+      "gwtc3_chi_eff_mean": {"value": 0.06, "source": "LVK, PRX 13, 011048, arXiv:2111.03634", "verified": true},
+      "GW150914_remnant": {"value": 0.67, "err_plus": 0.05, "err_minus": 0.07, "source": "arXiv:1602.03840", "verified": true},
+      "GW190521": {"chi1": [0.69, 0.27, 0.62], "chi2": [0.73, 0.24, 0.64], "chi_f": [0.72, 0.09, 0.12], "cl": "90%", "source": "arXiv:2009.01075", "verified": true},
+      "GW231123": {"chi1": [0.9, 0.1, 0.19], "chi2": [0.8, 0.2, 0.52], "note": "large waveform systematics", "source": "ApJL 993, L25, arXiv:2507.08219", "verified": true},
+      "GW250114": {"chi1_upper": 0.24, "chi2_upper": 0.26, "chi_f": 0.68, "source": "arXiv:2509.08054", "verified": true}
+    },
+    "supermassive": {
+      "MCG-6-30-15": {"value": 0.91, "err_plus": 0.06, "err_minus": 0.07, "cl": "90%", "source": "Reynolds 2021, ARA&A, arXiv:2011.08948, Table 1", "verified": true},
+      "NGC_1365": {"lower": 0.97, "source": "arXiv:2011.08948", "verified": true},
+      "NGC_4051_Mrk335_Mrk110": {"lower": 0.99, "source": "arXiv:2011.08948", "verified": true},
+      "Fairall_9": {"value": 0.52, "err_plus": 0.19, "err_minus": 0.15, "source": "arXiv:2011.08948", "verified": true},
+      "trend": {"note": "most SMBHs with M < 3e7 Msun have a > 0.9 (flux-selected sample, biased high)", "source": "arXiv:2011.08948 sec 5.1", "verified": true},
+      "M87*": {"note": "a* = 0 GRMHD models rejected by jet power; viable MAD models span nonzero spins", "source": "EHT 2021 Paper VIII, arXiv:2105.01173", "verified": true},
+      "Sgr_A*": {"note": "best-bet MAD models with a* = 0.5 and 0.94; EHT: not evidence for positive spin", "source": "EHT Sgr A* Paper V, arXiv:2311.09478", "verified": true}
+    },
+    "natal_angular_momentum": {
+      "heger_woosley_spruit_2005_core_J_cgs": {"15Msun": 7.5e+47, "35Msun": 4.1e+48, "M_bary_Msun": [1.47, 2.3], "magnetic_slowdown": "30-50x", "source": "ApJ 626, 350, astro-ph/0409422, Table 4", "verified": true},
+      "derived_core_a_star": {"15Msun": 0.05, "35Msun": 0.12, "note": "a* = cJ/(G M^2) with M ~ M_bary; derived", "verified": "derived"},
+      "fuller_ma_2019_natal_a": {"value": 0.01, "source": "ApJL 881, L1, arXiv:1907.03714", "verified": true},
+      "ns_birth_period_s": {"mean": 0.3, "sigma": 0.15, "source": "Faucher-Giguere & Kaspi 2006, astro-ph/0512585 (as quoted by Igoshev & Popov 2013, arXiv:1303.5258)", "verified": true},
+      "derived_ns_a_star": {"P0_300ms": 0.0017, "P0_15ms": 0.03, "note": "I = 0.35 M R^2, 1.4 Msun, 12 km; derived", "verified": "derived"},
+      "collapsar_threshold_j16": {"infall_uninhibited_below": 3, "j_isco16_schwarzschild_per_3Msun": 4.6, "source": "MacFadyen & Woosley 1999, astro-ph/9810274", "verified": true},
+      "pbh_radiation_era": {"note": "percent-level spins, sqrt<a^2> ~ 4e-3 (M/M_H)^(-1/3) ...", "source": "De Luca et al. 2019, arXiv:1903.01179; Harada et al. 2021, arXiv:2011.00710", "verified": true},
+      "pbh_matter_era": {"note": "mostly near-extremal", "source": "Harada et al. 2017, arXiv:1707.03595", "verified": true},
+      "supermassive_star_collapse": {"bh_mass_fraction": 0.9, "a_star": 0.75, "source": "Shibata & Shapiro 2002, astro-ph/0205091", "verified": true}
+    },
+    "theory": {
+      "mass_inflation": {"source": "Hamilton & Avelino 2010, Phys. Rep. 495, 1, arXiv:0811.1926; Hamilton 2017, arXiv:1703.01921", "verified": true, "note": "Planck curvature reached at the inner horizon; then BKL collapse classically"},
+      "marolf_ori_shock": {"source": "arXiv:1109.5139; Burko & Khanna 2019, arXiv:1901.03413", "verified": true},
+      "rotating_lqg_bh": {"source": "Brahma, Chen & Yeom 2021, PRL 126, 181301, arXiv:2012.08785", "verified": true, "note": "stationary Newman-Janis; transition region can sit inside r_-"},
+      "no_dynamical_rotating_lqc_collapse": {"verified": "provisional", "note": "no paper found evolving rotating dust collapse to an LQC bounce (arXiv abstract search, 2026-09-29)"},
+      "regular_core_instability": {"source": "Carballo-Rubio et al., arXiv:1805.02675, arXiv:2101.05006; inner-extremal cores avoid mass inflation: arXiv:2205.13556", "verified": true},
+      "poplawski_torsion_bounce": {"energy_density_J_m3": 1.1e+116, "in_rho_pl": 240, "source": "Poplawski 2010, PLB 694, 181, arXiv:1007.0587", "verified": true, "note": "rotation treated only qualitatively (arXiv:1910.10819)"},
+      "lqc_shear_bounded": {"source": "Chiou & Vandersloot, arXiv:0707.2548; Ashtekar & Wilson-Ewing, arXiv:0903.3397; Gan et al., arXiv:2510.14021", "verified": true}
+    },
+    "our_universe_rotation": {"szigeti_2025": {"omega0_per_Gyr": 0.002, "err_plus": 0.001, "err_minus": 0.0009, "derived_omega_over_H0": 0.03, "source": "Szigeti, Szapudi, Barna, Barnafoldi 2025, MNRAS 538, 3038, arXiv:2503.13525", "verified": true, "note": "Newtonian model; not confronted with the CMB (omega/H)_0 < 7.6e-10 bound"}, "longo_2011_sdss_dipole": {"value": -0.0408, "err": 0.011, "p": 0.00079, "source": "arXiv:1104.2815", "verified": true}, "iye_2021": {"note": "Shamir SDSS dipole 4.00 sigma -> 0.29 sigma after removing duplicates", "source": "arXiv:2011.00662", "verified": true}, "quadrupole_octopole": {"p_range": [0.002, 0.02], "source": "Schwarz et al. 2016, arXiv:1510.07929", "verified": true}, "shamir_jades_counts_note": "counts 158/105 and p = 7e-4 not confirmed from primary text in the 2026-09-29 pass (see 4_rotation)"}
+  },
+
   "5_cmb_lqc": {
     "lqc_suppression_scale": {"k_LQC_planck": 3.21, "k_today_Mpc^-1": 3.6e-4, "suppressed_below_Mpc^-1": 3.6e-3, "ell_below": 30, "source": "Ashtekar, Gupt, Jeong & Sreenath 2020, PRL 125, 051302, arXiv:2001.11689", "verified": true},
     "lqc_fit_vs_standard": {"tau": [0.0542, 0.0595], "ln1e10As": [3.044, 3.054], "n_s": [0.9651, 0.9643], "S_half_fullsky": [42496.5, 14308.05], "A_L": [1.072, 1.049], "order": ["standard", "LQC"], "source": "Ashtekar et al. 2020", "verified": true},

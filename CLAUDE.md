@@ -85,7 +85,10 @@ are preparing a thesis on it.
 | 6 | **against** | 3.2σ. |
 
 **Open items:**
-- a spinning (Kerr) parent;
+- a spinning (Kerr) parent. The plan is in `docs/spin-plan.md` (WP4b, pre-registered 2026-09-29;
+  data in `data/observations.json` → `4b_spin`). First estimate (axial low-spin core):
+  a*_max = 0.6·√(α/2)·ℓ_P·e^{N_tot}/R_obs, independent of the parent mass. Every observed spin
+  works if N_tot ≳ 142. S1–S6 are not implemented yet;
 - WP5 with the analytic LQC spectrum;
 - MCMC on the Ryzen.
 
