@@ -1,0 +1,14 @@
+$ -m python --mass 1e12 --norbi-mode true --infall 1e17:1e12:aszteroida --output output/campaign/ryzen-test/environment__pbh_asteroid_infall.json
+# kilépési kód: 0
+# falióra-idő: 78.530 s
+
+## stdout
+Eredmény mentve: output/campaign/ryzen-test/environment__pbh_asteroid_infall.json
+  kezdőtömeg:   1.0000e+12 kg (5.029e-19 M_☉), a* = 0.0
+  elpárolgott:  3.0551e+19 s (968.1 Gyr) alatt
+  ! A párolgás utolsó szakaszában M < 10 m_P (2.176e-7 kg): itt a szemiklasszikus Hawking-képlet érvényessége kérdéses (semiclassical_valid = false)
+  ! Beesések: a beeső tömeg a külső horizontot növeli (Δr_s = 2GΔM/c²); a belső sorsáról lásd interior_feeding.note.
+  ! Norbi-mód: a bébiuniverzum széle kauzálisan le van választva a külső megfigyelőről (lásd causal_channel.reason) — az él-sugárzás a külső spektrumhoz nem járul h…
+
+## stderr
+

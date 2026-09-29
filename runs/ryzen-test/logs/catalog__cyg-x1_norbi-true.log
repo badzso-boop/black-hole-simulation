@@ -1,0 +1,17 @@
+$ -m python --object cyg-x1 --norbi-mode true --output output/campaign/ryzen-test/catalog__cyg-x1_norbi-true.json
+# kilépési kód: 0
+# falióra-idő: 65.935 s
+
+## stdout
+Eredmény mentve: output/campaign/ryzen-test/catalog__cyg-x1_norbi-true.json
+  kezdőtömeg:   4.2156e+31 kg (21.2 M_☉), a* = 0.998
+  0.005 Gyr után: M = 4.217582e+31 kg (ΔM = +2.025e+28 kg), a* = 0.9980
+  objektum:     Cygnus X-1 (röntgen-kettős, csillagtömegű fekete lyuk)
+  feltevések:   vékony korong: ε és a spin-felpörgetés az ISCO-ból; a szél-akkréció csak a ~40 M_☉-es O-szuperóriás kísérő hátralévő életéig tart — a horizont ezért 5 millió év (feltételezés, nem mért érték)
+  árnyék:       0.00098 μas (a* = 0 közelítés)
+  ! A fekete lyuk a szimulációs horizontig (1.578e14 s) nem párolgott el (végtömeg 4.217582e31 kg, dM/dt = +1.284e14 kg/s); M > M_eq = 6.817e1 kg: a környezetéből t…
+  ! Spin > 0: a belső összeomlás és a kauzalitás-elemzés gömbszimmetrikus (a* = 0) modellel készül — forgó LQC-összeomlásra nincs publikált effektív modell. A klass…
+  ! Norbi-mód: a bébiuniverzum széle kauzálisan le van választva a külső megfigyelőről (lásd causal_channel.reason) — az él-sugárzás a külső spektrumhoz nem járul h…
+
+## stderr
+

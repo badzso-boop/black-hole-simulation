@@ -1,0 +1,12 @@
+$ -m python --mass 1e+20 --output output/campaign/ryzen-test/mass_cmb__m1e+20.json
+# kilépési kód: 0
+# falióra-idő: 70.397 s
+
+## stdout
+Eredmény mentve: output/campaign/ryzen-test/mass_cmb__m1e+20.json
+  kezdőtömeg:   1.0000e+20 kg (5.029e-11 M_☉), a* = 0.0
+  elpárolgott:  6.3056e+42 s (1.998e+26 Gyr) alatt
+  ! A párolgás utolsó szakaszában M < 10 m_P (2.176e-7 kg): itt a szemiklasszikus Hawking-képlet érvényessége kérdéses (semiclassical_valid = false)
+
+## stderr
+

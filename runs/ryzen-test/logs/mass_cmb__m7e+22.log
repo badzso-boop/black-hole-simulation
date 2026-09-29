@@ -1,0 +1,12 @@
+$ -m python --mass 7e+22 --output output/campaign/ryzen-test/mass_cmb__m7e+22.json
+# kilépési kód: 0
+# falióra-idő: 71.212 s
+
+## stdout
+Eredmény mentve: output/campaign/ryzen-test/mass_cmb__m7e+22.json
+  kezdőtömeg:   7.0000e+22 kg (3.52e-08 M_☉), a* = 0.0
+  13.79 Gyr után: M = 7.000000e+22 kg (ΔM = +5.134e-12 kg), a* = 0.0000
+  ! A fekete lyuk a szimulációs horizontig (4.351e17 s) nem párolgott el (végtömeg 7.000000e22 kg, dM/dt = +1.180e-29 kg/s); M > M_eq = 5.562e22 kg: a környezetéből…
+
+## stderr
+

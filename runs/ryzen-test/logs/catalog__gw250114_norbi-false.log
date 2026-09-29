@@ -1,0 +1,16 @@
+$ -m python --object gw250114 --norbi-mode false --output output/campaign/ryzen-test/catalog__gw250114_norbi-false.json
+# kilépési kód: 0
+# falióra-idő: 65.464 s
+
+## stdout
+Eredmény mentve: output/campaign/ryzen-test/catalog__gw250114_norbi-false.json
+  kezdőtömeg:   1.2468e+32 kg (62.7 M_☉), a* = 0.68
+  13.79 Gyr után: M = 1.246771e+32 kg (ΔM = +4.406e+07 kg), a* = 0.6800
+  objektum:     GW250114 összeolvadási maradvány (LIGO–Virgo–KAGRA)
+  feltevések:   a távolság (~440 Mpc) nem ellenőrzött
+  árnyék:       1.46e-08 μas (a* = 0 közelítés)
+  ! A fekete lyuk a szimulációs horizontig (4.351e17 s) nem párolgott el (végtömeg 1.246771e32 kg, dM/dt = +1.013e-10 kg/s); M > M_eq = 5.562e22 kg: a környezetéből…
+  ! Spin > 0: a belső összeomlás és a kauzalitás-elemzés gömbszimmetrikus (a* = 0) modellel készül — forgó LQC-összeomlásra nincs publikált effektív modell. A klass…
+
+## stderr
+

@@ -1,0 +1,8 @@
+dátum:     2026-09-29T05:29:17+00:00
+os:        Ubuntu 24.04.5 LTS (6.6.87.2-microsoft-standard-WSL2)
+cpu:       AMD Ryzen 9 5950X 16-Core Processor
+magok:     32
+memória:   23Gi
+python:    Python 3.12.3
+rustc:     rustc 1.98.1 (48a229cea 2026-09-01)
+commit:    382bc41 (CLAUDE.md: projekt-kontextus AI-munkamenetekhez (gépek és munkamenetek között))
