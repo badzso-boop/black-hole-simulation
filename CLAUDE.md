@@ -29,6 +29,10 @@ are preparing a thesis on it.
 - **docs/thesis-plan.md**: the six-calculation thesis plan, with pre-registered outcomes in §0.
 - **docs/thesis-progress.md** + **runs/thesis-2026-09-29/SCORECARD.md**: the implemented
   calculations (`thesis/` package, `scripts/run_thesis.py`) and their results.
+- **docs/critical-review.md** (2026-09-30): critical review. Some scorecard labels below are
+  disputed there, in particular WP4b (edge confinement), L1e (the rule is misapplied), WP6 (current
+  masses: 3.7σ, carried by J0952) and the "natural N_tot 130–145" band (145 counts inflationary
+  e-folds). **docs/upgrade-plan.md** lays out the fixes (Phase A) and new calculations (Phase B).
 - **runs/2026-09-28/ANALYSIS.md**: 71-run validation campaign and interpretation.
 - **data/observations.json**: observational numbers with sources, plus a `verified` flag.
 - **data/planck/**: Planck 2018 CMB spectra, with checksums.
