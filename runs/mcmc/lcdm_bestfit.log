@@ -1,0 +1,28 @@
+[output] Output to be read-from/written-into folder 'chains/lcdm_bestfit', with prefix 'lcdm'
+[camb] `camb` module loaded successfully from /mnt/g/Projects/black-hole-simulation/.venv/lib/python3.12/site-packages/camb
+[minimize] Initializing
+[minimize] Run 1/4 will start from random initial point:
+[minimize] {'logA': np.float64(3.0451823570288754), 'ns': np.float64(0.9684050450225026), 'theta_MC_100': np.float64(1.0408768195248708), 'ombh2': np.float64(0.02242816947013754), 'omch2': np.float64(0.11954265945707226), 'tau': np.float64(0.046710091286154214), 'A_planck': np.float64(0.9996506158474988)}
+[minimize] Run 2/4 will start from random initial point:
+[minimize] {'logA': np.float64(3.0442739428278145), 'ns': np.float64(0.9602726114379249), 'theta_MC_100': np.float64(1.0408761492881535), 'ombh2': np.float64(0.022199884608337783), 'omch2': np.float64(0.1201607835446367), 'tau': np.float64(0.05705698379642489), 'A_planck': np.float64(0.9986376704496307)}
+[minimize] Run 3/4 will start from random initial point:
+[minimize] {'logA': np.float64(3.0430435935042515), 'ns': np.float64(0.9690538635884001), 'theta_MC_100': np.float64(1.0415449422756475), 'ombh2': np.float64(0.022522542621384756), 'omch2': np.float64(0.12050380084798747), 'tau': np.float64(0.060526507552409806), 'A_planck': np.float64(1.00054373919388)}
+[minimize] Run 4/4 will start from random initial point:
+[minimize] {'logA': np.float64(3.045041284787855), 'ns': np.float64(0.9593111747123241), 'theta_MC_100': np.float64(1.0403366335044781), 'ombh2': np.float64(0.022253222196500815), 'omch2': np.float64(0.1183496383908287), 'tau': np.float64(0.05159500601544601), 'A_planck': np.float64(0.9990294742613615)}
+[prior] *WARNING* There are unbounded parameters (['A_planck']). Prior bounds are given at 0.9999995 confidence level. Beware of likelihood modes at the edge of the prior
+[minimize] Starting run 1/4
+[minimize] Run 1/4 converged.
+[minimize] Starting run 2/4
+[minimize] Run 2/4 converged.
+[minimize] Starting run 3/4
+[minimize] Run 3/4 converged.
+[minimize] Starting run 4/4
+[minimize] Run 4/4 converged.
+[minimize] Finished successfully!
+[minimize] *WARNING* Modest spread in minima: [501.6157304535817, 501.712248890174, 501.5126660425034, 501.01600184012324]
+[minimize] -log(likelihood) minimized to 501.016
+[minimize] Parameter values at minimum:
+   weight  minuslogpost      logA        ns  theta_MC_100     ombh2     omch2       tau  A_planck            As         H0    chi2__CMB  minuslogprior  minuslogprior__0         chi2  chi2__planck_2018_lowl.TT  chi2__planck_2018_lowl.EE  chi2__planck_2018_highl_plik.TTTEEE_lite_native
+0     1.0    498.291073  3.054169  0.965663      1.040869  0.022382  0.119938  0.054046  1.005895  2.120356e-09  67.377617  1002.032004      -2.724928         -2.724928  1002.032004                  23.185266                 396.007129                                       582.839608
+[minimize] Full set of minima:
+{'0': (501.6157304535817, True), '1': (501.712248890174, True), '2': (501.5126660425034, True), '3': (501.01600184012324, True)}
