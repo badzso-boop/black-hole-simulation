@@ -1,6 +1,6 @@
 $ -m python --object gw250114 --norbi-mode true --output output/campaign/ryzen-test/catalog__gw250114_norbi-true.json
 # kilépési kód: 0
-# falióra-idő: 62.005 s
+# falióra-idő: 96.308 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/catalog__gw250114_norbi-true.json

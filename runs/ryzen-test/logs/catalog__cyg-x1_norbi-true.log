@@ -1,6 +1,6 @@
 $ -m python --object cyg-x1 --norbi-mode true --output output/campaign/ryzen-test/catalog__cyg-x1_norbi-true.json
 # kilépési kód: 0
-# falióra-idő: 65.935 s
+# falióra-idő: 97.024 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/catalog__cyg-x1_norbi-true.json

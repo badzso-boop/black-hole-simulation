@@ -1,6 +1,6 @@
 $ -m python --mass 1.0 --output output/campaign/ryzen-test/mass_cmb__m1.json
 # kilépési kód: 0
-# falióra-idő: 64.403 s
+# falióra-idő: 97.121 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/mass_cmb__m1.json

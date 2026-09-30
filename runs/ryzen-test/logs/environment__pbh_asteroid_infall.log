@@ -1,6 +1,6 @@
 $ -m python --mass 1e12 --norbi-mode true --infall 1e17:1e12:aszteroida --output output/campaign/ryzen-test/environment__pbh_asteroid_infall.json
 # kilépési kód: 0
-# falióra-idő: 78.530 s
+# falióra-idő: 102.408 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/environment__pbh_asteroid_infall.json

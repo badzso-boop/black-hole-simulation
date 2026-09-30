@@ -1,6 +1,6 @@
 $ -m python --mass 1e12 --steps 1000 --output output/campaign/ryzen-test/convergence__steps1000.json
 # kilépési kód: 0
-# falióra-idő: 32.940 s
+# falióra-idő: 50.692 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/convergence__steps1000.json

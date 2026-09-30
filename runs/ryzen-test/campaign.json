@@ -1,11 +1,11 @@
 {
   "id": "ryzen-test",
   "jobs": 16,
-  "total_wall_s": 326.09,
+  "total_wall_s": 455.07,
   "peak_rss_mb": {
     "sgr-a": 42.8,
-    "m87_norbi": 43.5,
-    "spin_pbh_300": 55.2
+    "m87_norbi": 43.2,
+    "spin_pbh_300": 54.3
   },
   "runs": [
     {
@@ -19,7 +19,7 @@
         "false"
       ],
       "exit_code": 0,
-      "wall_s": 64.905,
+      "wall_s": 95.256,
       "output": "output/campaign/ryzen-test/catalog__sgr-a_norbi-false.json"
     },
     {
@@ -33,7 +33,7 @@
         "true"
       ],
       "exit_code": 0,
-      "wall_s": 66.033,
+      "wall_s": 95.966,
       "output": "output/campaign/ryzen-test/catalog__sgr-a_norbi-true.json"
     },
     {
@@ -47,7 +47,7 @@
         "false"
       ],
       "exit_code": 0,
-      "wall_s": 65.624,
+      "wall_s": 96.686,
       "output": "output/campaign/ryzen-test/catalog__m87_norbi-false.json"
     },
     {
@@ -61,7 +61,7 @@
         "true"
       ],
       "exit_code": 0,
-      "wall_s": 65.205,
+      "wall_s": 97.303,
       "output": "output/campaign/ryzen-test/catalog__m87_norbi-true.json"
     },
     {
@@ -75,7 +75,7 @@
         "false"
       ],
       "exit_code": 0,
-      "wall_s": 66.147,
+      "wall_s": 96.096,
       "output": "output/campaign/ryzen-test/catalog__cyg-x1_norbi-false.json"
     },
     {
@@ -89,7 +89,7 @@
         "true"
       ],
       "exit_code": 0,
-      "wall_s": 65.935,
+      "wall_s": 97.024,
       "output": "output/campaign/ryzen-test/catalog__cyg-x1_norbi-true.json"
     },
     {
@@ -103,7 +103,7 @@
         "false"
       ],
       "exit_code": 0,
-      "wall_s": 65.464,
+      "wall_s": 96.856,
       "output": "output/campaign/ryzen-test/catalog__gw250114_norbi-false.json"
     },
     {
@@ -117,7 +117,7 @@
         "true"
       ],
       "exit_code": 0,
-      "wall_s": 62.005,
+      "wall_s": 96.308,
       "output": "output/campaign/ryzen-test/catalog__gw250114_norbi-true.json"
     },
     {
@@ -131,7 +131,7 @@
         "false"
       ],
       "exit_code": 0,
-      "wall_s": 66.149,
+      "wall_s": 96.475,
       "output": "output/campaign/ryzen-test/catalog__gw150914_norbi-false.json"
     },
     {
@@ -145,7 +145,7 @@
         "true"
       ],
       "exit_code": 0,
-      "wall_s": 66.027,
+      "wall_s": 96.426,
       "output": "output/campaign/ryzen-test/catalog__gw150914_norbi-true.json"
     },
     {
@@ -159,7 +159,7 @@
         "false"
       ],
       "exit_code": 0,
-      "wall_s": 65.861,
+      "wall_s": 97.394,
       "output": "output/campaign/ryzen-test/catalog__pbh-today_norbi-false.json"
     },
     {
@@ -173,7 +173,7 @@
         "true"
       ],
       "exit_code": 0,
-      "wall_s": 63.993,
+      "wall_s": 97.352,
       "output": "output/campaign/ryzen-test/catalog__pbh-today_norbi-true.json"
     },
     {
@@ -185,7 +185,7 @@
         "4.352868e-08"
       ],
       "exit_code": 0,
-      "wall_s": 64.488,
+      "wall_s": 97.043,
       "output": "output/campaign/ryzen-test/mass_cmb__m4.35e-08.json"
     },
     {
@@ -197,7 +197,7 @@
         "1e-06"
       ],
       "exit_code": 0,
-      "wall_s": 65.845,
+      "wall_s": 95.675,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e-06.json"
     },
     {
@@ -209,7 +209,7 @@
         "1.0"
       ],
       "exit_code": 0,
-      "wall_s": 64.403,
+      "wall_s": 97.121,
       "output": "output/campaign/ryzen-test/mass_cmb__m1.json"
     },
     {
@@ -221,7 +221,7 @@
         "1000.0"
       ],
       "exit_code": 0,
-      "wall_s": 65.649,
+      "wall_s": 97.297,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+03.json"
     },
     {
@@ -233,7 +233,7 @@
         "1000000.0"
       ],
       "exit_code": 0,
-      "wall_s": 59.609,
+      "wall_s": 97.079,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+06.json"
     },
     {
@@ -245,7 +245,7 @@
         "1000000000.0"
       ],
       "exit_code": 0,
-      "wall_s": 75.228,
+      "wall_s": 96.675,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+09.json"
     },
     {
@@ -257,7 +257,7 @@
         "100000000000.0"
       ],
       "exit_code": 0,
-      "wall_s": 67.543,
+      "wall_s": 96.094,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+11.json"
     },
     {
@@ -269,7 +269,7 @@
         "510000000000.0"
       ],
       "exit_code": 0,
-      "wall_s": 64.462,
+      "wall_s": 96.145,
       "output": "output/campaign/ryzen-test/mass_cmb__m5.1e+11.json"
     },
     {
@@ -281,7 +281,7 @@
         "1000000000000.0"
       ],
       "exit_code": 0,
-      "wall_s": 70.456,
+      "wall_s": 95.881,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+12.json"
     },
     {
@@ -293,7 +293,7 @@
         "1000000000000000.0"
       ],
       "exit_code": 0,
-      "wall_s": 77.229,
+      "wall_s": 95.847,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+15.json"
     },
     {
@@ -305,7 +305,7 @@
         "1e+18"
       ],
       "exit_code": 0,
-      "wall_s": 65.641,
+      "wall_s": 94.305,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+18.json"
     },
     {
@@ -317,7 +317,7 @@
         "1e+20"
       ],
       "exit_code": 0,
-      "wall_s": 70.397,
+      "wall_s": 95.002,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+20.json"
     },
     {
@@ -329,7 +329,7 @@
         "1e+22"
       ],
       "exit_code": 0,
-      "wall_s": 62.425,
+      "wall_s": 95.326,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+22.json"
     },
     {
@@ -341,7 +341,7 @@
         "5e+22"
       ],
       "exit_code": 0,
-      "wall_s": 69.885,
+      "wall_s": 95.297,
       "output": "output/campaign/ryzen-test/mass_cmb__m5e+22.json"
     },
     {
@@ -353,7 +353,7 @@
         "7e+22"
       ],
       "exit_code": 0,
-      "wall_s": 71.212,
+      "wall_s": 95.321,
       "output": "output/campaign/ryzen-test/mass_cmb__m7e+22.json"
     },
     {
@@ -365,7 +365,7 @@
         "1e+23"
       ],
       "exit_code": 0,
-      "wall_s": 67.104,
+      "wall_s": 95.023,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+23.json"
     },
     {
@@ -377,7 +377,7 @@
         "1e+25"
       ],
       "exit_code": 0,
-      "wall_s": 64.121,
+      "wall_s": 94.833,
       "output": "output/campaign/ryzen-test/mass_cmb__m1e+25.json"
     },
     {
@@ -389,7 +389,7 @@
         "1.98847e+30"
       ],
       "exit_code": 0,
-      "wall_s": 60.627,
+      "wall_s": 94.994,
       "output": "output/campaign/ryzen-test/mass_cmb__m1.99e+30.json"
     },
     {
@@ -403,7 +403,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 73.796,
+      "wall_s": 94.982,
       "output": "output/campaign/ryzen-test/mass_vacuum__m4.35e-08.json"
     },
     {
@@ -417,7 +417,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 69.944,
+      "wall_s": 94.779,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e-06.json"
     },
     {
@@ -431,7 +431,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 78.131,
+      "wall_s": 87.574,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1.json"
     },
     {
@@ -445,7 +445,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 82.379,
+      "wall_s": 87.194,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e+03.json"
     },
     {
@@ -459,7 +459,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 75.7,
+      "wall_s": 81.322,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e+06.json"
     },
     {
@@ -473,7 +473,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 74.45,
+      "wall_s": 89.667,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e+09.json"
     },
     {
@@ -487,7 +487,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 78.575,
+      "wall_s": 89.995,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e+11.json"
     },
     {
@@ -501,7 +501,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 75.325,
+      "wall_s": 87.576,
       "output": "output/campaign/ryzen-test/mass_vacuum__m5.1e+11.json"
     },
     {
@@ -515,7 +515,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 75.387,
+      "wall_s": 87.868,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e+12.json"
     },
     {
@@ -529,7 +529,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 76.498,
+      "wall_s": 87.383,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e+15.json"
     },
     {
@@ -543,7 +543,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 81.5,
+      "wall_s": 90.378,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e+18.json"
     },
     {
@@ -557,7 +557,7 @@
         "0"
       ],
       "exit_code": 0,
-      "wall_s": 82.017,
+      "wall_s": 88.031,
       "output": "output/campaign/ryzen-test/mass_vacuum__m1e+20.json"
     },
     {
@@ -575,7 +575,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 81.307,
+      "wall_s": 92.037,
       "output": "output/campaign/ryzen-test/spin__MacGibbon_a0.0.json"
     },
     {
@@ -593,7 +593,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 83.062,
+      "wall_s": 114.019,
       "output": "output/campaign/ryzen-test/spin__MacGibbon_a0.1.json"
     },
     {
@@ -611,7 +611,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 86.309,
+      "wall_s": 105.684,
       "output": "output/campaign/ryzen-test/spin__MacGibbon_a0.3.json"
     },
     {
@@ -629,7 +629,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 83.228,
+      "wall_s": 112.891,
       "output": "output/campaign/ryzen-test/spin__MacGibbon_a0.5.json"
     },
     {
@@ -647,7 +647,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 82.075,
+      "wall_s": 113.529,
       "output": "output/campaign/ryzen-test/spin__MacGibbon_a0.7.json"
     },
     {
@@ -665,7 +665,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 79.692,
+      "wall_s": 106.796,
       "output": "output/campaign/ryzen-test/spin__MacGibbon_a0.9.json"
     },
     {
@@ -683,7 +683,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 69.958,
+      "wall_s": 126.981,
       "output": "output/campaign/ryzen-test/spin__MacGibbon_a0.99.json"
     },
     {
@@ -701,7 +701,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 92.431,
+      "wall_s": 131.794,
       "output": "output/campaign/ryzen-test/spin__MacGibbon_a0.999.json"
     },
     {
@@ -719,7 +719,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 85.017,
+      "wall_s": 112.71,
       "output": "output/campaign/ryzen-test/spin__PageGammaGraviton_a0.0.json"
     },
     {
@@ -737,7 +737,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 73.691,
+      "wall_s": 128.269,
       "output": "output/campaign/ryzen-test/spin__PageGammaGraviton_a0.1.json"
     },
     {
@@ -755,7 +755,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 96.058,
+      "wall_s": 124.543,
       "output": "output/campaign/ryzen-test/spin__PageGammaGraviton_a0.3.json"
     },
     {
@@ -773,7 +773,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 84.09,
+      "wall_s": 129.337,
       "output": "output/campaign/ryzen-test/spin__PageGammaGraviton_a0.5.json"
     },
     {
@@ -791,7 +791,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 84.008,
+      "wall_s": 130.665,
       "output": "output/campaign/ryzen-test/spin__PageGammaGraviton_a0.7.json"
     },
     {
@@ -809,7 +809,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 79.859,
+      "wall_s": 124.289,
       "output": "output/campaign/ryzen-test/spin__PageGammaGraviton_a0.9.json"
     },
     {
@@ -827,7 +827,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 86.75,
+      "wall_s": 126.624,
       "output": "output/campaign/ryzen-test/spin__PageGammaGraviton_a0.99.json"
     },
     {
@@ -845,7 +845,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 94.529,
+      "wall_s": 127.471,
       "output": "output/campaign/ryzen-test/spin__PageGammaGraviton_a0.999.json"
     },
     {
@@ -859,7 +859,7 @@
         "MacGibbon"
       ],
       "exit_code": 0,
-      "wall_s": 72.713,
+      "wall_s": 88.847,
       "output": "output/campaign/ryzen-test/emission__MacGibbon.json"
     },
     {
@@ -873,7 +873,7 @@
         "PageGammaGraviton"
       ],
       "exit_code": 0,
-      "wall_s": 77.754,
+      "wall_s": 92.226,
       "output": "output/campaign/ryzen-test/emission__PageGammaGraviton.json"
     },
     {
@@ -887,7 +887,7 @@
         "PhotonBlackbody"
       ],
       "exit_code": 0,
-      "wall_s": 72.329,
+      "wall_s": 92.447,
       "output": "output/campaign/ryzen-test/emission__PhotonBlackbody.json"
     },
     {
@@ -903,7 +903,7 @@
         "1e17:1e12:aszteroida"
       ],
       "exit_code": 0,
-      "wall_s": 78.53,
+      "wall_s": 102.408,
       "output": "output/campaign/ryzen-test/environment__pbh_asteroid_infall.json"
     },
     {
@@ -919,7 +919,7 @@
         "2e18:2e12:nagy"
       ],
       "exit_code": 0,
-      "wall_s": 76.544,
+      "wall_s": 100.458,
       "output": "output/campaign/ryzen-test/environment__pbh_two_infalls.json"
     },
     {
@@ -937,7 +937,7 @@
         "3.15576e15"
       ],
       "exit_code": 0,
-      "wall_s": 74.458,
+      "wall_s": 92.862,
       "output": "output/campaign/ryzen-test/environment__stellar_bondi_eddington_100myr.json"
     },
     {
@@ -960,7 +960,7 @@
         "300"
       ],
       "exit_code": 0,
-      "wall_s": 55.303,
+      "wall_s": 71.025,
       "output": "output/campaign/ryzen-test/environment__stellar_disk_spinup_from_0.json"
     },
     {
@@ -976,7 +976,7 @@
         "3.15576e17"
       ],
       "exit_code": 0,
-      "wall_s": 40.271,
+      "wall_s": 49.069,
       "output": "output/campaign/ryzen-test/environment__sun_in_vacuum_10gyr.json"
     },
     {
@@ -990,7 +990,7 @@
         "25"
       ],
       "exit_code": 0,
-      "wall_s": 32.542,
+      "wall_s": 48.542,
       "output": "output/campaign/ryzen-test/convergence__steps25.json"
     },
     {
@@ -1004,7 +1004,7 @@
         "50"
       ],
       "exit_code": 0,
-      "wall_s": 34.604,
+      "wall_s": 47.207,
       "output": "output/campaign/ryzen-test/convergence__steps50.json"
     },
     {
@@ -1018,7 +1018,7 @@
         "100"
       ],
       "exit_code": 0,
-      "wall_s": 33.394,
+      "wall_s": 44.983,
       "output": "output/campaign/ryzen-test/convergence__steps100.json"
     },
     {
@@ -1032,7 +1032,7 @@
         "400"
       ],
       "exit_code": 0,
-      "wall_s": 32.718,
+      "wall_s": 46.075,
       "output": "output/campaign/ryzen-test/convergence__steps400.json"
     },
     {
@@ -1046,7 +1046,7 @@
         "1000"
       ],
       "exit_code": 0,
-      "wall_s": 32.94,
+      "wall_s": 50.692,
       "output": "output/campaign/ryzen-test/convergence__steps1000.json"
     }
   ]

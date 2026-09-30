@@ -1,6 +1,6 @@
 $ -m python --mass 1e12 --spin 0.999 --emission-model PageGammaGraviton --steps 300 --output output/campaign/ryzen-test/spin__PageGammaGraviton_a0.999.json
 # kilépési kód: 0
-# falióra-idő: 94.529 s
+# falióra-idő: 127.471 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/spin__PageGammaGraviton_a0.999.json

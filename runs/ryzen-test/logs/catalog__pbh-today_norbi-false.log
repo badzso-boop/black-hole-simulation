@@ -1,6 +1,6 @@
 $ -m python --object pbh-today --norbi-mode false --output output/campaign/ryzen-test/catalog__pbh-today_norbi-false.json
 # kilépési kód: 0
-# falióra-idő: 65.861 s
+# falióra-idő: 97.394 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/catalog__pbh-today_norbi-false.json

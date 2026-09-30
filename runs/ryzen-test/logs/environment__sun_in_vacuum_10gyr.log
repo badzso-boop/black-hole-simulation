@@ -1,6 +1,6 @@
 $ -m python --mass 1.98847e+30 --cmb-temperature 0 --max-time 3.15576e17 --output output/campaign/ryzen-test/environment__sun_in_vacuum_10gyr.json
 # kilépési kód: 0
-# falióra-idő: 40.271 s
+# falióra-idő: 49.069 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/environment__sun_in_vacuum_10gyr.json

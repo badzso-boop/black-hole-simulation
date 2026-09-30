@@ -1,6 +1,6 @@
 $ -m python --mass 1e-06 --output output/campaign/ryzen-test/mass_cmb__m1e-06.json
 # kilépési kód: 0
-# falióra-idő: 65.845 s
+# falióra-idő: 95.675 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/mass_cmb__m1e-06.json

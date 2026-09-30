@@ -1,6 +1,6 @@
 $ -m python --mass 1e12 --infall 5e16:5e11:kicsi --infall 2e18:2e12:nagy --output output/campaign/ryzen-test/environment__pbh_two_infalls.json
 # kilépési kód: 0
-# falióra-idő: 76.544 s
+# falióra-idő: 100.458 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/environment__pbh_two_infalls.json

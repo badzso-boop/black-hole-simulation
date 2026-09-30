@@ -1,6 +1,6 @@
 $ -m python --object sgr-a --norbi-mode true --output output/campaign/ryzen-test/catalog__sgr-a_norbi-true.json
 # kilépési kód: 0
-# falióra-idő: 66.033 s
+# falióra-idő: 95.966 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/catalog__sgr-a_norbi-true.json

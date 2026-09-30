@@ -1,6 +1,6 @@
 $ -m python --mass 1e12 --spin 0.9 --emission-model MacGibbon --steps 300 --output output/campaign/ryzen-test/spin__MacGibbon_a0.9.json
 # kilépési kód: 0
-# falióra-idő: 79.692 s
+# falióra-idő: 106.796 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/spin__MacGibbon_a0.9.json

@@ -1,6 +1,6 @@
 $ -m python --mass 1000000000000.0 --cmb-temperature 0 --output output/campaign/ryzen-test/mass_vacuum__m1e+12.json
 # kilépési kód: 0
-# falióra-idő: 75.387 s
+# falióra-idő: 87.868 s
 
 ## stdout
 Eredmény mentve: output/campaign/ryzen-test/mass_vacuum__m1e+12.json
