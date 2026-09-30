@@ -161,7 +161,9 @@ def main() -> int:
         "|---|---|---|",
     ]
     for p, v in lqc["params"].items():
-        lines.append(f"| {p} | {v['mean']:.5g} | {v['std']:.3g} |")
+        note = " (priorfüggő: a poszterior ~142 fölött lapos, csak az alsó korlát értelmes)" \
+            if p == "n_tot" else ""
+        lines.append(f"| {p} | {v['mean']:.5g}{note} | {v['std']:.3g} |")
     (out / "RESULTS.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
     print(f"→ {out.relative_to(ROOT)}")

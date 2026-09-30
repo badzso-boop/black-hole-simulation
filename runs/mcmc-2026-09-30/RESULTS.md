@@ -22,3 +22,15 @@ Likelihoodok: Planck 2018 alacsony-ℓ TT (Gibbs) és EE, plik-lite TT/TE/EE. Ko
 | ombh2 | 0.022361 | 0.00015 |
 | omch2 | 0.12016 | 0.00137 |
 | H0 | 67.281 | 0.611 |
+
+## Megjegyzés (utólag hozzáadva, 2026-09-30 — a fenti szöveg a szkript változatlan kimenete)
+
+- **Az n_tot „átlaga" (145 ± 2.9) priorfüggő, nem mérés:** a poszterior ~142 fölött lapos a
+  prior 150-es széléig (lásd `n_tot.png`). Csak az alsó korlát értelmes: N_tot > 140.71 (95%).
+  A szkript ezt a jövőben jelzi.
+- **A csővezeték validálása:** a ΛCDM-lánc a Planck 2018 VI Table 2 (TT,TE,EE+lowE) mind a hat
+  paraméterét 0.06σ-n belül reprodukálja (Ω_b h², Ω_c h², H0, n_s, τ, ln 10¹⁰A_s).
+- **Δχ²_min = −0.23 bizonytalansága:** a minimalizáló négy indításának szórása a ΛCDM-nél
+  Δχ² ≈ 1.4, az LQC-nél ≈ 0.9 (`runs/mcmc/*_bestfit.log`, „Modest spread in minima"), tehát
+  Δχ² = −0.2 ± ~1: a nullával összefér. Likelihoodonként: alacsony-ℓ TT −0.51, EE +0.05,
+  plik-lite +0.24.

@@ -29,6 +29,7 @@ python -m pytest thesis/tests -q        # 30 tests, ~45 s
 | 4b | Can a *spinning* parent still work? ([spin-plan.md](spin-plan.md)) | **partly: see WP4b below** | — |
 | 1b | Does bounce + inflation work with a potential that fits ACT too? (add-on) | **supports** | — |
 | 5b | CMB with the real LQC spectrum and the official Planck likelihoods (add-on) | **neutral** | — |
+| 5c | Full Planck MCMC: all cosmological parameters free, plus N_tot (add-on) | **neutral** | — |
 
 Five of the six WPs gave exactly the outcome expected in advance. The two surprises are
 WP1's ACT tension and WP4's model limit; both are explained below.
@@ -251,7 +252,57 @@ The dressed-metric variant is not implemented.
 - The N_tot constraint agrees with WP3b (edge > horizon needs > 126.8) and with WP4b (at 140.25
   the spin window reaches a* ≲ 0.35 with the fiducial core).
 
-### WP5c: the full MCMC (prepared for the Ryzen; not yet run)
+### WP5c: the full MCMC (run on the Ryzen 5950X, 2026-09-30)
+
+**Results** (`runs/mcmc-2026-09-30/`, logs in `runs/mcmc/`):
+
+**The run.**
+- 8 chains × 4 threads per model.
+- ΛCDM: converged in 80 min (R−1 = 0.0085, 52 608 accepted samples).
+- LQC: R−1 = 0.0083, 75 930 samples.
+- Both minimizers ran 4 starts each.
+
+**Validation.** The ΛCDM chain reproduces all six parameters of Planck 2018 VI Table 2
+(TT,TE,EE+lowE) to within **0.06σ**:
+- H0 = 67.26 ± 0.62;
+- n_s = 0.9648 ± 0.0044;
+- τ = 0.0540 ± 0.0079;
+- and the others.
+
+This is an independent check of the whole pipeline.
+
+**N_tot posterior.**
+- It has a sharp lower edge, a small bump at ~141.3, then is flat up to the prior edge (150).
+- The data give **only a lower bound: N_tot > 140.71 (95%), > 140.27 (99%)**.
+- The quoted mean (145 ± 2.9) is prior-dominated and must not be cited.
+
+**Best fit.**
+- LQC N_tot = 141.05.
+- **Δχ²_min (LQC − ΛCDM) = −0.23.** By likelihood: low-ℓ TT −0.51, EE +0.05, plik-lite +0.24.
+- The four minimizer starts scatter by Δχ² ≈ 0.9–1.4, so this is −0.2 ± ~1: **consistent with
+  zero, far from the −9 threshold → neutral.**
+
+**Other parameters.** Adding N_tot changes none of them; the ΛCDM and LQC contours overlap in
+`triangle.png`.
+
+**Consequences:**
+- WP3b holds: 140.71 > 126.8.
+- The WP4b spin window at the 95% lower bound reaches a* ≤ 0.44 (0.62 at the best fit), with the
+  fiducial core.
+
+**All four CMB estimates agree:**
+
+| | best N_tot | Δχ² | lower bound (95%) |
+|---|---|---|---|
+| WP5 cutoff template, own Wishart | 141.2 | −1.2 | 140.8 |
+| WP5b hybrid LQC, official low-ℓ likelihoods, fixed cosmology | 141.0 | −0.53 | 140.25 |
+| WP5b hybrid LQC, own Wishart | 141.0 | −0.59 | — |
+| **WP5c full MCMC, all parameters free** | **141.05** | **−0.23** | **140.71** |
+
+**Plain language.**
+- The CMB is compatible with a bounce about 141 e-folds ago, but it doesn't need one.
+- What it firmly says is that the bounce, if there was one, happened at least ~140.7 e-folds
+  before today. Otherwise we would see the large-scale power missing from the sky.
 
 **Files:**
 - `scripts/cobaya/lqc_mcmc.yaml`: 6 ΛCDM parameters + N_tot (prior 138–150), same likelihoods.
@@ -340,3 +391,7 @@ origin**, which does not need it.
   - WP1b (polynomial α-attractor) and WP5b (hybrid LQC spectrum with official Planck
     likelihoods via cobaya) are implemented, 6 more tests.
   - WP5c (full MCMC) is prepared and smoke-tested; it runs on the Ryzen.
+- **2026-09-30.** The WP5c MCMC ran on the Ryzen 5950X (WSL, 8 MPI chains).
+  - Result: neutral (Δχ²_min = −0.23; N_tot > 140.71 at 95%). ΛCDM reproduces Planck 2018 within 0.06σ.
+  - `run_mcmc.sh` got an MPI pre-check, unbuffered output and `--bind-to none`.
+  - `analyze_mcmc.py` now finds best-fit files by pattern and flags the prior-dominated N_tot mean.

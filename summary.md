@@ -596,3 +596,32 @@ az S4-et.
 
 A WP5c MCMC lefuttatása a Ryzenen (`bash scripts/run_mcmc.sh`, órák), majd az eredmények
 (`runs/mcmc-*`) commitolása.
+
+## 16. fázis — A teljes Planck-MCMC a Ryzenen (WP5c, 2026-09-30)
+
+### Mit csináltunk
+
+- **A `scripts/run_mcmc.sh` futott a Ryzen 5950X-en** (WSL, root, 8 MPI-lánc × 4 szál):
+  - ΛCDM- és LQC-lánc;
+  - mindkettőhöz 4 indításos minimize.
+- **Menet közbeni javítások:**
+  - MPI-próba;
+  - pufferelés nélküli kimenet;
+  - `--bind-to none`;
+  - `NO_MPI` mód;
+  - a projekt Pythonja aktiválás nélkül;
+  - a legjobb-illesztés fájlok keresése minta szerint.
+
+### Amit megtudtunk
+
+| Kérdés | Eredmény |
+|---|---|
+| Jó-e a csővezeték? | Igen: a ΛCDM-lánc a Planck 2018 hat paraméterét 0.06σ-n belül adja vissza. |
+| Kell-e a CMB-nek a visszapattanás? | Nem. Δχ²_min = −0.23 (a minimalizáló szórása ~1), a −9-es küszöbtől messze: semleges. |
+| Mit mond N_tot-ról? | Csak alsó korlátot: N_tot > 140.71 (95%). A poszterior 142 fölött lapos. Négy független becslés (141.0–141.2 legjobb érték, 140.3–140.8 alsó korlát) egybehangzó. |
+| Következmények | WP3b áll (> 126.8). A WP4b spin-ablaka a 95%-os korlátnál a* ≤ 0.44. |
+
+### Következő lépés
+
+A számolások a terv szerint teljesek. Nyitott marad a forgó szülő belső horizontja (S4),
+amihez az irodalomban sincs számolás. Ezután jöhet a tézis írása, ha a szerző kéri.

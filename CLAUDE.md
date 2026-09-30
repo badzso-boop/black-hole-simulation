@@ -24,7 +24,7 @@ are preparing a thesis on it.
 ## Current state (v3.2 simulator + thesis calculations, 2026-09-29): read these first
 
 - **README.md**: model, formulas, install, CLI, output schema 3.2.
-- **summary.md**: development log, phases 1–13. Phase 9 explains why v2.0's results were artifacts.
+- **summary.md**: development log, phases 1–16. Phase 9 explains why v2.0's results were artifacts.
 - **docs/are-we-in-a-black-hole.md**: what the project can and cannot say about the big question.
 - **docs/thesis-plan.md**: the six-calculation thesis plan, with pre-registered outcomes in §0.
 - **docs/thesis-progress.md** + **runs/thesis-2026-09-29/SCORECARD.md**: the implemented
@@ -84,6 +84,7 @@ are preparing a thesis on it.
 | 5 | **neutral** | Best N_tot = 141.2, Δχ² = −1.2 (not significant); N_tot > 140.8 at 95%. |
 | 6 | **against** | 3.2σ. |
 | 1b (add-on) | **supports** | Polynomial α-attractor: n_s 0.972, inside Planck and ACT 95%; the bounce inflates outside φ_B ∈ [−3.45, −1.64]. The ACT tension was Starobinsky's. |
+| 5c (add-on) | **neutral** | Full Planck MCMC on the Ryzen (2026-09-30, `runs/mcmc-2026-09-30/`): ΛCDM reproduces Planck 2018 within 0.06σ (pipeline validated); Δχ²_min = −0.23 (minimizer scatter ~1); N_tot > 140.71 at 95%, flat above ~142 (the mean is prior-dominated, don't cite it). |
 | 5b (add-on) | **neutral** | Real hybrid-LQC spectrum (Guillén+ 2026) with the official Planck likelihoods (cobaya native, data in `~/cobaya_packages`): best N_tot = 141.0, Δχ² = −0.53; N_tot > 140.25 at 95%. |
 
 **Open items:**
@@ -95,9 +96,12 @@ are preparing a thesis on it.
   - Catch: fast spin gives a Planck-mass seed; slow (natal ~0.01) spin loses to mass inflation at
     r₋ (crude S4). The comfortable window is a* ≈ 0.44–0.52.
   - The decisive missing piece is a rotating collapse in effective LQG, which is not in the literature;
-- **WP5c MCMC:** prepared and smoke-tested but not yet run.
-  - Run it on the Ryzen with `bash scripts/run_mcmc.sh` (hours), then `python scripts/analyze_mcmc.py`, then commit `runs/mcmc-*`.
-  - `chains/` is gitignored.
+- **WP5c MCMC: done** (see the 5c row above). To rerun: `bash scripts/run_mcmc.sh` on the Ryzen
+  (~3 h total; as root in WSL, set `OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1`),
+  then `python scripts/analyze_mcmc.py`. `chains/` is gitignored.
+- With this, the planned calculations are complete. The remaining open physics question is S4
+  (matter crossing a spinning parent's inner horizon), for which no calculation exists in the
+  literature. Thesis writing is next, if the author asks for it.
 
 ## How to work in this repo (agreed with the author)
 
