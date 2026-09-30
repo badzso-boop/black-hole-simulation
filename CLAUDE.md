@@ -99,14 +99,14 @@ are preparing a thesis on it.
 - **WP5c MCMC: done** (see the 5c row above). To rerun: `bash scripts/run_mcmc.sh` on the Ryzen
   (~3 h total; as root in WSL, set `OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1`),
   then `python scripts/analyze_mcmc.py`. `chains/` is gitignored.
-- **Inner horizon (S4, Level 1):** planned in `docs/inner-horizon-plan.md`, with pre-registered
-  outcomes (2026-09-30) and data in `observations.json` → `4c_inner_horizon`. Not implemented yet.
-  - Key research findings: the non-spinning LMYZ model already has a Planck-scale inner horizon
-    (the bounce lies just inside it).
-  - The RN (charge) proxy has a classical Coulomb turning point at Q²/2M, so it tests the
-    inner-horizon timing race, not the axial seed's bounce.
-  - Semiclassical ⟨T⟩ fluxes at inner horizons are published (RN, Kerr).
-  - Charge ↔ spin is mapped by matching κ₋M.
+- **Inner horizon (S4, Level 1): code implemented 2026-09-30, waiting for the full Ryzen run.**
+  - Code: `thesis/ori_model.py`, `thesis/doublenull.py`, `thesis/inner_horizon.py`, and the runner
+    `scripts/run_inner_horizon.py`. See `docs/inner-horizon-plan.md` §8.
+  - The local smoke test passes the validation gate. Its preview: L1a supports, L1c open (GW 22%,
+    natal 0%), L1d info, L1e against.
+  - New findings:
+    - the LMYZ inner horizon is unstable in the Ori model;
+    - edge confinement: η ≈ 5e3 ℓ_P, which covers Planck-mass seeds entirely — a new caveat on WP4b.
 - With this, the planned calculations are complete. The remaining open physics question is S4
   (matter crossing a spinning parent's inner horizon), for which no calculation exists in the
   literature. Thesis writing is next, if the author asks for it.
@@ -120,7 +120,7 @@ are preparing a thesis on it.
 - **Honest results:** report what the physics gives, even when it hurts the
   hypothesis. Keep assumptions and limitations explicit in code comments and docs.
 - **Validation:** every new feature gets tests against an independent analytic or
-  literature value, not against its own output. Current suite: 105 Rust + 22 Python + 30 thesis tests.
+  literature value, not against its own output. Current suite: 105 Rust + 22 Python + 39 thesis tests.
 - **Literature data:** use a background research agent with "cite everything,
   mark UNVERIFIED" instructions. Then check its numbers for internal
   consistency before use; this caught a typo in Dong et al. 2016's neutrino column.

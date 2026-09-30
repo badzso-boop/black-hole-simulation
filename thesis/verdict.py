@@ -11,6 +11,7 @@ A kritériumokat a számolás ELŐTT rögzítettük (2026-09-28); itt csak gépi
 """
 from __future__ import annotations
 
+import itertools
 import math
 from typing import Any
 
@@ -346,5 +347,120 @@ def upgrades_scorecard(res: dict[str, Any]) -> list[dict[str, Any]]:
                 + (f"95%-os alsó korlát N_tot > {lo95:.2f}; " if lo95 else "")
                 + f"a saját csővezeték ugyanitt {own['dchi2_wishart']:.2f}-t ad, S₁/₂ = "
                 f"{own['S_half']:.0f} μK⁴. A magas ℓ nem változik (plik-lite Δχ² ≈ 0)."),
+    })
+    return rows
+
+
+# ---------------------------------------------------------------------------
+# Belső horizont (S4, Level 1): docs/inner-horizon-plan.md §5, rögzítve 2026-09-30.
+# Részletek, amiket a §5 nem adott meg számmal (a futtatás ELŐTT rögzítve):
+#   validációs kapu: T1 másodrendű konvergencia (hibaarány ≥ 3 duplázásonként), T2 |κ_fit/κ₋ − 1|
+#   ≤ 0.10 és a két legfinomabb rács κ_fit-je 5%-on belül (utóbbit az implementáció közben
+#   tettük hozzá, szigorítás), T10b ≤ 1%, Ori-modell: RN meredekség ≤ 1%, Hayward késői log-log meredekség p+1-től
+#   ≤ 5%; L1a „mielőtt nőhetne" = a r₋ és R_b közé férő e-redők < 1; L1c zöm = ≥ 50%;
+#   L1e „késői" = ≥ 1 nap a képződés után.
+# ---------------------------------------------------------------------------
+
+EXPECTED_INNER = {"L1a star's own bounce vs inner horizon": "supports",
+                  "L1c the spark crosses r_-": "open (depends on spin)",
+                  "L1d quantum vs classical": "info (classical first for stellar masses)",
+                  "L1e the asteroid": "against"}
+
+
+def inner_horizon_gate(val: dict[str, Any]) -> dict[str, Any]:
+    checks: dict[str, bool] = {}
+    for q, rows in val["static"].items():
+        rows = sorted(rows, key=lambda r: r["n"])
+        ratios = [a["max_abs_r_error"] / b["max_abs_r_error"] for a, b in itertools.pairwise(rows)]
+        checks[f"T1 static RN Q={q} (2nd order)"] = bool(ratios) and min(ratios) >= 3.0
+    g2 = sorted([r for r in val["growth_T2"] if r.get("ok")], key=lambda r: r["n"])
+    g = g2[-1] if g2 else {"kappa_fit": float("nan"), "kappa_exact": 1.0}
+    checks["T2 mass-inflation rate κ₋ (Brady–Smith e²=0.4)"] = \
+        abs(g["kappa_fit"] / g["kappa_exact"] - 1) <= 0.10
+    checks["T2 rate converged (two finest grids within 5%)"] = len(g2) >= 2 and \
+        abs(g2[-1]["kappa_fit"] / g2[-2]["kappa_fit"] - 1) <= 0.05
+    d = val["drift_T10b"]
+    checks["T10b semiclassical drift (ZLO eq. 15)"] = abs(d["r_v_final"] / d["expected"] - 1) <= 0.01
+    o = val["ori"]
+    checks["Ori RN slope vs analytic"] = abs(o["rn"]["slope_end"] / o["rn"]["analytic_slope_end"] - 1) <= 0.01
+    checks["Ori Hayward late polynomial (p+1)"] = \
+        abs(o["hayward"]["loglog_slope_end"] / o["hayward"]["expected_late_loglog_slope"] - 1) <= 0.05
+    checks["T9 Chesler r₋, κ₋ (analytic)"] = abs(val["t9"]["r_minus"] - 0.451) < 0.002 and \
+        abs(val["t9"]["kappa_minus"] - 2.207) < 0.005
+    return {"passed": all(checks.values()), "checks": checks}
+
+
+def inner_horizon_scorecard(res: dict[str, Any]) -> list[dict[str, Any]]:
+    gate = inner_horizon_gate(res["validation"])
+    rows: list[dict[str, Any]] = [{
+        "wp": "L1b validation gate", "outcome": "passed" if gate["passed"] else "FAILED",
+        "numbers": gate["checks"],
+        "why": "A fizikai ítéletek csak akkor számítanak, ha a kód minden ellenőrzésen átment.",
+    }]
+    invalid = not gate["passed"]
+    l1a = res["l1a"]
+    eff = max(c["efolds_available"] for c in l1a["crossing"])
+    rows.append({
+        "wp": "L1a star's own bounce vs inner horizon",
+        "outcome": "invalid" if invalid else ("supports" if eff < 1 else "against"),
+        "numbers": {"max_efolds_between_r_minus_and_bounce": eff,
+                    "lmyz_ori": [{k: r[k] for k in ("m0", "shell_jump_sign", "outcome",
+                                                     "efolds_to_ceiling", "median_growth_over_kappa")}
+                                 for r in l1a["lmyz"]],
+                    "edge_confinement": l1a["edge_confinement"]},
+        "why": (f"A csillag saját anyaga a nem forgó (LMYZ) modell belső horizontját átlépve legfeljebb "
+                f"{eff:.2f} e-redőnyi tömeg-infláció idején belül visszapattan (tömegfüggetlenül ≈ ln 2), "
+                "és a külső r₋-tartomány csak a felszín áthaladása után létezik: a visszapattanás "
+                "megelőzi az instabilitást. Maga az LMYZ belső horizont instabil (Ori-modell: a "
+                "tömeg a héj előjelétől függően −∞-be fut vagy a beépített görbületi plafont éri el) — "
+                "ez a visszapattant labda SZÉLÉT érinti; a szél zavara csillag-tömegnél a labda "
+                "10⁻⁹-éig hatol, de Planck-tömegű magnál (WP4b) az egészig."),
+    })
+    pops = res["race"]["populations"]
+    fr = {k: v["fraction_pass"] for k, v in pops.items()}
+    any_pass = any(r["passes"] for r in res["race"]["spin_scan"])
+    bulk = all(v >= 0.5 for v in fr.values())
+    rows.append({
+        "wp": "L1c the spark crosses r_-",
+        "outcome": "invalid" if invalid else ("supports" if bulk else
+                                             ("against" if not any_pass else "open (mixed)")),
+        "numbers": {"fraction_pass": fr, "band": {k: v["fraction_pass_band"] for k, v in pops.items()},
+                    "window": [r["a_star"] for r in res["race"]["spin_scan"] if r["passes"]][:1],
+                    "fiducial": {"mass_kg": res["race"]["fiducial_mass_kg"],
+                                 "delta": res["race"]["fiducial_delta"]}},
+        "why": ("A szikra (a csillag tengely-menti magja) akkor jut át, ha legalább 10×-rel a belső "
+                "horizont Planck-görbületűvé válása előtt lép át, és a torzulás D = M/r₋ ≤ 10. "
+                + ", ".join(f"{k}: {v:.0%}" for k, v in fr.items())
+                + ". Gyors spinnél átjut, lassúnál (születési ~0.01) nem."),
+    })
+    ms = res["race"]["mass_scan"]
+    q_first = [r for r in ms if r["quantum_first"]]
+    q_before_spark = [r for r in ms if r["v_q"] < r["dv_spark"]]
+    rows.append({
+        "wp": "L1d quantum vs classical",
+        "outcome": "invalid" if invalid else ("against" if q_before_spark else "info"),
+        "numbers": {"quantum_first_cases": len(q_first), "cases": len(ms),
+                    "delta_thresholds": {f"{r['mass']} a={r['a_star']}": r["delta_threshold"]
+                                         for r in ms}},
+        "why": ("A kvantum-fluxus csak akkor érne előbb Planck-görbületet, ha a klasszikus perturbáció "
+                "amplitúdója δ kisebb a táblázatbeli küszöbnél (~(m_P/M)-szerű, csillag-tömegnél "
+                "~10⁻³⁸ körül): minden valós tömegnél a klasszikus tömeg-infláció nyer. A kvantum-tag "
+                "nem lassul hatványszerűen (Ori-modell: tiszta e^{κv}), így v → ∞-ben ő dominál — de "
+                "addigra a tartomány már rég Planck-görbületű."),
+    })
+    ast = res["race"]["asteroid"]
+    late = [r for r in ast if r["delay_s"] >= 86400.0]
+    all_meet = all(r["meets_planckian_inner_horizon"] for r in late)
+    lp = res.get("late_pulse", {})
+    rows.append({
+        "wp": "L1e the asteroid",
+        "outcome": "invalid" if invalid else ("against" if all_meet else "open"),
+        "numbers": {"late_cases_meeting_planckian_IH": sum(r["meets_planckian_inner_horizon"]
+                                                           for r in late),
+                    "late_cases": len(late), "code_late_pulse": lp},
+        "why": ("Egy napnál később beeső test (aszteroida, bolygó) minden spinnél olyan belső horizontot "
+                "talál, amely már Planck-görbületű (klasszikusan: a Cauchy-horizont tömeg-inflációs "
+                "szingularitása). Az eredeti Norbi-„táplálás” ezen az úton nem működik; hogy a "
+                "kvantumgravitáció ott visszapattanást csinál-e, azt ez a számolás nem dönti el."),
     })
     return rows

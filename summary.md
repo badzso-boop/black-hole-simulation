@@ -625,3 +625,35 @@ A WP5c MCMC lefuttatása a Ryzenen (`bash scripts/run_mcmc.sh`, órák), majd az
 
 A számolások a terv szerint teljesek. Nyitott marad a forgó szülő belső horizontja (S4),
 amihez az irodalomban sincs számolás. Ezután jöhet a tézis írása, ha a szerző kéri.
+
+## 17. fázis — A belső horizont kódja (S4, Level 1), 2026-09-30
+
+### Mit csináltunk
+
+- **Kutatás:** kutató-alügynök a töltött összeomlásról, a tömeg-inflációról és a belső horizont
+  kvantum-fluxusairól. Az eredmény a `docs/inner-horizon-plan.md` terv, előre rögzített
+  kimenetekkel.
+- **`thesis/ori_model.py`:** az általánosított Ori-modell (RN, Hayward, LMYZ).
+  - Pontos gyökkel faktorizált f, így nincs kioltás.
+  - A LMYZ-időzítés és a szél-bezártság (edge confinement).
+- **`thesis/doublenull.py`:** Burko–Ori kettős-null Einstein–Maxwell–skalár megoldó (Numba).
+  - Egy elsőrendű (Hamadé–Stewart) változatot kipróbáltunk és elvetettünk, mert nem konvergált.
+- **`thesis/inner_horizon.py`:** a verseny, a töltés ↔ spin megfeleltetés, a kvantum-fluxus és az
+  aszteroida.
+- **`scripts/run_inner_horizon.py`:** futtató a Ryzenre (felbontás-létra).
+- **Tesztek:** 9 új teszt.
+
+### Amit megtudtunk (helyi gyorsfuttatás; az ítélet a Ryzen-futásból jön)
+
+| Kérdés | Előzetes eredmény |
+|---|---|
+| A kód validálása | Átment: másodrendű konvergencia; tömeg-infláció κ₋-vel (Brady–Smith, 0.01%); Ori-modell az analitikus törvényekkel. |
+| Veszélyezteti-e a belső horizont a nem forgó visszapattanást? | Nem. Legfeljebb ln 2 e-redő fér a r₋ átlépése és a visszapattanás közé. |
+| Átjut-e a szikra a forgó lyukban? | Spintől függ: a GW-populáció 22%-ánál igen, a születési spineknél nem. |
+| Kvantum vagy klasszikus ér előbb Planck-görbületet? | Minden valós tömegnél a klasszikus. |
+| Táplálhatja-e egy késői aszteroida a bébiuniverzumot? | Nem: Planck-görbületű belső horizontba ütközik. |
+| Új | A LMYZ belső horizont maga is instabil. A szél zavara a Planck-tömegű (WP4b) magot teljesen eléri. |
+
+### Következő lépés
+
+`python scripts/run_inner_horizon.py --jobs 8` a Ryzenen, majd a `runs/inner-horizon-*` commitolása.

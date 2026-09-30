@@ -28,6 +28,8 @@ thesis = [
     "getdist>=1.7",
     "matplotlib>=3.8",
     "cobaya>=3.5",
+    "numba>=0.60",
+    "mpmath>=1.3",
 ]
 
 [tool.maturin]
@@ -50,5 +52,5 @@ ignore = ["E501", "RUF001", "RUF002", "RUF003"]  # sorhossz; magyar/matematikai 
 strict         = true
 
 [[tool.mypy.overrides]]
-module = ["black_hole_core", "camb", "camb.*", "scipy", "scipy.*", "cobaya", "cobaya.*", "getdist", "getdist.*"]
+module = ["black_hole_core", "camb", "camb.*", "scipy", "scipy.*", "cobaya", "cobaya.*", "getdist", "getdist.*", "mpmath", "mpmath.*", "numba", "numba.*"]
 ignore_missing_imports = true

@@ -1,6 +1,8 @@
 # Plan: the inner horizon (Level 1 of S4). Does the spark get through?
 
-**Status:** plan, 2026-09-30. Nothing below is implemented yet.
+**Status:** plan written 2026-09-30, and the **code is implemented the same day** (§8). The full
+run is meant for the Ryzen: `python scripts/run_inner_horizon.py`. The verdicts count only from
+that run; a local quick run is a smoke test.
 
 **Inputs:**
 - A research pass (2026-09-30): the numbers are in `data/observations.json` → `4c_inner_horizon`,
@@ -157,3 +159,84 @@ Expected honest outcome from what is known now:
 - **Semiclassical ⟨T⟩:** Hollands–Wald–Zahn 2020 (1912.06047); Zilberman–Levi–Ori 2020
   (1906.11303); Zilberman–Casals–Ori–Ottewill 2022 (2203.08502); Hong et al. 2010 (0808.1709);
   Boyanov–Hilditch–Semião 2025 (2506.04845); Arad 2025 (2509.04385).
+
+## 8. Implementation (2026-09-30)
+
+**Code**
+
+| File | What it does |
+|---|---|
+| `thesis/ori_model.py` | L1a and the growth laws behind L1d: the generalised Ori model (Carballo-Rubio et al. 2021, eqs. 4, 10, 32) for RN, Hayward and LMYZ. The shell's distance from the inner horizon is measured from the *exact* root, carried in extended precision, which removes the catastrophic cancellation. Also: the LMYZ crossing timing, the conformal time after the bounce, and edge confinement. |
+| `thesis/doublenull.py` | L1b: the Burko–Ori double-null Einstein–Maxwell–scalar solver (Numba), with log-form initial data on the event-horizon ray. |
+| `thesis/inner_horizon.py` | L1c–L1e: the race, the charge↔spin κ₋ map, the spark crossing time on the Kerr axis, the quantum flux, the asteroid, and helpers for the code runs. |
+| `thesis/verdict.py` | `inner_horizon_scorecard`: the validation gate plus §5, applied mechanically. |
+| `scripts/run_inner_horizon.py` | The runner: a resolution ladder in parallel, then analysis, figures and `SCORECARD.md`. |
+| `thesis/tests/test_inner_horizon.py` | 9 tests. |
+
+**Validation.** The physics verdicts count only if the gate passes. Local results:
+
+| Check | Result |
+|---|---|
+| T1: static RN, r(u,v) against the exact solution | clean 2nd-order convergence (×4 per doubling) |
+| T2: mass-inflation rate (Brady–Smith, κ₋ = 15.25) | 15.244 with the power-law term; +5% with a plain exponential fit; the finest grids agree to 0.1% |
+| T9: Chesler et al.'s r₋, κ₋ | ✓ |
+| T10b: Zilberman–Levi–Ori drift (eq. 15) | within 0.3% |
+| Ori model, RN | growth rate within 0.2% of analytic |
+| Ori model, constant flux | pure e^{κv} (2×10⁻⁵) |
+| Ori model, Hayward | exponential → polynomial, with d ln M/d ln v → 13.05 (p + 1 = 13) |
+
+**Deviations from the plan** (stated openly):
+1. **Charged scalar field not implemented.** The matter is a neutral scalar in a pre-charged black
+   hole, which is the setup §3/L1c actually calls for. So T4 (Burko's exterior pulse), T5–T6
+   (charged tails, Oren–Piran) and T8 (Eilon–Ori shock) are not reproduced. T3 is covered
+   indirectly by the power-law influx used in T2.
+2. **A stricter gate.** One criterion was added: T2 must also agree between the two finest grids.
+   It was added during implementation, and it makes the gate harder to pass, not easier.
+3. **A first-order (Hamadé–Stewart) solver was tried and rejected.** It evolves r_u and r_v as
+   variables. At the resolutions available here it did not converge near the Cauchy horizon: the
+   sign of r_u came out wrong, giving a negative mass. The three-field solver is kept, and the
+   rate is fitted only where Δr is still resolvable (|Δr| > 10⁻¹²·r).
+4. **The race uses the analytic Kerr κ₋, not the RN code.** The code validates that mass inflation
+   grows at κ₋. The amplitude is taken as δ² with a band of e^{±5}. Near the Cauchy horizon the
+   code's absolute amplitude is dominated by a truncation-error "floor" at the resolutions
+   available here; the Ryzen ladder reports whether it gets resolved. The race depends on the
+   amplitude only logarithmically.
+5. **The classical power-law suppression v^−(p+1) is dropped.** This is conservative: it makes the
+   inner horizon become Planckian *sooner*.
+6. **Quantum flux magnitude.** The Kerr a* = 0.8 pole value (3.0×10⁻⁵ ħ/M⁴) scaled with κ₋², with
+   a ×100 band. The RN values exist only in a figure.
+7. **Fiducial values fixed in code before the run:** M = 10 M☉, δ = 0.1, "late" = at least 1 day.
+
+**Local quick run (smoke test, not the verdict)**
+
+The gate **passed**. The outcomes:
+
+| Question | Outcome | Detail |
+|---|---|---|
+| L1a | **supports** | At most ln 2 ≈ 0.69 e-folds fit between r₋ and the bounce, for any mass |
+| L1c | **open (mixed)** | GW population 22% pass, natal 0% |
+| L1d | **info** | classical first for every astrophysical mass |
+| L1e | **against** | a late asteroid meets a Planckian inner horizon |
+
+This matches §5's "expected honest outcome".
+
+**New findings while building L1a** (to be confirmed by the full run):
+- **The LMYZ inner horizon is itself unstable** in the Ori model. Depending on the sign of the
+  shell's mass jump, the mass behind the shell either runs to −∞ exponentially, at ≈ 0.94–0.98 κ₀,
+  or hits the metric family's built-in curvature ceiling M ≤ r³/(2α) after ~45–52 e-folds.
+  This agrees with Cao et al. 2024.
+- **Edge confinement.** From the bounce to the end of inflation, a disturbance at the baby
+  universe's edge can travel about η ≈ 5×10³ ℓ_P inward.
+  - For stellar or larger parents this is 10⁻⁹ of the ball's radius or less.
+  - For the Planck-mass seeds of the spin route (WP4b), it covers the whole seed. That exposes the
+    WP4b small-seed route to the inner-horizon instability: **a new caveat on WP4b.**
+
+**Running on the Ryzen**
+
+```bash
+git pull
+pip install -e '.[dev,thesis]'                              # adds numba, mpmath
+python scripts/run_inner_horizon.py --jobs 8                # ladder to n = 3200 (minutes)
+python scripts/run_inner_horizon.py --jobs 8 --max-n 6400   # optional: largest grid, ≈5 GB per run
+git add runs/inner-horizon-* && git commit -m "Belső horizont: teljes futás (Ryzen)" && git push
+```
