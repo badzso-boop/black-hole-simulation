@@ -29,7 +29,7 @@ python -m pytest thesis/tests -q        # 30 tests, ~45 s
 | 4b | Can a *spinning* parent still work? ([spin-plan.md](spin-plan.md)) | **partly: see WP4b below** | — |
 | 1b | Does bounce + inflation work with a potential that fits ACT too? (add-on) | **supports** | — |
 | 5b | CMB with the real LQC spectrum and the official Planck likelihoods (add-on) | **neutral** | — |
-| S4 L1 | Does the spark cross a spinning black hole's inner horizon? ([inner-horizon-plan.md](inner-horizon-plan.md)) | **code ready, awaiting Ryzen run** (preview: open / mixed) | — |
+| S4 L1 | Does the spark cross a spinning black hole's inner horizon? ([inner-horizon-plan.md](inner-horizon-plan.md) §9) | **open (mixed)**: GW 22.5%, natal 0%. Also: L1a supports; late infall (asteroid) against. New caveat: edge confinement → shielded axial seeds need a* ≲ 1e-5 | — |
 | 5c | Full Planck MCMC: all cosmological parameters free, plus N_tot (add-on) | **neutral** | — |
 
 Five of the six WPs gave exactly the outcome expected in advance. The two surprises are

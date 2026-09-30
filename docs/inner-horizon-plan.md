@@ -1,8 +1,7 @@
 # Plan: the inner horizon (Level 1 of S4). Does the spark get through?
 
-**Status:** plan written 2026-09-30, and the **code is implemented the same day** (§8). The full
-run is meant for the Ryzen: `python scripts/run_inner_horizon.py`. The verdicts count only from
-that run; a local quick run is a smoke test.
+**Status:** plan written 2026-09-30. The code was implemented the same day (§8), and the **full
+run was done on the Ryzen the same day** (§9, `runs/inner-horizon-2026-09-30/`).
 
 **Inputs:**
 - A research pass (2026-09-30): the numbers are in `data/observations.json` → `4c_inner_horizon`,
@@ -240,3 +239,55 @@ python scripts/run_inner_horizon.py --jobs 8                # ladder to n = 3200
 python scripts/run_inner_horizon.py --jobs 8 --max-n 6400   # optional: largest grid, ≈5 GB per run
 git add runs/inner-horizon-* && git commit -m "Belső horizont: teljes futás (Ryzen)" && git push
 ```
+
+## 9. Results of the full run (Ryzen 5950X, 2026-09-30)
+
+**The run:** `runs/inner-horizon-2026-09-30/`, taking 44 s with 8 jobs. The resolution ladder went
+up to n = 3200 (grids of 3200 × 16000).
+
+**Validation gate: passed.** Every check passed, including T2 converging between the two finest
+grids.
+
+| Question | Outcome | Expected (§5) |
+|---|---|---|
+| L1a: the star's own bounce vs the inner horizon | **supports** | supports |
+| L1c: does the spark cross r₋? | **open (mixed)**: GW population 22.5% pass, natal spins 0% | open |
+| L1d: quantum vs classical | **info**: classical first in 20/20 cases | info |
+| L1e: the asteroid | **against**: 8/8 late cases meet a Planckian inner horizon | against |
+
+**What the code confirmed, and what it could not**
+
+- **Mass inflation grows at κ₋ where the code can resolve it.**
+  - Q/M = 0.632: 1.04–1.05 κ₋ (1.01 with the power-law term).
+  - Q/M = 0.5: 1.01–1.08 κ₋.
+  - These charges correspond to Kerr spins a* ≲ 0.3 under the κ₋ map.
+- **For Q/M ≥ 0.78 (Kerr a* ≳ 0.44, which is exactly the "passing" window), the double-null code
+  could not measure the growth.**
+  - At Q = 0.782 the fits are unreliable (0.1–0.4 κ₋, few points).
+  - At Q = 0.827–0.95 there are no fits at all.
+  - The cause: with small κ₋, r_v drops below floating-point resolution before the mass visibly
+    inflates.
+  - So for this window the race rests on the analytic κ₋ (as planned in §8, point 4), not on an
+    independent numerical check.
+- **The amplitude is not resolved at n = 3200 for any Q.** The signal is only 1.4–5.4 e-folds above
+  the truncation floor, and still changes by about 1.5–2.7 per doubling. The ±e⁵ band therefore
+  stays. It does not change any verdict.
+
+**The edge confinement, with the WP1 background**
+
+The run used the background of the φ_B = −1.3 Starobinsky trajectory: n_onset = 4.85,
+H_onset = 1.5×10⁻⁶.
+- **Reach of an edge disturbance:** it can travel η ≈ 9.6×10³ ℓ_P inward by the end of inflation.
+- **Size needed to shield the bulk:** it reaches less than 10% of the ball only when the seed mass
+  is **M_s ≥ 1.5×10¹⁵ m_P ≈ 3×10⁷ kg**.
+
+**The consequence for WP4b (the spinning parent), stated conditionally**
+
+- The axial seeds that WP4b allows are far below that shielding mass: at most 16 m_P at a* = 0.44,
+  and at most 1.4×10³ m_P at a* = 0.1.
+- The seed-mass cap C³√(α/2)/a*³ lets a shielded seed exist only for **a* ≲ 1×10⁻⁵**.
+- **If the inner-horizon instability at the edge is destructive** once it reaches the bulk, a
+  spinning parent is therefore effectively excluded by this route.
+- Whether it is destructive is not computed here. The Ori model only shows the edge region
+  inflating, or hitting the curvature ceiling. This is recorded as the most important open caveat
+  of the spinning-parent analysis.

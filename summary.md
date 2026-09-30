@@ -657,3 +657,29 @@ amihez az irodalomban sincs számolás. Ezután jöhet a tézis írása, ha a sz
 ### Következő lépés
 
 `python scripts/run_inner_horizon.py --jobs 8` a Ryzenen, majd a `runs/inner-horizon-*` commitolása.
+
+## 18. fázis — A belső horizont teljes futása a Ryzenen (2026-09-30)
+
+### Mit csináltunk
+
+- A `scripts/run_inner_horizon.py` lefutott a Ryzenen:
+  - 8 párhuzamos folyamat, 44 s;
+  - felbontás-létra n = 3200-ig (3200 × 16000-es rácsok);
+  - eredmények a `runs/inner-horizon-2026-09-30/` alatt.
+
+### Amit megtudtunk
+
+| Kérdés | Eredmény |
+|---|---|
+| A kód validálása | Átment; a legfinomabb rácsokon is konvergált. |
+| A csillag saját visszapattanása | Támogat: legfeljebb ln 2 e-redő fér a r₋ átlépése és a visszapattanás közé. |
+| Átjut-e a szikra (forgó szülő)? | Nyitott (vegyes): a GW-populáció 22.5%-a igen, a születési spinek 0%-a. |
+| Kvantum vagy klasszikus? | A klasszikus tömeg-infláció ér előbb Planck-görbületet (20/20 eset). |
+| Késői aszteroida | Ellene: Planck-görbületű belső horizontba ütközik (8/8). A Norbi-„táplálás” ezen az úton nem működik. |
+| Kód-korlát | A növekedési rátát a kód csak Q ≤ 0.63-ra tudta mérni (Kerr a* ≲ 0.3); az átjutó ablakban (a* ≳ 0.44) az analitikus κ₋ a döntő. Az amplitúdó n = 3200-nál sem oldódott fel. |
+| **Új, fontos feltétel** | A szél zavara η ≈ 9.6·10³ ℓ_P mélyre jut. Védett maghoz ≥ 1.5·10¹⁵ m_P (≈ 3·10⁷ kg) kellene, amit a WP4b csak a* ≲ 10⁻⁵-nél enged. **Ha a szél instabilitása romboló, a forgó szülő ezen az úton gyakorlatilag kizárt.** Hogy romboló-e, azt nem számoltuk. |
+
+### Következő lépés
+
+A tézis írása (ha a szerző kéri), vagy ennek a feltételnek a pontosítása: mit csinál a szél
+zavara a mag belsejével.

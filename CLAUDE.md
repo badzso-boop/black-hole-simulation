@@ -24,7 +24,7 @@ are preparing a thesis on it.
 ## Current state (v3.2 simulator + thesis calculations, 2026-09-29): read these first
 
 - **README.md**: model, formulas, install, CLI, output schema 3.2.
-- **summary.md**: development log, phases 1–16. Phase 9 explains why v2.0's results were artifacts.
+- **summary.md**: development log, phases 1–18. Phase 9 explains why v2.0's results were artifacts.
 - **docs/are-we-in-a-black-hole.md**: what the project can and cannot say about the big question.
 - **docs/thesis-plan.md**: the six-calculation thesis plan, with pre-registered outcomes in §0.
 - **docs/thesis-progress.md** + **runs/thesis-2026-09-29/SCORECARD.md**: the implemented
@@ -99,14 +99,17 @@ are preparing a thesis on it.
 - **WP5c MCMC: done** (see the 5c row above). To rerun: `bash scripts/run_mcmc.sh` on the Ryzen
   (~3 h total; as root in WSL, set `OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1`),
   then `python scripts/analyze_mcmc.py`. `chains/` is gitignored.
-- **Inner horizon (S4, Level 1): code implemented 2026-09-30, waiting for the full Ryzen run.**
-  - Code: `thesis/ori_model.py`, `thesis/doublenull.py`, `thesis/inner_horizon.py`, and the runner
-    `scripts/run_inner_horizon.py`. See `docs/inner-horizon-plan.md` §8.
-  - The local smoke test passes the validation gate. Its preview: L1a supports, L1c open (GW 22%,
-    natal 0%), L1d info, L1e against.
-  - New findings:
-    - the LMYZ inner horizon is unstable in the Ori model;
-    - edge confinement: η ≈ 5e3 ℓ_P, which covers Planck-mass seeds entirely — a new caveat on WP4b.
+- **Inner horizon (S4, Level 1): done.** Ryzen full run 2026-09-30; see
+  `runs/inner-horizon-2026-09-30/` and `docs/inner-horizon-plan.md` §9.
+  - The validation gate passed.
+  - Outcomes: L1a supports (≤ ln 2 e-folds); L1c open/mixed (GW 22.5%, natal 0%); L1d info
+    (classical first, 20/20); L1e against (late infall meets a Planckian inner horizon, so the
+    Norbi "feeding" fails).
+  - The double-null code confirms growth at κ₋ only for Q ≤ 0.63 (Kerr a* ≲ 0.3). For the passing
+    window (a* ≳ 0.44) the race rests on the analytic κ₋. The amplitude is not resolved at n = 3200.
+  - **Key caveat:** edge confinement η ≈ 9.6e3 ℓ_P means a shielded seed needs ≥ 1.5e15 m_P, which
+    WP4b allows only for a* ≲ 1e-5. If the edge instability is destructive, spinning parents are
+    effectively excluded. Whether it is destructive is not computed.
 - With this, the planned calculations are complete. The remaining open physics question is S4
   (matter crossing a spinning parent's inner horizon), for which no calculation exists in the
   literature. Thesis writing is next, if the author asks for it.
