@@ -14,7 +14,7 @@
     "phi2_mass_mPl": {"value": 1.21e-6, "units": "m_Pl", "source": "Ashtekar & Sloan 2011, GRG 43, 3619, arXiv:1103.2475 (WMAP-7 normalisation)", "verified": true},
     "lqc_prob_slow_roll_phi2": {"value": 0.999997, "comparison": ">", "source": "Ashtekar & Sloan 2011", "verified": true, "note": "Liouville measure on the bounce surface; |phi_B| <= phi_max with m*phi_max = 0.90 m_Pl^2"},
     "lqc_starobinsky_bounce_range": {"phi_B_min_mPl": -3.47, "phidot_B_max_mPl2": 0.905, "slow_roll_if": "phi_B >= -1.45 m_Pl (phidot>0) or phi_B >= 3.63 m_Pl (phidot<0)", "source": "Bonga & Gupt 2016", "verified": true, "note": "non-compact: no uniform-measure probability"},
-    "efolds_distribution_peak": {"value": 145, "source": "Linsefors & Barrau 2013, PRD 87, 123509, arXiv:1301.1264", "verified": true},
+    "efolds_distribution_peak": {"value": 145, "quantity": "N_infl (slow-roll e-folds), NOT N_tot", "source": "Linsefors & Barrau 2013, PRD 87, 123509, arXiv:1301.1264", "verified": true, "note": "abstract: probability for a given number of *inflationary* e-folds peaks around 145; phi^2 with a pre-bounce oscillating field. Until 2026-09-30 the code used it as N_tot (critical-review.md §3.3)"},
     "N_tot_bounce_to_today_lower": {"value": 141, "cl": "95%", "source": "Zhu, Wang, Cleaver, Kirsten & Sheng 2017, PRD 96, 083520, arXiv:1705.07544", "verified": true},
     "V_star_quarter_upper_GeV": {"value": 1.4e16, "source": "derived: Planck 2018 X Eq. 32 rescaled to r < 0.036"},
     "T_reheat_lower_MeV": {"radiative": 1.8, "hadronic": "4-5", "source": "Hasegawa et al. 2019, JCAP 12, 012, arXiv:1908.10189", "verified": true}
@@ -156,10 +156,10 @@
     "smolin_predictions": {"ns_max_mass_Msun": [1.5, 1.6, "< 2 (2012)"], "sources": ["Smolin 2004, hep-th/0407213", "Smolin 2006, hep-th/0612185", "Smolin 2012, arXiv:1202.3373"], "verified": true, "note": "2012: stars ~2.4 Msun 'would be inconsistent'"},
     "brown_lee_rho_2008": {"statement": "a neutron star above 2 Msun would falsify the reasoning chain", "source": "PRL 101, 091101, arXiv:0802.2997", "verified": true},
     "neutron_star_masses_Msun": {
-      "PSR_J1614-2230": {"value": 1.97, "err": 0.04, "source": "Demorest et al. 2010, Nature 467, 1081"},
-      "PSR_J0348+0432": {"value": 2.01, "err": 0.04, "source": "Antoniadis et al. 2013, Science 340"},
+      "PSR_J1614-2230": {"value": 1.937, "err": 0.013, "err_plus": 0.012, "err_minus": 0.013, "source": "NANOGrav 15-yr, Agazie et al. 2023, arXiv:2306.16217", "verified": true, "superseded": {"value": 1.97, "err": 0.04, "source": "Demorest et al. 2010, Nature 467, 1081"}, "note": "err: the larger side of the asymmetric interval (updated 2026-09-30, critical-review.md §3.8)"},
+      "PSR_J0348+0432": {"value": 1.806, "err": 0.037, "source": "Saffer et al. 2025, ApJL 983, L20, arXiv:2412.02850", "verified": true, "superseded": {"value": 2.01, "err": 0.04, "source": "Antoniadis et al. 2013, Science 340"}, "note": "CHIME timing: the optical companion mass was ~10% too high (updated 2026-09-30)"},
       "PSR_J0740+6620": {"value": 2.08, "err": 0.07, "source": "Fonseca et al. 2021, ApJL 915, L12, arXiv:2104.00880"},
-      "PSR_J0952-0607": {"value": 2.35, "err": 0.17, "source": "Romani et al. 2022, ApJL 934, L17, arXiv:2207.05124"},
+      "PSR_J0952-0607": {"value": 2.35, "err": 0.11, "source": "Romani et al. 2025, ApJ, arXiv:2512.05099", "verified": true, "superseded": {"value": 2.35, "err": 0.17, "source": "Romani et al. 2022, ApJL 934, L17, arXiv:2207.05124"}, "note": "black-widow pulsar: the mass comes from light-curve modelling of the heated companion (systematics); updated 2026-09-30"},
       "GW190814_secondary": {"value": 2.59, "err_plus": 0.08, "err_minus": 0.09, "source": "LVC 2020, ApJL 896, L44", "note": "neutron star or black hole unclear"}
     },
     "M_max_lower_bound": {"1sigma": 2.19, "3sigma": 2.09, "source": "Romani et al. 2022", "verified": true},

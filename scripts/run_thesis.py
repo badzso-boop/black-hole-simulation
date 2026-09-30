@@ -48,6 +48,9 @@ def _timed(name: str) -> tuple[str, Any, float]:
     elif name == "wp4b_s3":
         from thesis import spin
         out = spin.run_shear()
+    elif name == "b1a":
+        from thesis import inflaton_origin
+        out = inflaton_origin.run()
     elif name == "wp1b":
         from thesis import wp1
         out = wp1.run_act()
@@ -152,8 +155,8 @@ def figures(res: dict[str, Any], out: Path) -> list[str]:
             label="szükséges: széle a horizonton túl")
     ax.axhline(rows[0]["n_tot_minimal_inflation"], color="C2", ls="--",
                label="a horizont-problémát épp megoldó infláció")
-    lo, hi = res["wp3"]["lqc_natural_n_tot"]
-    ax.axhspan(lo, hi, alpha=0.2, color="C1", label="LQC természetes N_tot")
+    refs = res["wp3"]["n_tot_references"]
+    ax.axhline(refs["zhu2017_lower_95"], color="C1", ls="-.", label="Zhu+ 2017: N_tot > 141 (95%)")
     ax.axhline(res["wp5"]["n_tot_lower_95"], color="C3", ls=":", label="CMB (WP5): 95% alsó korlát")
     ax.set(xscale="log", xlabel="szülő fekete lyuk tömege [kg]", ylabel="N_tot (visszapattanás → ma)",
            title="WP3b: a bébiuniverzum széle")
@@ -195,8 +198,7 @@ def figures(res: dict[str, Any], out: Path) -> list[str]:
     aa = np.geomspace(1e-3, 1.0, 200)
     for lab, c in w["c_values"].items():
         a1.plot(aa, [spin.n_tot_needed(a, c) for a in aa], label=f"{lab}")
-    lo, hi = res["wp3"]["lqc_natural_n_tot"]
-    a1.axhspan(lo, hi, alpha=0.15, color="C1", label="LQC természetes N_tot")
+    a1.axhline(145, color="C1", ls="-.", lw=0.8, label="régi §6 plafon (145 — téves bemenet)")
     a1.axhline(w["n_best_cmb"], color="C3", ls="--", lw=0.8, label="CMB legjobb (WP5)")
     a1.set(xscale="log", ylabel="szükséges N_tot", ylim=(133, 146),
            title="WP4b: tengely-mag — szükséges e-redők")
@@ -257,12 +259,16 @@ def scorecard_md(res: dict[str, Any]) -> str:
         "Előre rögzített kritériumok: `docs/thesis-plan.md` §0 (2026-09-28).",
         "Küszöbök, amiket a táblázat nem adott meg számmal: `thesis/verdict.py` fejléce.",
         "",
-        "| WP | Eredmény | Várt (§0) | Indoklás |",
-        "|---|---|---|---|",
+        "Az utolsó oszlop (A8, docs/upgrade-plan.md): megkülönbözteti-e a sor a fekete-lyuk-eredetet",
+        "egy közönséges LQC-visszapattanástól. A „nem” sorok konzisztencia-ellenőrzések, nem bizonyítékok.",
+        "",
+        "| WP | Eredmény | Várt (§0) | Indoklás | BH-specifikus? |",
+        "|---|---|---|---|---|",
     ]
     for row in res["scorecard"]:
         exp = EXPECTED.get(row["wp"], "—")
-        lines.append(f"| {row['wp']} | **{row['outcome']}** | {exp} | {row['why']} |")
+        lines.append(f"| {row['wp']} | **{row['outcome']}** | {exp} | {row['why']} | "
+                     f"{row['discriminates_bh_origin']} |")
     lines += ["", "## Számok", ""]
     for row in res["scorecard"]:
         lines.append(f"### {row['wp']}")
@@ -272,20 +278,22 @@ def scorecard_md(res: dict[str, Any]) -> str:
     from thesis.verdict import EXPECTED_SPIN
 
     lines += ["", "## WP4b — a forgó szülő (docs/spin-plan.md §6)", "",
-              "| Kérdés | Eredmény | Várt (§6) | Indoklás |", "|---|---|---|---|"]
+              "| Kérdés | Eredmény | Várt (§6) | Indoklás | BH-specifikus? |", "|---|---|---|---|---|"]
     for row in res["spin_scorecard"]:
         lines.append(f"| {row['wp']} | **{row['outcome']}** | "
-                     f"{EXPECTED_SPIN.get(row['wp'], '—')} | {row['why']} |")
+                     f"{EXPECTED_SPIN.get(row['wp'], '—')} | {row['why']} | "
+                     f"{row['discriminates_bh_origin']} |")
     lines += ["", "### WP4b számok", ""]
     for row in res["spin_scorecard"]:
         lines += [f"#### {row['wp']}", "```json",
                   json.dumps(row["numbers"], indent=1, ensure_ascii=False, default=str), "```"]
-    lines += ["", "## Kiegészítések: WP1b (ACT-kompatibilis potenciál), WP5b (hibrid LQC-spektrum)",
-              "", "Nem előre rögzített tesztek; a WP1/WP5 ítéletét nem írják felül, a WP5b a WP5 "
-              "szabályát (Δχ² < −9) alkalmazza.", "",
-              "| Kérdés | Eredmény | Indoklás |", "|---|---|---|"]
+    lines += ["", "## Kiegészítések: WP1b, WP5b, B1a",
+              "", "A WP1b és a WP5b nem előre rögzített; a WP1/WP5 ítéletét nem írják felül, a WP5b a "
+              "WP5 szabályát (Δχ² < −9) alkalmazza. A B1a előre rögzítve: docs/upgrade-plan.md.", "",
+              "| Kérdés | Eredmény | Indoklás | BH-specifikus? |", "|---|---|---|---|"]
     for row in res["upgrades_scorecard"]:
-        lines.append(f"| {row['wp']} | **{row['outcome']}** | {row['why']} |")
+        lines.append(f"| {row['wp']} | **{row['outcome']}** | {row['why']} | "
+                     f"{row['discriminates_bh_origin']} |")
     for row in res["upgrades_scorecard"]:
         lines += [f"#### {row['wp']}", "```json",
                   json.dumps(row["numbers"], indent=1, ensure_ascii=False, default=str), "```"]
@@ -309,18 +317,16 @@ def main() -> int:
     t0 = time.perf_counter()
     res: dict[str, Any] = {"timings_s": {}}
     with ProcessPoolExecutor(max_workers=4) as ex:
-        for name, val, secs in ex.map(_timed, ["wp5b", "wp1", "wp5", "wp2", "wp4b_s3", "wp1b", "wp6"]):
+        for name, val, secs in ex.map(_timed, ["wp5b", "wp1", "wp5", "wp2", "wp4b_s3", "wp1b", "wp6", "b1a"]):
             res[name] = val
             res["timings_s"][name] = round(secs, 1)
             print(f"[{name}] kész, {secs:.1f} s", flush=True)
     _dependent(res)
-    from thesis.verdict import scorecard, spin_scorecard
+    from thesis.verdict import annotate, scorecard, spin_scorecard, upgrades_scorecard
 
-    res["scorecard"] = scorecard(res)
-    res["spin_scorecard"] = spin_scorecard(res["wp4b"], res["wp4b_s3"])
-    from thesis.verdict import upgrades_scorecard
-
-    res["upgrades_scorecard"] = upgrades_scorecard(res)
+    res["scorecard"] = annotate(scorecard(res))
+    res["spin_scorecard"] = annotate(spin_scorecard(res["wp4b"], res["wp4b_s3"]))
+    res["upgrades_scorecard"] = annotate(upgrades_scorecard(res))
     import camb
     import numpy
     import scipy

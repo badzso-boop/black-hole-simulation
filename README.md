@@ -5,35 +5,86 @@ gravitációs összeomlás kvantum-visszapattanásba fordul és egy táguló
 „bébiuniverzum" jön létre, eljuthat-e ennek a sugárzása — és vele a beeső
 anyag információja — a külső megfigyelőhöz Hawking-sugárzásként?
 
-> **Rövid válasz (v3.2):** a jelenlegi, irodalmi alapokra épülő modellben
-> **nem**. A visszapattanás a belső horizont *alatt* történik, és onnan egyetlen
-> fénysugár sem ér ki a külső térbe. A külső spektrum ezért a közönséges
-> Hawking-spektrum, a beeső üzenet pedig nem nyerhető vissza. A v2.0 pozitív
-> eredményei (≈10 visszanyert bit, 138× nem-termalitás) numerikus műtermékek
-> voltak — részletesen lásd [summary.md](summary.md), 9. fázis.
->
-> **A nagyobb kérdés — egy fekete lyukban élünk-e?** — nyitott: a modell ezt
-> nem zárja ki (a bébiuniverzum *kauzális leválasztása* épp ehhez kellene), de
-> nem is bizonyítja. A tesztelhető következményeket egy hat számolásból álló
-> tézis-terv rendezi — lásd [docs/are-we-in-a-black-hole.md](docs/are-we-in-a-black-hole.md)
-> és [docs/thesis-plan.md](docs/thesis-plan.md).
+## A projekt állapota (2026-09-30)
+
+**Egy mondatban:** a Norbi-hipotézis sajátos állításai nem állják meg a helyüket; az „egy fekete
+lyukban élünk?" kérdés nyitott marad, de csak szűk formában. Az a forma olyan feltevésekre épül,
+amelyekre ma nincs ismert mechanizmus, és a mai adatok nem tudják megkülönböztetni egy közönséges
+kvantum-visszapattanástól.
+
+### Norbi három állítása
+
+| Állítás | Állapot | Mennyire biztos |
+|---|---|---|
+| 1. A fekete lyuk belseje visszapattan, és táguló bébiuniverzum lesz belőle | **Csak szűk formában lehetséges** (lásd lent) | a modell feltevésein belül |
+| 2. A később beeső anyag táplálja ezt az univerzumot | **Nincs klasszikus útja.** Ami a keletkezés után ~1 ms-nál később esik be (10 M☉-nél), Planck-görbületű belső horizontba ütközik (L1e). Hogy a kvantumgravitáció ezen változtat-e, nyitott. | klasszikusan robusztus |
+| 3. A bébiuniverzum széle a kívülről látott Hawking-sugárzás, az információ visszajön | **Nem működik.** A visszapattanás a belső horizonton belül, kauzálisan leválasztva történik (f(r_b) = 1 pontosan); a visszanyert információ 0 bit. | robusztus, könnyen ellenőrizhető |
+
+A v2.0 pozitív eredményei (≈10 visszanyert bit, 138× nem-termalitás) numerikus műtermékek voltak
+([summary.md](summary.md), 9. fázis).
+
+### A nagy kérdés: egy fekete lyukban élünk?
+
+Semmi megfigyelt nem zárja ki, de három eredmény erősen szűkíti:
+
+1. **Honnan jön az infláció?** A visszapattanás után infláció kell. Egy valódi összeomló csillagban
+   (por) az inflatonnak a visszapattanási energia ≥ 99%-át kellene vinnie (Starobinsky; φ²-nél 100%
+   sem elég); erre nincs ismert mechanizmus (B1a). A WP1 „szinte biztos infláció"-ja a tiszta
+   skalármezős, kozmológiai visszapattanásra igaz, nem egy fekete lyuk belsejére.
+2. **Forgás.** A homogén visszapattanás csak a* ≲ 1e-7 spinnél működik, a valódi fekete lyukak
+   0.01–0.99-cel forognak (WP4). A tengely menti mag kiútja (WP4b) a szél zavarán (S7) is elbukik:
+   ahhoz a* ≲ 1e-4 kellene, egyetlen megfigyelt populáció sem fér bele. Kivétel, ha a zavar
+   amplitúdója kicsi (B3b, nincs kiszámolva).
+3. **Az adat nem tesz különbséget.** A „támogató" sorok (infláció, a szél a horizontunkon túl,
+   CMB-illesztés) bármely közönséges LQC-visszapattanásra ugyanígy jönnének ki. Ezért minden
+   pontozólapon ott a „BH-specifikus?" oszlop.
+
+Smolin kozmológiai természetes szelekciója ~3.7σ feszültségben van a 2025-ös
+neutroncsillag-tömegekkel, de szinte csak a PSR J0952−0607 viszi (nélküle 1.1σ).
+
+**Egy védhető tézis-mondat:** *„Egy pontosan megfogalmazott, fekete-lyukban-született-univerzum
+modellt teszteltem. A sajátos jegyei (információ-visszatérés, táplálás) kauzálisan elbuknak; az
+általános ötletet az adatok nem zárják ki, de csak nem forgó szülőre és egy megmagyarázatlan
+inflaton-kezdőállapot feltételezésével; és a mai adatok nem különböztetik meg egy közönséges
+kvantum-visszapattanástól."*
+
+### Mi kész, mi nem
+
+| | Állapot | Hol |
+|---|---|---|
+| Szimulátor (Rust + Python) | kész, validálva: Hawking-élettartam (20%-on belül), EHT (egység-ellenőrzés), CMB-egyensúly | e README lent; [runs/2026-09-28/](runs/2026-09-28/ANALYSIS.md) |
+| Tézis-számolások WP0–WP6, WP1b, WP4b, WP5b/5c | kész | [docs/thesis-progress.md](docs/thesis-progress.md); pontozólap: [runs/thesis-2026-09-30-local/](runs/thesis-2026-09-30-local/SCORECARD.md) |
+| Kritikai áttekintés + javítások (A fázis), B1a, B3a | kész | [docs/critical-review.md](docs/critical-review.md), [docs/upgrade-plan.md](docs/upgrade-plan.md) |
+| Belső horizont (S4, Level 1) | kész, Ryzen-futás: kapu átment; L1a supports, L1c open (GW 22.5%, születési 0%), L1d info, L1e neutral (újrapontozva) | [runs/inner-horizon-2026-09-30/](runs/inner-horizon-2026-09-30/SCORECARD.md), [RESCORED.md](runs/inner-horizon-2026-09-30/RESCORED.md) |
+| Teljes Planck-MCMC (WP5c) | kész: semleges, N_tot > 140.7 (95%) | [runs/mcmc-2026-09-30/](runs/mcmc-2026-09-30/) |
+| Hivatalos tézis-futás a javított kóddal | **hátravan** (Ryzenen, a Planck-likelihoodokkal) | `python scripts/run_thesis.py` |
+| B1b (van-e mechanizmus az inflatonra? irodalmi kör) | **nyitott**, az egyetlen, ami a fő állítást megváltoztathatná | [docs/upgrade-plan.md](docs/upgrade-plan.md) B1 |
+| B2–B7 (illesztés, szél-amplitúdó, L1c árapály, Hawking-élettartam 5%-ra, …) | nyitott, kisebb súlyú | ugyanott |
+| A tézis szövege | **hátravan** | a javasolt szerkezet: upgrade-plan.md, D fázis |
+
+**Javasolt következő lépés:** új számolások helyett a tézis megírása. Legfeljebb a B1b fér még
+bele, mert csak az változtathatna a fő következtetésen. A Planck-méretű magok további számolása
+(például a szél zavarának részletes modellje) olyan tartományban járna, ahol a módszer, az
+effektív LQC, már nem érvényes.
 
 A szimulátor mára valódi fekete lyukakat is kezel (Sgr A\*, M87\*, Cygnus X-1,
 GW-maradványok) forgással, akkrécióval és a kozmikus háttérsugárzással, és az
-EHT által mért gyűrűméreteket visszaadja.
+EHT által mért gyűrűméreteket visszaadja (egység- és ÁR-ellenőrzés, nem jóslat — lásd lent).
 
 ## Dokumentáció
 
 | Dokumentum | Tartalom |
 |---|---|
 | **README.md** (ez) | modell, képletek, telepítés, futtatás, kimenet |
-| [summary.md](summary.md) | fejlesztési napló fázisonként (1–12), mi volt hibás és miért |
+| [summary.md](summary.md) | fejlesztési napló fázisonként (1–18), mi volt hibás és miért |
 | [runs/2026-09-28/ANALYSIS.md](runs/2026-09-28/ANALYSIS.md) | 71 futásos kampány az i5-ön: eredmények és értelmezés ([RESULTS.md](runs/2026-09-28/RESULTS.md), naplók) |
 | [docs/are-we-in-a-black-hole.md](docs/are-we-in-a-black-hole.md) | „Egy fekete lyukban élünk?" — mit mondhat a projekt, mi adat és mi modell |
 | [docs/thesis-plan.md](docs/thesis-plan.md) | tézis-terv: 6 számolás (+ egy új), egyenletek, adatok, előre rögzített kimenetek |
 | [docs/inner-horizon-plan.md](docs/inner-horizon-plan.md) | a belső horizont (S4, Level 1): átjut-e a „szikra”? töltött modell, kvantum-fluxusok, késői becsapódás; előre rögzített kimenetek |
 | [docs/spin-plan.md](docs/spin-plan.md) | a forgó szülő-probléma (WP4b): adatok, két kiút, előre rögzített kimenetek és az eredmények (§9) |
-| [docs/thesis-progress.md](docs/thesis-progress.md) | a tézis-számolások kódja, futtatása és eredményei (pontozólap: `runs/thesis-2026-09-29/`) |
+| [docs/thesis-progress.md](docs/thesis-progress.md) | a tézis-számolások kódja, futtatása és eredményei, korlátok és napló (pontozólap: `runs/thesis-2026-09-30-local/`) |
+| [docs/critical-review.md](docs/critical-review.md) | kritikai áttekintés (2026-09-30): mi áll meg, hol a hiba, javasolt címkék |
+| [docs/upgrade-plan.md](docs/upgrade-plan.md) | fejlesztési terv (A–D fázis), az új számolások előre rögzített kimenetei; az A fázis, a B1a és a B3a kész |
 | [docs/norbi-documentation-summary.md](docs/norbi-documentation-summary.md) | az eredeti `norbi_teljes_dokumentacio.pdf` (v2.0) kivonata és pontonkénti állapota |
 | [data/observations.json](data/observations.json) | megfigyelési adatok forrással (Planck, DESI, ACT, BICEP/Keck, neutroncsillagok, …) |
 | [data/planck/](data/planck/README.md) | Planck 2018 CMB-spektrumok ellenőrzőösszeggel |
@@ -192,7 +243,11 @@ Cauchy-horizontja, így a következtetés minőségileg ugyanaz).
 **Ellenőrzés az EHT-képekkel:** a tömegből és távolságból számolt gyűrű
 (≈ 11·GM/(c²D)) M87*-ra 42.0 μas (mért: 42 ± 3), Sgr A*-ra 56.4 μas
 (mért: 51.8 ± 2.3), azaz δ = −0.082 — pontosan az EHT által publikált
-δ = −0.08 ± 0.09 eltérés. A mai akkréciós rátát a program állandónak veszi
+δ = −0.08 ± 0.09 eltérés. **Ez egység- és általános relativitás-ellenőrzés, nem jóslat**
+(docs/critical-review.md §3.9): a számolás tiszta ÁR rögzített α = 11 kalibrációval — nincs
+benne spin, LMYZ-korrekció vagy Norbi-hatás; az M87\* tömegét maga az EHT a gyűrűből
+határozta meg, így ott δ = 0 körkörös; Sgr A\*-nál az EHT saját számolását ismételjük meg a
+GRAVITY-tömeggel és -távolsággal. A mai akkréciós rátát a program állandónak veszi
 a teljes horizonton (objektumonként jelölt feltevés); Cyg X-1-nél a horizont
 a kísérőcsillag hátralévő élete (~5 Myr).
 

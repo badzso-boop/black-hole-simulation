@@ -62,10 +62,26 @@ def test_spin_limit_tiny() -> None:
 
 
 def test_natural_selection_numbers() -> None:
+    # 2025-ös tömegek (critical-review.md §3.8); független kézi érték:
+    # Φ((2−2.08)/0.07) = 0.1265, Φ((2−2.35)/0.11) = 7.32e-4, J1614 és J0348 ≈ 1
     d = cns.run()
-    assert d["two_heaviest_p_below_2"] == pytest.approx(0.0025, rel=0.02)
+    assert d["two_heaviest_p_below_2"] == pytest.approx(0.1265 * 7.32e-4, rel=0.01)
     t2012 = next(t for t in d["tests"] if t["prediction"] == "Smolin 2012")
-    assert t2012["sigma"] > 3
+    assert t2012["sigma"] == pytest.approx(3.74, abs=0.02)
+    # a J0952 nélkül csak a J0740 marad: Φ(−1.143) → 1.14σ
+    assert d["leave_one_out_2Msun"]["PSR_J0952-0607"]["sigma"] == pytest.approx(1.14, abs=0.02)
+    assert d["smolin_2_4_reading"]["p_all_below"] > 0.5
+
+
+def test_lmyz_bounce_is_where_f_equals_one() -> None:
+    """f(r_b) = 1 − 2m/r_b + αm²/r_b⁴ = 1 pontosan, mert r_b³ = αm/2 (critical-review.md §2, §3.4):
+    a visszapattanás statikus tartományban van, ott a Kantowski–Sachs-nyírás nem érvényes."""
+    from thesis.units import ALPHA_LMY
+
+    for m in (1e19, 1e38, 1e50):  # m ℓ_P-ben
+        rb = (ALPHA_LMY * m / 2) ** (1 / 3)
+        t1, t2 = 2 * m / rb, ALPHA_LMY * m * m / rb**4
+        assert (t2 - t1) / t1 == pytest.approx(0.0, abs=1e-12)
 
 
 def test_cmb_baseline_matches_planck() -> None:

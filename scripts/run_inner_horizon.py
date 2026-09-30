@@ -200,10 +200,11 @@ def scorecard_md(res: dict[str, Any]) -> str:
     lines = [f"# Belső horizont (S4, Level 1) — pontozólap ({res['meta']['date']})", "",
              "Előre rögzített kritériumok: `docs/inner-horizon-plan.md` §5 (2026-09-30); a "
              "számszerű részletek a `thesis/verdict.py` belső-horizont szakaszában.", "",
-             "| Kérdés | Eredmény | Várt (§5) | Indoklás |", "|---|---|---|---|"]
+             "| Kérdés | Eredmény | Várt (§5) | Indoklás | BH-specifikus? |",
+             "|---|---|---|---|---|"]
     for row in res["scorecard"]:
         lines.append(f"| {row['wp']} | **{row['outcome']}** | {EXPECTED_INNER.get(row['wp'], '—')} "
-                     f"| {row['why']} |")
+                     f"| {row['why']} | {row.get('discriminates_bh_origin', '—')} |")
     lines += ["", "## Számok", ""]
     for row in res["scorecard"]:
         lines += [f"### {row['wp']}", "```json",
@@ -264,9 +265,9 @@ def main() -> int:
             for spec, val, secs in ex.map(_task, big):
                 collect(spec, val, secs)
     analysis(res)
-    from thesis.verdict import inner_horizon_scorecard
+    from thesis.verdict import annotate, inner_horizon_scorecard
 
-    res["scorecard"] = inner_horizon_scorecard(res)
+    res["scorecard"] = annotate(inner_horizon_scorecard(res))
     import numpy
 
     res["meta"] = {"date": args.id, "quick": args.quick, "python": sys.version.split()[0],

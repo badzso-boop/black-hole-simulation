@@ -138,15 +138,21 @@ class BounceResult:
         return asdict(self)
 
 
-def _rho(pot: Potential, phi: float, pi: float, n: float, sigma2_b: float) -> tuple[float, float]:
-    """(ρ_összes, ρ_σ) — ρ_σ = Σ²/(16π a⁶), Σ² = σ²_B (a_B = 1)."""
+def _rho(pot: Potential, phi: float, pi: float, n: float, sigma2_b: float,
+         dust_b: float = 0.0) -> tuple[float, float]:
+    """(ρ_összes, ρ_σ) — ρ_σ = Σ²/(16π a⁶), Σ² = σ²_B (a_B = 1); por: ρ_d = ρ_d,B a⁻³ (B1)."""
     rho_s = sigma2_b / (16 * math.pi) * math.exp(-6 * n)
-    return 0.5 * pi * pi + pot.v(phi) + rho_s, rho_s
+    return 0.5 * pi * pi + pot.v(phi) + rho_s + dust_b * math.exp(-3 * n), rho_s
 
 
-def _hdot(pot: Potential, phi: float, pi: float, n: float, sigma2_b: float) -> float:
-    rho, rho_s = _rho(pot, phi, pi, n, sigma2_b)
-    return -4 * math.pi * (pi * pi + 2 * rho_s) * (1 - 2 * rho / RHO_C)
+def _hdot(pot: Potential, phi: float, pi: float, n: float, sigma2_b: float,
+          dust_b: float = 0.0) -> float:
+    rho, rho_s = _rho(pot, phi, pi, n, sigma2_b, dust_b)
+    rho_d = dust_b * math.exp(-3 * n)  # por: ρ + P = ρ_d
+    return -4 * math.pi * (pi * pi + 2 * rho_s + rho_d) * (1 - 2 * rho / RHO_C)
+
+
+_rho_mod, _hdot_mod = _rho, _hdot  # az evolve-on belüli, porral lezárt változatokhoz
 
 
 def evolve(
@@ -156,14 +162,32 @@ def evolve(
     shear_fraction: float = 0.0,
     n_cap: float = 150.0,
     min_infl: float = 1.0,
+    dust_fraction: float = 0.0,
+    h_floor: float = 0.0,
 ) -> BounceResult:
-    """Egy trajektória a visszapattanástól az infláció végéig (vagy n_cap e-redőig)."""
-    kin = RHO_C * (1 - shear_fraction) - pot.v(phi_b)
+    """Egy trajektória a visszapattanástól az infláció végéig (vagy n_cap e-redőig).
+
+    dust_fraction (B1, docs/upgrade-plan.md): a visszapattanáskori ρ_c pora (a szülő csillag
+    anyaga); a skalármező a maradékot kapja. 0 → az eredeti WP1-számolás.
+    h_floor: ha H ez alá esik infláció előtt, leállunk („nem inflál"). A B1 ~0.1 m-et ad meg:
+    lassú gördüléshez H ≳ m/2 kell (Starobinsky: H_inf ≈ M/2; φ²: H ≳ 0.8 m), alatta a mező a
+    minimum körül oszcillál, és az integrálás a sok oszcilláción ragadna.
+    """
+    kin = RHO_C * (1 - shear_fraction - dust_fraction) - pot.v(phi_b)
     if kin < 0:
-        raise ValueError(f"V(φ_B) > ρ_c(1−Ω_σ) φ_B = {phi_b}")
+        raise ValueError(f"V(φ_B) > ρ_c(1−Ω_σ−f_d) φ_B = {phi_b}")
     sigma2_b = 16 * math.pi * shear_fraction * RHO_C
+    dust_b = dust_fraction * RHO_C
     y0 = [0.0, 0.0, phi_b, phidot_sign * math.sqrt(2 * kin)]  # [N, H, φ, φ̇]
     drift = 0.0
+
+    # a belső függvények a por-taggal lezárt változatot használják
+    def _rho(pot: Potential, phi: float, pi: float, n: float,
+             sigma2_b: float) -> tuple[float, float]:
+        return _rho_mod(pot, phi, pi, n, sigma2_b, dust_b)
+
+    def _hdot(pot: Potential, phi: float, pi: float, n: float, sigma2_b: float) -> float:
+        return _hdot_mod(pot, phi, pi, n, sigma2_b, dust_b)
 
     def constraint(n: float, h: float, phi: float, pi: float) -> float:
         rho, _ = _rho(pot, phi, pi, n, sigma2_b)
@@ -232,8 +256,18 @@ def evolve(
 
         ev.terminal = True  # type: ignore[attr-defined]
         ev.direction = direction  # type: ignore[attr-defined]
+
+        def floor(nn: float, y: np.ndarray) -> float:
+            return hubble(nn, y[0], y[1]) - h_floor
+
+        floor.terminal = True  # type: ignore[attr-defined]
+        floor.direction = -1  # type: ignore[attr-defined]
         sol = solve_ivp(rhs_n, (n, n_limit), state, method="DOP853", rtol=RTOL, atol=ATOL,
-                        events=ev)
+                        events=[ev, floor] if h_floor > 0 else ev)
+        if h_floor > 0 and sol.t_events[1].size and not sol.t_events[0].size:
+            if accelerating and sol.t_events[1][0] - n_start >= min_infl:
+                interval = (n_start, float(sol.t_events[1][0]), start_state, sol.y_events[1][0])
+            break
         if not sol.t_events[0].size:
             # nincs több előjelváltás a határig
             if accelerating:
