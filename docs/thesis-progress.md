@@ -272,6 +272,8 @@ sudo apt install openmpi-bin libopenmpi-dev
 pip install -e '.[dev,thesis]' mpi4py
 cobaya-install planck_2018_lowl.TT planck_2018_lowl.EE planck_2018_highl_plik.TTTEEE_lite_native -p ~/cobaya_packages
 bash scripts/run_mcmc.sh          # ΛCDM, then LQC, then both minimizers (hours)
+# as root (e.g. WSL): OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 bash scripts/run_mcmc.sh
+# if MPI hangs (the script tests it for 60 s first): NO_MPI=1 bash scripts/run_mcmc.sh
 python scripts/analyze_mcmc.py    # → runs/mcmc-<date>/RESULTS.md; then commit runs/mcmc-*
 ```
 
