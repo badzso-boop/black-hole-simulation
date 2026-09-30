@@ -84,8 +84,8 @@ are preparing a thesis on it.
 | 5 | **neutral** | Best N_tot = 141.2, Δχ² = −1.2 (not significant); N_tot > 140.8 at 95%. |
 | 6 | **against** | 3.2σ. |
 | 1b (add-on) | **supports** | Polynomial α-attractor: n_s 0.972, inside Planck and ACT 95%; the bounce inflates outside φ_B ∈ [−3.45, −1.64]. The ACT tension was Starobinsky's. |
-| 5c (add-on) | **neutral** | Full Planck MCMC on the Ryzen (2026-09-30, `runs/mcmc-2026-09-30/`): ΛCDM reproduces Planck 2018 within 0.06σ (pipeline validated); Δχ²_min = −0.23 (minimizer scatter ~1); N_tot > 140.71 at 95%, flat above ~142 (the mean is prior-dominated, don't cite it). |
 | 5b (add-on) | **neutral** | Real hybrid-LQC spectrum (Guillén+ 2026) with the official Planck likelihoods (cobaya native, data in `~/cobaya_packages`): best N_tot = 141.0, Δχ² = −0.53; N_tot > 140.25 at 95%. |
+| 5c (add-on) | **neutral** | Full Planck MCMC on the Ryzen (2026-09-30, `runs/mcmc-2026-09-30/`): ΛCDM reproduces Planck 2018 within 0.06σ (pipeline validated); Δχ²_min = −0.23 (minimizer scatter ~1); N_tot > 140.71 at 95%, flat above ~142 (the mean is prior-dominated, don't cite it). |
 
 **Open items:**
 - a spinning (Kerr) parent: **WP4b is implemented** (`thesis/spin.py`, `docs/spin-plan.md` §9).
