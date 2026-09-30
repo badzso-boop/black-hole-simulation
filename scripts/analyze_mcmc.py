@@ -37,6 +37,15 @@ def read_collection(path: Path) -> dict[str, float] | None:
     return dict(zip(names, vals, strict=True))
 
 
+def find_bestfit(folder: Path) -> dict[str, float] | None:
+    """A minimize-kimenet: ignore_prior=True → *.bestfit.txt, különben *.minimum.txt."""
+    for pattern in ("*bestfit.txt", "*minimum.txt"):
+        hits = sorted(folder.glob(pattern)) if folder.exists() else []
+        if hits:
+            return read_collection(hits[0])
+    return None
+
+
 def progress_rminus1(prefix: Path) -> float | None:
     p = prefix.parent / (prefix.name + ".progress")
     if not p.exists():
@@ -84,7 +93,7 @@ def main() -> int:
     lqc = summarize(chains / "lqc" / "lqc", args.burn, PARAMS)
     lcdm = summarize(chains / "lcdm" / "lcdm", args.burn, PARAMS) \
         if (chains / "lcdm").exists() else None
-    bf = {m: read_collection(chains / f"{m}_bestfit" / f"{m}.bestfit.txt") for m in ("lqc", "lcdm")}
+    bf = {m: find_bestfit(chains / f"{m}_bestfit") for m in ("lqc", "lcdm")}
     dchi2 = (bf["lqc"]["chi2"] - bf["lcdm"]["chi2"]) if bf["lqc"] and bf["lcdm"] else None
     n_lo = lqc["n_tot_lower_95"]
     c_fid = spin.profile_coefficient(*spin.FIDUCIAL)
