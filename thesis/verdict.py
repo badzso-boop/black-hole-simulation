@@ -55,13 +55,17 @@ def wp1(r: dict[str, Any]) -> dict[str, Any]:
                 f"hányad kap < 68 e-redőt; Starobinsky: φ_B ≥ {r['thresholds']['plus_N60']:.2f} "
                 f"ill. ≥ {r['thresholds']['minus_N60']:.2f}). Starobinsky n_s = {ns:.4f}, r = {rr:.4f}: "
                 f"Planck 95%-on belül, az ACT DR6-tól {abs(z_act):.1f}σ-ra. A feszültség a potenciálé "
-                "(Starobinsky), nem a fekete-lyuk eredeté."),
+                "(Starobinsky), nem a fekete-lyuk eredeté. FELTÉTELES: a számolás ρ_c 100%-át a "
+                "skalármezőbe teszi, az összeomló csillag viszont por — a B1a szerint a por mellett "
+                "a mezőnek ~99%-ot kellene vinnie; erre nincs mechanizmus (critical-review.md §3.1). "
+                "Minden sor, amely a WP1 e-redőit örökli (WP2–WP5), ezt a feltételt is örökli."),
     }
 
 
 def wp2(r: dict[str, Any]) -> dict[str, Any]:
     thr = r["thresholds_bh_shear"]
     frac = r["phi2_fraction_bh_shear"]
+    om_max = r.get("omega_sigma_max_lqc", 0.5625)
     worst = max(
         row["log10_shear_today"]["instant_reheat"]
         for case in r["cases"].values() for row in case
@@ -71,16 +75,21 @@ def wp2(r: dict[str, Any]) -> dict[str, Any]:
     outcome = "against" if killed else "neutral"
     return {
         "wp": "2 Anisotropy", "outcome": outcome,
-        "numbers": {"omega_sigma_bh": r["omega_sigma_bh"],
-                    "starobinsky_threshold_plus_N60_bh_shear": thr["plus_N60"],
-                    "starobinsky_threshold_minus_N60_bh_shear": thr["minus_N60"],
-                    "phi2_fraction_fail_bh_shear": frac["fraction_fail_liouville"],
+        "numbers": {"omega_sigma_band": [0.0, om_max],
+                    "omega_sigma_classical_extrapolation": r["omega_sigma_bh"],
+                    "starobinsky_threshold_plus_N60_at_extrapolation": thr["plus_N60"],
+                    "starobinsky_threshold_minus_N60_at_extrapolation": thr["minus_N60"],
+                    "phi2_fraction_fail_at_extrapolation": frac["fraction_fail_liouville"],
                     "max_log10_shear_today_with_60_efolds": worst,
                     "limit_log10": -10.33},
-        "why": (f"A fekete lyuk belsejéből örökölt nyírás (Ω_σ = {r['omega_sigma_bh']:.2f}) "
-                "rövidíti az inflációt (Linsefors–Barrau), de nem öli meg: a Starobinsky-küszöb "
-                f"{thr['plus_N60']:.2f}-re tolódik; φ²-nél a kudarc {frac['fraction_fail_liouville']:.1e}. "
-                f"Ma (σ/H)₀ ≤ 10^{worst:.0f} ≪ 4.7e-11: a nyírás nyomtalanul eltűnik — nem mérhető."),
+        "why": ("A visszapattanáskori nyírás ismeretlen: 0 (a homogén Oppenheimer–Snyder-belső "
+                f"pontosan izotróp) és az LQC-plafon Ω_σ = {om_max:.4f} között. A korábbi "
+                f"Ω_σ = {r['omega_sigma_bh']:.2f} a klasszikus Kantowski–Sachs-nyírás r_b-re "
+                "extrapolálva — de ott a LMYZ-metrikában f(r_b) = 1, a tartomány statikus, tehát "
+                "ez nem fizikai érték (critical-review.md §3.4). Az ítélet a sáv egészén áll: a "
+                "nyírás rövidíti az inflációt, de nem öli meg (a plafonon is elérhető, WP4b S3; "
+                f"Ω_σ = {r['omega_sigma_bh']:.2f}-nél a Starobinsky-küszöb {thr['plus_N60']:.2f}), "
+                f"és ma (σ/H)₀ ≤ 10^{worst:.0f} ≪ 4.7e-11 — nem mérhető."),
     }
 
 
@@ -97,22 +106,30 @@ def wp3(r: dict[str, Any]) -> dict[str, Any]:
 
 
 def wp3b(r: dict[str, Any]) -> dict[str, Any]:
+    """A3 (docs/upgrade-plan.md): az ítélet az, amit ténylegesen számolunk — N_edge(M) < N_hor
+    minden M-re. Az eredeti §0 szabály („az LQC természetes 130–145 N_tot-ja meghaladja N_min(M)-et")
+    téves bemenetre épült (a 145 inflációs e-redő, nem N_tot — critical-review.md §3.3); a régi
+    kimenetet mellette megtartjuk (szabály 2c)."""
     rows = r["rows"]
     all_weaker = all(row["edge_weaker_than_horizon_problem"] for row in rows)
     n_min_max = max(row["n_tot_min_edge"] for row in rows)
-    n_nat_lo = r["lqc_natural_n_tot"][0]
-    outcome = "supports" if all_weaker and n_nat_lo > n_min_max else "against"
+    old_lo = 130.0  # az eredeti sáv alja (forrás nélküli N_tot-érték)
+    old_outcome = "supports" if all_weaker and old_lo > n_min_max else "against"
+    outcome = "consistency check: passes" if all_weaker else "against"
     margin = min(row["n_infl_needed_for_horizon_problem"] - row["n_infl_needed_for_edge"]
                  for row in rows)
+    refs = r.get("n_tot_references", {})
     return {
         "wp": "3b Edge beyond horizon", "outcome": outcome,
-        "numbers": {"max_n_tot_min_edge": n_min_max, "lqc_natural_n_tot": r["lqc_natural_n_tot"],
+        "numbers": {"max_n_tot_min_edge": n_min_max, "n_tot_references": refs,
                     "n_tot_minimal_inflation": rows[0]["n_tot_minimal_inflation"],
-                    "min_margin_efolds": margin},
+                    "min_margin_efolds": margin, "old_rule_outcome": old_outcome},
         "why": (f"Minden szülőtömegre (5e11 kg … 5e22 M☉) a bébiuniverzum széle a horizontunkon túl "
                 f"van, ha N_tot > {n_min_max:.1f}; ezt már a horizont-problémát megoldó infláció is "
-                f"biztosítja (legalább {margin:.1f} e-redő ráhagyással), és az LQC természetes "
-                f"{n_nat_lo:.0f}–145-je is."),
+                f"biztosítja (legalább {margin:.1f} e-redő ráhagyással). Ez szinte automatikus "
+                "(r_b ≫ 1/H a visszapattanáskor), tehát konzisztencia-feltétel, nem bizonyíték. "
+                f"A régi szabály szerint „{old_outcome}” — de annak „természetes 130–145” sávja a "
+                "Linsefors–Barrau-féle inflációs e-redőt olvasta N_tot-nak."),
     }
 
 
@@ -169,14 +186,23 @@ def wp5(r: dict[str, Any], wp3b_res: dict[str, Any]) -> dict[str, Any]:
 def wp6(r: dict[str, Any]) -> dict[str, Any]:
     t2012 = next(t for t in r["tests"] if t["prediction"] == "Smolin 2012")
     outcome = "against" if t2012["sigma"] > 3 else "neutral"
-    return {
-        "wp": "6 Natural selection", "outcome": outcome,
-        "numbers": {"p_all_below_2Msun": t2012["p_all_below"], "sigma": t2012["sigma"]},
-        "why": (f"P(minden mért neutroncsillag < 2 M☉) = {t2012['p_all_below']:.1e} "
-                f"({t2012['sigma']:.1f}σ): Smolin kozmológiai természetes szelekciója a publikált "
-                "formájában cáfolt. A fekete-lyuk-eredetet ez NEM cáfolja — csak egy javasolt "
-                "tesztjét."),
-    }
+    loo = r.get("leave_one_out_2Msun", {})
+    weakest = min(loo.items(), key=lambda kv: kv[1]["sigma"]) if loo else None
+    s24 = r.get("smolin_2_4_reading")
+    numbers: dict[str, Any] = {"p_all_below_2Msun": t2012["p_all_below"], "sigma": t2012["sigma"]}
+    why = (f"P(minden mért neutroncsillag < 2 M☉) = {t2012['p_all_below']:.1e} "
+           f"({t2012['sigma']:.1f}σ, a 2025-ös tömegekkel): Smolin kozmológiai természetes "
+           "szelekciója a M_max < 2 M☉ olvasatban erős feszültségben van. ")
+    if weakest:
+        numbers["leave_one_out_min_sigma"] = {weakest[0]: weakest[1]["sigma"]}
+        why += (f"DE az eredményt szinte egyedül a {weakest[0]} viszi: nélküle "
+                f"{weakest[1]['sigma']:.1f}σ (a tömege a fűtött kísérő fénygörbe-modelljéből jön). ")
+    if s24:
+        numbers["smolin_2_4_reading_sigma"] = s24["sigma"]
+        why += (f"Smolin 2012 „~2.4 M☉ már ellentmondana” olvasatában nincs feszültség "
+                f"({s24['sigma']:.1f}σ). ")
+    why += "„Cáfolt” helyett: feszültség. A fekete-lyuk-eredetet ez NEM cáfolja — csak egy javasolt tesztjét."
+    return {"wp": "6 Natural selection", "outcome": outcome, "numbers": numbers, "why": why}
 
 
 def scorecard(res: dict[str, Any]) -> list[dict[str, Any]]:
@@ -203,7 +229,8 @@ EXPECTED = {  # thesis-plan §0 „várható becsületes eredmény"
 
 EXPECTED_SPIN = {"S1+S2 observed spins": "supports", "S3 axial core inflates": "open",
                  "S4 crossing r_-": "open", "S5 rotation today": "neutral",
-                 "CMB consistency": "supports"}
+                 "CMB consistency": "supports",
+                 "S7 edge confinement (B3a)": "against (estimated in critical-review §4.1)"}
 
 
 def spin_scorecard(w: dict[str, Any], s3: dict[str, Any]) -> list[dict[str, Any]]:
@@ -237,7 +264,10 @@ def spin_scorecard(w: dict[str, Any], s3: dict[str, Any]) -> list[dict[str, Any]
                 f"a* = 0.9-nél csak {rel['seed_mass_max_a0.9']:.1f} m_P: Planck-méretű, ahol az "
                 "effektív LQC a határán van. Legpesszimistább profillal (C = "
                 f"{w['c_values']['min over profiles']:.2f}) a gyorsan forgó (röntgen, SMBH) "
-                "populációk kiesnek."),
+                "populációk kiesnek. FIGYELEM: a 145-ös plafon téves bemenet (Linsefors–Barrau "
+                "inflációs e-redője; N_tot-ként "
+                f"≈ {w.get('lb_implied_n_tot', float('nan')):.0f} lenne), és a szél-bezártság (S7) "
+                "ezt a sort felülírja."),
     }]
     thr = s3["thresholds_N60"]
     reachable = any(v is not None for v in thr.values())
@@ -291,12 +321,96 @@ def spin_scorecard(w: dict[str, Any], s3: dict[str, Any]) -> list[dict[str, Any]
                 f"szerű korlát (1 m_P) a* ≤ {w['s6']['a_star_gap_fiducial']:.2f}: a torzió rosszabb, "
                 "nem jobb."),
     })
+    if "s7" in w:
+        rows.append(s7_row(w["s7"]))
     return rows
+
+
+def s7_row(s7: dict[str, Any]) -> dict[str, Any]:
+    """B3a (docs/upgrade-plan.md, előre rögzítve 2026-09-30; nem vak — a becslés a
+    critical-review.md §4.1-ben már szerepelt)."""
+    observed = ("GW (GWTC-4, Beta fit)", "X-ray binaries (continuum fitting)",
+                "X-ray binaries (reflection, 36)", "SMBH (reflection)")
+    e1 = s7["by_eps"]["1"]
+    fr = {k: e1["fraction_allowed"][k] for k in observed if k in e1["fraction_allowed"]}
+    if all(v >= 0.5 for v in fr.values()):
+        outcome = "passes"
+    elif not any(v >= 0.5 for v in fr.values()):
+        outcome = "against (unless the disturbance amplitude is ≪ 1, B3b)"
+    else:
+        outcome = "mixed"
+    e01 = s7["by_eps"]["0.1"]
+    return {
+        "wp": "S7 edge confinement (B3a)", "outcome": outcome,
+        "numbers": {"eta_lP": s7["eta"]["eta_total"], "a_star_max_eps1": e1["a_star_max"],
+                    "a_star_max_eps0.1": e01["a_star_max"], "m_conf_kg_eps1": e1["m_conf_kg"],
+                    "fraction_allowed_eps1": fr},
+        "why": (f"A labda szélén keletkező zavar a visszapattanástól az infláció végéig "
+                f"η ≈ {s7['eta']['eta_total']:.2g} ℓ_P-ig hatol befelé. A mag csak akkor maradhat "
+                f"érintetlen, ha nagyobb ennél: M_s ≳ {e1['m_conf_kg']:.1g} kg, ami a WP4b "
+                f"magtömeg-korlátjával a* ≲ {e1['a_star_max']:.1e} spint enged (ε = 0.1-gyel "
+                f"{e01['a_star_max']:.1e}). Egyetlen megfigyelt populáció sem fér bele: a "
+                "spin-út csak akkor él, ha a zavar amplitúdója ≪ 1 (B3b, még nincs számolva)."),
+    }
 
 
 # ---------------------------------------------------------------------------
 # Kiegészítések (nem előre rögzítettek): WP1b és WP5b
 # ---------------------------------------------------------------------------
+
+
+def b1a_row(r: dict[str, Any]) -> dict[str, Any]:
+    """B1a (docs/upgrade-plan.md, előre rögzítve 2026-09-30): against, ha f_φ,min ≥ 0.5 (vagy nincs
+    ilyen); open, ha kisebb (mechanizmus nélkül „supports" nem érhető el)."""
+    pots = r["potentials"]
+    f = {k: v["f_field_min"] for k, v in pots.items()}
+    worst = [v for v in f.values() if v is None or v >= 0.5]
+    outcome = "against" if len(worst) == len(f) else ("open" if not worst else "mixed")
+    star = pots.get("Starobinsky", {})
+    return {
+        "wp": "B1a inflaton origin (dust + field)", "outcome": outcome,
+        "numbers": {"f_field_min": f,
+                    "r_freeze_required": {k: v["r_freeze_required"] for k, v in pots.items()},
+                    "amplification": {k: v["amplification_rho_c_over_rho_freeze"]
+                                      for k, v in pots.items()},
+                    "validation_pure_dust_inflated": r["validation_pure_dust_inflated"]},
+        "why": ("Ha a mező a vákuum-minimumában indul (φ_B = 0) a csillag pora mellett, ≥ 60 e-redőhöz "
+                f"Starobinskynél a ρ_c legalább {f.get('Starobinsky') or float('nan'):.2%}-át a mezőnek "
+                "kell vinnie (a por legfeljebb ~1%), φ²-nél még 100% sem elég. A mező energiája az "
+                "összeomlásban a porhoz képest ρ_c/ρ_freeze ≈ "
+                f"{star.get('amplification_rho_c_over_rho_freeze', float('nan')):.1e}-szeresére nő, így "
+                "ehhez a H = m pillanatban a por energiájának "
+                f"{star.get('r_freeze_required') or float('nan'):.1e}-ét kellene koherens, homogén "
+                "inflaton-sebességként hordoznia — a csillag anyagában ilyen mechanizmus nincs "
+                "(B1b). A WP1 „szinte biztos infláció”-ja tehát a fekete-lyuk belsejére nem vihető át."),
+    }
+
+
+# A8: megkülönbözteti-e a sor a fekete-lyuk-eredetet egy közönséges LQC-visszapattanástól?
+DISCRIMINATES = {
+    "1 Inflation": "no: a property of LQC + inflaton",
+    "2 Anisotropy": "partly: the initial shear is BH-specific, but inflation erases it",
+    "3 Curvature": "partly: closedness is BH-specific, but unmeasurably small",
+    "3b Edge beyond horizon": "no: automatic once inflation solves the horizon problem",
+    "4 Parent spin": "yes: only a BH parent spins",
+    "5 CMB imprint": "no: any LQC bounce",
+    "6 Natural selection": "yes: tests Smolin's extension",
+    "S1+S2 observed spins": "yes", "S3 axial core inflates": "partly",
+    "S4 crossing r_-": "yes", "S5 rotation today": "yes", "CMB consistency": "no",
+    "S6 torsion (info)": "n/a", "S7 edge confinement (B3a)": "yes",
+    "1b ACT-compatible potential": "no: a property of the potential",
+    "5b CMB with hybrid LQC spectrum": "no: any LQC bounce (vacuum initial state)",
+    "B1a inflaton origin (dust + field)": "yes: asks whether a BH interior can supply the inflaton",
+    "L1b validation gate": "n/a", "L1a star's own bounce vs inner horizon": "yes",
+    "L1c the spark crosses r_-": "yes", "L1d quantum vs classical": "n/a",
+    "L1e the asteroid": "yes (Norbi's feeding claim)",
+}
+
+
+def annotate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    for row in rows:
+        row["discriminates_bh_origin"] = DISCRIMINATES.get(row["wp"], "—")
+    return rows
 
 
 def upgrades_scorecard(res: dict[str, Any]) -> list[dict[str, Any]]:
@@ -348,6 +462,8 @@ def upgrades_scorecard(res: dict[str, Any]) -> list[dict[str, Any]]:
                 + f"a saját csővezeték ugyanitt {own['dchi2_wishart']:.2f}-t ad, S₁/₂ = "
                 f"{own['S_half']:.0f} μK⁴. A magas ℓ nem változik (plik-lite Δχ² ≈ 0)."),
     })
+    if "b1a" in res:
+        rows.append(b1a_row(res["b1a"]))
     return rows
 
 
@@ -364,7 +480,8 @@ def upgrades_scorecard(res: dict[str, Any]) -> list[dict[str, Any]]:
 EXPECTED_INNER = {"L1a star's own bounce vs inner horizon": "supports",
                   "L1c the spark crosses r_-": "open (depends on spin)",
                   "L1d quantum vs classical": "info (classical first for stellar masses)",
-                  "L1e the asteroid": "against"}
+                  "L1e the asteroid": "against (plan §5 expectation; the §5 rule itself gives "
+                                      "neutral for Planck curvature)"}
 
 
 def inner_horizon_gate(val: dict[str, Any]) -> dict[str, Any]:
@@ -452,15 +569,31 @@ def inner_horizon_scorecard(res: dict[str, Any]) -> list[dict[str, Any]]:
     late = [r for r in ast if r["delay_s"] >= 86400.0]
     all_meet = all(r["meets_planckian_inner_horizon"] for r in late)
     lp = res.get("late_pulse", {})
+    # A4 (hibajavítás, docs/upgrade-plan.md; critical-review.md §4.3): a terv §5 szerint „against"
+    # csak akkor, ha a héj a Cauchy-horizont szingularitásán, a sokkon vagy r = 0-n ér véget;
+    # ha a sorsa a nem modellezett kvantumgravitáción múlik, az „neutral". A Planck-görbület
+    # elérése pontosan ez utóbbi — korábban a kód ezt tévesen „against"-nek vette. „against"
+    # csak akkor, ha egy klasszikus futás a Planck-görbület ELŐTT mutatna véget (ends_sub_planck).
+    ends_sub_planck = bool(lp.get("ends_sub_planck", False)) if isinstance(lp, dict) else False
+    if invalid:
+        l1e = "invalid"
+    elif ends_sub_planck:
+        l1e = "against"
+    elif all_meet:
+        l1e = "neutral (quantum-gravity dependent)"
+    else:
+        l1e = "open"
     rows.append({
         "wp": "L1e the asteroid",
-        "outcome": "invalid" if invalid else ("against" if all_meet else "open"),
+        "outcome": l1e,
         "numbers": {"late_cases_meeting_planckian_IH": sum(r["meets_planckian_inner_horizon"]
                                                            for r in late),
                     "late_cases": len(late), "code_late_pulse": lp},
         "why": ("Egy napnál később beeső test (aszteroida, bolygó) minden spinnél olyan belső horizontot "
                 "talál, amely már Planck-görbületű (klasszikusan: a Cauchy-horizont tömeg-inflációs "
-                "szingularitása). Az eredeti Norbi-„táplálás” ezen az úton nem működik; hogy a "
-                "kvantumgravitáció ott visszapattanást csinál-e, azt ez a számolás nem dönti el."),
+                "szingularitása). Az eredeti Norbi-„táplálás”-nak tehát nincs klasszikus útja; hogy a "
+                "kvantumgravitáció ott visszapattanást csinál-e, azt ez a számolás nem dönti el — "
+                "a terv §5 szerint ez „neutral”, nem „against” (2026-09-30-i szabály-alkalmazási "
+                "hibajavítás)."),
     })
     return rows

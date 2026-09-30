@@ -20,7 +20,7 @@ anyag információja — a külső megfigyelőhöz Hawking-sugárzásként?
 
 A szimulátor mára valódi fekete lyukakat is kezel (Sgr A\*, M87\*, Cygnus X-1,
 GW-maradványok) forgással, akkrécióval és a kozmikus háttérsugárzással, és az
-EHT által mért gyűrűméreteket visszaadja.
+EHT által mért gyűrűméreteket visszaadja (egység- és ÁR-ellenőrzés, nem jóslat — lásd lent).
 
 ## Dokumentáció
 
@@ -192,7 +192,11 @@ Cauchy-horizontja, így a következtetés minőségileg ugyanaz).
 **Ellenőrzés az EHT-képekkel:** a tömegből és távolságból számolt gyűrű
 (≈ 11·GM/(c²D)) M87*-ra 42.0 μas (mért: 42 ± 3), Sgr A*-ra 56.4 μas
 (mért: 51.8 ± 2.3), azaz δ = −0.082 — pontosan az EHT által publikált
-δ = −0.08 ± 0.09 eltérés. A mai akkréciós rátát a program állandónak veszi
+δ = −0.08 ± 0.09 eltérés. **Ez egység- és általános relativitás-ellenőrzés, nem jóslat**
+(docs/critical-review.md §3.9): a számolás tiszta ÁR rögzített α = 11 kalibrációval — nincs
+benne spin, LMYZ-korrekció vagy Norbi-hatás; az M87\* tömegét maga az EHT a gyűrűből
+határozta meg, így ott δ = 0 körkörös; Sgr A\*-nál az EHT saját számolását ismételjük meg a
+GRAVITY-tömeggel és -távolsággal. A mai akkréciós rátát a program állandónak veszi
 a teljes horizonton (objektumonként jelölt feltevés); Cyg X-1-nél a horizont
 a kísérőcsillag hátralévő élete (~5 Myr).
 

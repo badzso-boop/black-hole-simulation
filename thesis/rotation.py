@@ -7,7 +7,8 @@ Planck-egységben (G = c = ħ = 1), m = GM/c²:
     (a) a forgás ne domináljon a visszapattanáskor: ω_B < H_max  →  a*_max = H_max r_b² / (2.5 m)
     (b) a centrifugális gát (Newtoni becslés r_c = j²/m, j = a* m) r_b alatt legyen:
         a*² m < r_b  →  a*_max = √(r_b/m)
-Mindkettő ~10⁻¹⁶…10⁻¹³: a porgömb csak gyakorlatilag nem forgó szülőben jut el ρ_c-ig.
+A szigorúbb (a) ≈ 9·10⁻⁸ az 5.1e11 kg-os szülőre, ≈ 3·10⁻¹⁴ 10 M☉-re, és nagyobb tömegnél még
+kisebb (∝ m^{−1/3}): a porgömb csak gyakorlatilag nem forgó szülőben jut el ρ_c-ig.
 Valódi fekete lyukak a* ~ 0.1–0.998 → a forgó anyag nem homogén visszapattanással
 éri el a Planck-sűrűséget; ez a modell korlátja, nem jóslat.
 

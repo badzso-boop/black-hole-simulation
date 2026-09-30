@@ -376,6 +376,16 @@ origin**, which does not need it.
   - In the grid, the other ΛCDM parameters are held at the Planck best fit. The MCMC (WP5c)
     frees them.
 - **Measure problem:** for Starobinsky the φ_B space is non-compact, so we give thresholds, not probabilities.
+- **Inflaton initial state (critical-review.md §3.1; B1a):** WP1 puts all of ρ_c into the scalar
+  field, but the collapsing star is dust. B1a shows that, with the field starting at its vacuum
+  minimum, the field needs ≥ 98.95% of ρ_c (Starobinsky), and φ² never reaches 60 e-folds. Every row
+  that inherits WP1's e-folds (WP2–WP5) inherits this condition.
+- **Matching (critical-review.md §3.2):** an inflating ball (P ≈ −ρ) cannot be joined to the vacuum
+  LMYZ exterior without a thin shell (the Farhi–Guth–Guven problem). Not addressed yet (B2).
+- **WP2 initial shear:** the Kantowski–Sachs value 0.2 is a classical extrapolation into a region
+  where f_LMYZ(r_b) = 1. The verdict is stated for the band 0 ≤ Ω_σ ≤ 0.5625.
+- **Edge disturbance amplitude (B3b):** the S7 row uses a speed-of-light bound. Whether the
+  disturbance really spoils the seed is not computed.
 
 ## Log
 
@@ -396,3 +406,23 @@ origin**, which does not need it.
   - Result: neutral (Δχ²_min = −0.23; N_tot > 140.71 at 95%). ΛCDM reproduces Planck 2018 within 0.06σ.
   - `run_mcmc.sh` got an MPI pre-check, unbuffered output and `--bind-to none`.
   - `analyze_mcmc.py` now finds best-fit files by pattern and flags the prior-dominated N_tot mean.
+- **2026-09-30 (later).** Critical review (`docs/critical-review.md`) and upgrade plan
+  (`docs/upgrade-plan.md`); Phase A and B1a/B3a implemented. Changes are classified per the plan's
+  rule 2:
+  - **Data update (A1):** neutron-star masses updated to 2025 values (J1614 1.937, J0348 1.806,
+    J0952 2.35 ± 0.11). Rule unchanged (> 3σ). Old: 3.2σ, new: 3.7σ, but only 1.1σ without J0952.
+    With Smolin's ~2.4 M☉ reading there is no tension.
+  - **Criterion change (A2/A3):** the "natural N_tot 130–145" band read Linsefors–Barrau's
+    *inflationary* e-folds as N_tot. WP3b is now reported as "consistency check: passes", with the
+    old rule's outcome ("supports") kept in the numbers. The WP4b 145 ceiling is kept as the
+    pre-registered rule, with a warning.
+  - **Bug fix (A4):** L1e returned "against" for Planck curvature; plan §5 says that case is
+    neutral. Fixed.
+  - **Relabelling:** WP2 is reported as a band (A5); the EHT numbers are called a units check (A7);
+    a "BH-specific?" column is added to every scorecard (A8).
+  - **New, pre-registered (B1a):** a two-fluid (dust + field) bounce. Result: **against**, because the
+    field must carry ≥ 99% of ρ_c. Equivalently, it needs 1.7e-10 of the dust energy as a coherent
+    inflaton velocity when the collapse's H reaches m; no mechanism is known.
+  - **New, pre-registered (B3a):** the S7 edge-confinement row, with η = 9.55e3 ℓ_P, gives
+    a* ≲ 9.8e-5, so no observed spin population is allowed: **against, unless the disturbance
+    amplitude is ≪ 1**.

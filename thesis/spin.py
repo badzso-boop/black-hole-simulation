@@ -29,11 +29,17 @@ from scipy.optimize import brentq
 from scipy.stats import beta as beta_dist
 
 from thesis.units import ALPHA_LMY, L_P, M_SUN, PARTICLE_HORIZON_M, RHO_C, RHO_PL, C, G
+from thesis.units import M_P as M_P_KG
 
 M_GAP = 4 * math.sqrt(ALPHA_LMY) / (3 * math.sqrt(3))  # 0.83 m_P (LMY 2023)
 # Popławski 2010 (arXiv:1007.0587): ε_R = 1.1e116 J/m³ → ρ_T ≈ 237 ρ_Pl
 RHO_TORSION = 1.1e116 / C**2 / RHO_PL
-N_TOT_LQC_MAX = 145.0  # Linsefors–Barrau 2013 eloszlás csúcsa; a §6 kritérium felső határa
+# A §6 kritérium felső határa (előre rögzítve). FIGYELEM (critical-review.md §3.3): a
+# Linsefors–Barrau 2013-féle 145 az INFLÁCIÓS e-redők csúcsa, nem N_tot — a határ tehát
+# téves bemenetre épült. A régi ítéletet megtartjuk (upgrade-plan szabály 2c), és mellé
+# kiírjuk az abból következő N_tot-ot (lb_implied_n_tot) is.
+N_TOT_LQC_MAX = 145.0
+LB_N_INFL_PEAK = 145.0
 LOG_R_OBS = math.log(PARTICLE_HORIZON_M / L_P)
 
 
@@ -301,6 +307,11 @@ def run(wp1: dict[str, Any], wp5: dict[str, Any]) -> dict[str, Any]:
     s5 = {sc: log10_omega_over_h_today_seed(n_onset, h_inf, n_infl_min, post["n_reheat"],
                                             post["n_radiation"], post["n_matter"], sc)
           for sc in ("dust", "perfect_fluid")}
+    # S7 (B3a, docs/upgrade-plan.md): a szél zavara η komoving távolságig hatol befelé;
+    # a mag csak akkor maradhat érintetlen, ha r_b(M_s) ≥ η/ε → M_s ≥ M_conf(ε)
+    s7 = edge_confinement_bounds(c_fid, pops)
+    # A2: a Linsefors–Barrau-féle 145 inflációs e-redőből következő N_tot
+    lb_implied = n_onset + LB_N_INFL_PEAK + post["n_post"]
     # S6
     s6 = {"rho_torsion_over_rho_pl": RHO_TORSION,
           "extra_efolds_vs_lqc": math.log(v_bounce(RHO_C) / v_bounce(RHO_TORSION)),
@@ -310,7 +321,46 @@ def run(wp1: dict[str, Any], wp5: dict[str, Any]) -> dict[str, Any]:
     return {"m_gap": M_GAP, "profiles": profiles, "c_values": c_values, "c_fiducial": c_fid,
             "n_grid": n_grid, "n_best_cmb": n_best, "populations": stats,
             "relations": relations, "s3_detachment": s3_rows, "s4": s4_rows,
-            "s5": s5, "s5_n_infl": n_infl_min, "s6": s6}
+            "s5": s5, "s5_n_infl": n_infl_min, "s6": s6, "s7": s7,
+            "lb_implied_n_tot": lb_implied}
+
+
+CONFINEMENT_EPS = (1.0, 0.1)
+
+
+def confinement_eta() -> dict[str, float]:
+    """η a visszapattanástól az infláció végéig — ugyanazzal a háttérrel, mint a belső-horizont
+    futtató (Starobinsky, φ_B = −1.3, φ̇ > 0; scripts/run_inner_horizon.py)."""
+    from thesis.inflation import Starobinsky, evolve
+    from thesis.ori_model import conformal_time_to_end_of_inflation
+
+    bg = evolve(Starobinsky(), -1.3, 1)
+    return {"n_onset": bg.n_onset, "h_onset": bg.h_onset or 1e-5,
+            **conformal_time_to_end_of_inflation(bg.n_onset, bg.h_onset or 1e-5)}
+
+
+def confinement_mass(eta: float, eps: float) -> float:
+    """M_conf(ε) = 2(η/ε)³/α m_P: e fölött a szél zavara a mag sugarának legfeljebb ε-szorosáig ér."""
+    from thesis.ori_model import mass_for_confinement
+
+    return mass_for_confinement(eta, eps)
+
+
+def edge_confinement_bounds(c_prof: float, pops: dict[str, dict[str, Any]],
+                            n_tot: float = N_TOT_LQC_MAX) -> dict[str, Any]:
+    eta = confinement_eta()
+    by_eps = {}
+    for eps in CONFINEMENT_EPS:
+        m_conf = confinement_mass(eta["eta_total"], eps)
+        m_min = max(M_GAP, m_conf)
+        by_eps[f"{eps:g}"] = {
+            "m_conf_mP": m_conf, "m_conf_kg": m_conf * M_P_KG,
+            "a_star_max": a_star_gap(c_prof, m_min),
+            "fraction_allowed": {name: float(np.mean([allowed(a, n_tot, c_prof, m_min)
+                                                      for a in p["a"]]))
+                                 for name, p in pops.items()},
+        }
+    return {"eta": eta, "n_tot": n_tot, "C": c_prof, "by_eps": by_eps}
 
 
 def run_shear() -> dict[str, Any]:

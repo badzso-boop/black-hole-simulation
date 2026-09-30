@@ -44,6 +44,15 @@ def run() -> dict[str, Any]:
                     "sigma": sigma_equiv(p) if p > 0 else float("inf")})
     heaviest = {k: stars[k] for k in ("PSR_J0740+6620", "PSR_J0952-0607") if k in stars}
     p2 = p_all_below(heaviest, 2.0)
+    # érzékenység (docs/critical-review.md §3.8): egy-egy csillag elhagyásával, és Smolin 2012
+    # „~2.4 M☉ már ellentmondana" olvasatával
+    loo = {}
+    for k in stars:
+        p = p_all_below({j: s for j, s in stars.items() if j != k}, 2.0)
+        loo[k] = {"p_all_below": p, "sigma": sigma_equiv(p)}
+    p24 = p_all_below(stars, 2.4)
     return {"stars": stars, "tests": out,
             "two_heaviest_p_below_2": p2, "two_heaviest_sigma": sigma_equiv(p2),
+            "leave_one_out_2Msun": loo,
+            "smolin_2_4_reading": {"p_all_below": p24, "sigma": sigma_equiv(p24)},
             "romani_bound": d.get("M_max_lower_bound")}

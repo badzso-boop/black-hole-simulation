@@ -24,7 +24,7 @@ printed next to each result) and from the simulation campaign in
 
 | Kind of output | Examples from this project | Status |
 |---|---|---|
-| **Reproduction of known physics** | Hawking lifetimes, Page's spin-down, EHT ring sizes (Sgr A* δ = −0.08), CMB equilibrium mass, Eddington growth | Checked against measurements/literature. Useful as a validated tool, but not new science. |
+| **Reproduction of known physics** | Hawking lifetimes, Page's spin-down, EHT ring sizes (Sgr A* δ = −0.08; a GR/units check, not a prediction: M87*'s mass comes from the ring itself), CMB equilibrium mass, Eddington growth | Checked against measurements/literature. Useful as a validated tool, but not new science. |
 | **Derived consequences of a stated model** | "In LQC + Lewandowski–Ma–Yang geometry the bounce edge is causally disconnected, so exterior radiation carries no information (0 bits)" | Legitimate theoretical result: *if* the assumptions hold, *then* this follows. It agrees with the existing baby-universe literature, so it is a confirmation rather than a discovery. |
 | **Statements about reality** | "We live in a black hole" / "a new galaxy forms inside" | **Not tested.** There is no measurement here, and the interior of a black hole is currently unobservable. |
 

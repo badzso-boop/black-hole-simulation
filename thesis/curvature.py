@@ -97,7 +97,11 @@ PARENTS_KG = {
     "Gaztanaga parent (5e22 M_sun)": 5e22 * M_SUN,
 }
 R0_OVER_RS = [1.0, 10.0, 1e3, 2.3e5]  # 2.3e5: a Nap sugara / r_s(Nap) — nyugalomból induló csillag
-LQC_NATURAL_N_TOT = (130.0, 145.0)  # Guillén+ 2026 CMB-illesztés … Linsefors–Barrau 2013 csúcs
+# Hivatkozási N_tot-értékek (A2, critical-review.md §3.3). A korábbi „LQC természetes 130–145"
+# sáv felső vége a Linsefors–Barrau 2013-féle 145 INFLÁCIÓS e-redő volt, N_tot-nak olvasva.
+ZHU_N_TOT_LOWER_95 = 141.0  # Zhu et al. 2017: megfigyelési alsó korlát (nem jóslat)
+LB_N_INFL_PEAK = 145.0  # Linsefors & Barrau 2013: N_infl eloszlásának csúcsa (φ², más kezdőállapot)
+OMEGA_K_REFERENCE_N_TOT = 130.0  # csak a régi táblázat-oszlop folytonosságáért
 
 
 def n_hor(n_post: float, h_inf: float) -> float:
@@ -133,13 +137,20 @@ def run(n_onset: float, n_post_by_treh: dict[str, float], h_inf: float) -> dict[
                     "n_tot_min_curvature_3sigma": n_tot_min_curvature(geo),
                     "omega_k_at_edge_minimum": omega_k_today(geo, edge),
                     "omega_k_minimal_inflation": omega_k_today(geo, n_tot_minimal),
-                    "omega_k_lqc_natural_low": omega_k_today(geo, LQC_NATURAL_N_TOT[0]),
+                    "omega_k_at_n_tot_130": omega_k_today(geo, OMEGA_K_REFERENCE_N_TOT),
                 })
             rows.append(row)
     return {
         "rows": rows,
         "n_onset": n_onset,
-        "lqc_natural_n_tot": LQC_NATURAL_N_TOT,
+        "n_tot_references": {
+            "zhu2017_lower_95": ZHU_N_TOT_LOWER_95,
+            "lb2013_n_infl_peak": LB_N_INFL_PEAK,
+            # N_tot = N_onset + N_infl + N_post; N_post a legrövidebb (azonnali felmelegedés)
+            # és a leghosszabb felmelegedés közötti sáv
+            "lb2013_implied_n_tot": [n_onset + LB_N_INFL_PEAK + min(n_post_by_treh.values()),
+                                     n_onset + LB_N_INFL_PEAK + max(n_post_by_treh.values())],
+        },
         "omega_k_desi": OMEGA_K_DESI,
         "analytic_note": "a széle-minimumon Ω_K = −(R_H/R_obs)²·r_s/R0 ≈ −0.097·r_s/R0",
         "analytic_coefficient": -((hubble_radius_m() / PARTICLE_HORIZON_M) ** 2),

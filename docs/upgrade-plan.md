@@ -1,6 +1,11 @@
 # Upgrade plan: code and thesis (after the 2026-09-30 critical review)
 
-**Status:** plan, 2026-09-30. Nothing below is implemented yet.
+**Status (2026-09-30, later):**
+- **Implemented:** Phase A (A1–A9) and B1a, B3a.
+- **Run:** A10 locally, as a pipeline check (see `docs/thesis-progress.md`, Log). The committed
+  verdict run belongs on the Ryzen, where the official Planck likelihoods (WP5b) are installed.
+- **Still open:** B1b, B2, B3b, B3c, B4, B5, B6, B7 and Phase C/D.
+
 **Basis:** [critical-review.md](critical-review.md); section references (§) point there.
 
 ## 0. Rules for this upgrade
@@ -66,6 +71,44 @@ Roughly 2–3 days on the i5. No new physics, no Ryzen.
   - *open* if it depends on an unconstrained coupling.
 - **Effort:** 1–2 weeks, including the literature pass. Compute runs on the i5 in minutes.
 
+#### B1a pre-registration (2026-09-30, written before the first run)
+
+B1a is the part of B1 that needs no new mechanism. The question: how much of ρ_c must the scalar
+field carry at the bounce, next to the star's dust, to get ≥ 60 e-folds?
+
+- **Setup:** `inflation.evolve(..., dust_fraction=f_d)`. The field starts at its **vacuum minimum**
+  (φ_B = 0 for Starobinsky and φ²) with φ̇_B > 0, carrying the fraction f_φ = 1 − f_d of ρ_c.
+- **Output 1:** f_φ,min, the smallest field fraction giving N_infl ≥ 60. Found by bisection in
+  log f_φ over [1e-12, 1].
+- **Output 2:** the ratio the parent's matter must already contain before its collapse. The field's
+  kinetic energy is stiff (∝ a⁻⁶) against the dust (∝ a⁻³), so ρ_φ/ρ_d grows ∝ ρ_d during the
+  collapse, once the collapse rate exceeds the inflaton mass (H > m, at ρ_freeze = 3m²/(8π)).
+  - Before that point the field oscillates and behaves like dust, so the ratio is frozen.
+  - The requirement is therefore r_freeze = [f_φ,min/(1 − f_φ,min)] · ρ_freeze/ρ_c.
+- **Validation:**
+  - f_d = 0 reproduces WP1's N_infl at the same φ_B;
+  - pure dust (f_d = 1, field at rest at its minimum) gives no inflation;
+  - the stiff/dust amplification factor matches the analytic ρ_c/ρ_freeze.
+- **Outcomes:**
+  - **against:** f_φ,min ≥ 0.5. The field has to dominate the bounce, i.e. the collapsing
+    "star" would have to be mostly inflaton.
+  - **open:** f_φ,min < 0.5. A small field fraction suffices, but B1a models no mechanism that
+    supplies r_freeze. The verdict states r_freeze as the requirement a mechanism (B1b) must meet.
+  - **supports:** cannot be reached in B1a, because no mechanism is modelled. It is reserved for
+    B1b.
+
+#### B3a pre-registration (2026-09-30)
+
+- **Setup:** add the edge-confinement bound M_s ≥ M_conf(ε) = 2(η/ε)³/α to `spin.allowed`, for
+  ε ∈ {1, 0.1}. η comes from `ori_model.conformal_time_to_end_of_inflation` with WP1's median onset.
+- **New WP4b row "S7 edge confinement"** (fiducial C, N_tot = 145):
+  - **passes:** at ε = 1, the bulk (≥ 50%) of every observed spin population is allowed;
+  - **against, unless the disturbance amplitude is ≪ 1 (B3b):** at ε = 1, no observed population
+    has its bulk allowed;
+  - **mixed:** anything in between.
+- **Not blind:** the critical review (§4.1) already estimated a*_max ≈ 1.9e-4 (ε = 1, with η = 5×10³). The code's full η = 9.55×10³ gives 9.8e-5. This rule
+  only turns that estimate into a mechanical verdict.
+
 ### B2. Matching an inflating ball to the LMYZ exterior (§3.2)
 
 - **Question:** does a scalar-field ball need a thin shell at its edge? Does LQC's violation of the
@@ -79,7 +122,8 @@ Roughly 2–3 days on the i5. No new physics, no Ryzen.
 
 - **B3a.** Add the bound M_s ≥ 2(η/ε)³/α to `spin.allowed()` and the S1/S2 fractions, with
   ε ∈ {1, 0.1}. η comes from `ori_model.conformal_time_to_end_of_inflation`.
-  - Test: a*_max = 1.9e-4 (ε = 1) and 1.9e-5 (ε = 0.1) at C = 1.23 (§4.1 table, a hand calculation).
+  - Test: M_conf = 2(η/ε)³/α and a*_max = C(√(α/2)/M_conf)^{1/3}, which scales ∝ ε, checked against the
+    hand formula. With η = 9.55×10³: 9.8e-5 (ε = 1) and 9.8e-6 (ε = 0.1).
 - **B3b.** Estimate the disturbance's **amplitude**: a 1-D linear perturbation launched from the
   ball's edge, propagated through the kinetic phase into inflation. Does it change the seed's local
   expansion by O(1) or by ≪ 1?

@@ -657,3 +657,37 @@ amihez az irodalomban sincs számolás. Ezután jöhet a tézis írása, ha a sz
 ### Következő lépés
 
 `python scripts/run_inner_horizon.py --jobs 8` a Ryzenen, majd a `runs/inner-horizon-*` commitolása.
+
+## 18. fázis — Kritikai áttekintés és javítások, 2026-09-30
+
+### Mit csináltunk
+
+- **`docs/critical-review.md`** (kritikai áttekintés) és **`docs/upgrade-plan.md`** (fejlesztési
+  terv, A–D fázis).
+- **A fázis (javítások):**
+  - A1: neutroncsillag-tömegek a 2025-ös értékekre (J1614 1.937, J0348 1.806, J0952 2.35 ± 0.11), az
+    elhagyásos érzékenységgel.
+  - A2/A3: a „természetes 130–145" N_tot-sáv téves volt (a 145 Linsefors–Barrau *inflációs*
+    e-redője). A WP3b így konzisztencia-ellenőrzés.
+  - A4: az L1e ítélet-szabályának javítása (Planck-görbület → neutral, a terv §5 szerint).
+  - A5: a WP2 nyírása sávként (0…0.5625). A6: a docstring javítása. A7: az EHT egység-ellenőrzés,
+    nem jóslat. A8: „BH-specifikus?" oszlop minden pontozólapon. A9: a korlátok dokumentálva.
+- **B1a** (`thesis/inflaton_origin.py`, előre rögzítve): kétfolyadékos (por + mező) visszapattanás.
+  Az `inflation.evolve` kapott egy `dust_fraction` és egy `h_floor` paramétert.
+- **B3a** (`spin.edge_confinement_bounds`, WP4b S7-sor): a szél-bezártság a spin-útra.
+- **Tesztek:** 11 új (`thesis/tests/test_upgrades.py`, és a WP6/LMYZ-teszt a
+  `test_wp2_to_wp6.py`-ban).
+
+### Amit megtudtunk
+
+| Kérdés | Eredmény |
+|---|---|
+| Honnan jön az inflaton egy fekete lyukban? (B1a) | **Ellene:** a por mellett a mezőnek a ρ_c ≥ 99%-át kell vinnie (Starobinsky); φ²-nél 100% sem elég. |
+| Túléli-e a spin-út a szél-bezártságot? (B3a) | **Ellene** (hacsak a zavar amplitúdója nem ≪ 1): a* ≲ 9.8e-5. |
+| Smolin (WP6) a friss tömegekkel? | 3.7σ, de szinte csak a J0952 viszi (nélküle 1.1σ). |
+| L1e (aszteroida) | neutral: klasszikus útja nincs, a kvantumgravitáció dönt. |
+
+### Következő lépés
+
+A hivatalos futás a Ryzenen: `python scripts/run_thesis.py` (a Planck-likelihoodokkal), majd a
+`python scripts/run_inner_horizon.py --jobs 8`. Utána B1b, B2, B3b, B4 és B5.

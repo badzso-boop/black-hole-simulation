@@ -216,15 +216,18 @@ The issues are in how the verdicts are built.
 
 ### 4.1 Edge confinement rules out WP4b's small-seed route. Severity: high
 
-The commit finds that a disturbance from the ball's edge can travel at most η ≈ 5×10³ ℓ_P
-(comoving) inward before inflation ends. Combined with WP4b's own seed bound,
-M_s ≤ C³√(α/2)/a*³ m_P with C = 1.23 (`thesis/ori_model.mass_for_confinement`,
-`thesis/spin.v_bounce`):
+The commit finds that a disturbance from the ball's edge can travel only a limited comoving
+distance η inward before inflation ends. The commit text quotes "≈ 5×10³ ℓ_P". The code's full
+η (kinetic phase plus inflation, `ori_model.conformal_time_to_end_of_inflation`) is
+**9.55×10³ ℓ_P**. Combined with WP4b's own seed bound, M_s ≤ C³√(α/2)/a*³ m_P with C = 1.23:
 
 | Requirement | Minimum seed mass | Maximum spin |
 |---|---|---|
-| Seed larger than the region the disturbance reaches (η/r_b ≤ 1) | 2.1e11 m_P ≈ 4.7 t | a* ≲ **1.9e-4** |
-| Disturbance reaches at most 10% of the seed | 2.1e14 m_P ≈ 4700 t | a* ≲ **1.9e-5** |
+| Seed larger than the region the disturbance reaches (η/r_b ≤ 1) | 1.5e12 m_P ≈ 33 t | a* ≲ **9.8e-5** |
+| Disturbance reaches at most 10% of the seed | 1.5e15 m_P ≈ 33 000 t | a* ≲ **9.8e-6** |
+
+These values come from the code, as the S7 row in `thesis/verdict.py` computes them. An earlier
+draft of this table used η = 5×10³, which gave 1.9e-4 and 1.9e-5.
 
 - Natal spins (~0.01) and every observed population are above both limits. The "comfortable window
   a* ≈ 0.44–0.52" disappears.
