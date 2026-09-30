@@ -99,6 +99,14 @@ are preparing a thesis on it.
 - **WP5c MCMC: done** (see the 5c row above). To rerun: `bash scripts/run_mcmc.sh` on the Ryzen
   (~3 h total; as root in WSL, set `OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1`),
   then `python scripts/analyze_mcmc.py`. `chains/` is gitignored.
+- **Inner horizon (S4, Level 1):** planned in `docs/inner-horizon-plan.md`, with pre-registered
+  outcomes (2026-09-30) and data in `observations.json` → `4c_inner_horizon`. Not implemented yet.
+  - Key research findings: the non-spinning LMYZ model already has a Planck-scale inner horizon
+    (the bounce lies just inside it).
+  - The RN (charge) proxy has a classical Coulomb turning point at Q²/2M, so it tests the
+    inner-horizon timing race, not the axial seed's bounce.
+  - Semiclassical ⟨T⟩ fluxes at inner horizons are published (RN, Kerr).
+  - Charge ↔ spin is mapped by matching κ₋M.
 - With this, the planned calculations are complete. The remaining open physics question is S4
   (matter crossing a spinning parent's inner horizon), for which no calculation exists in the
   literature. Thesis writing is next, if the author asks for it.

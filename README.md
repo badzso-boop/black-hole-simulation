@@ -31,6 +31,7 @@ EHT által mért gyűrűméreteket visszaadja.
 | [runs/2026-09-28/ANALYSIS.md](runs/2026-09-28/ANALYSIS.md) | 71 futásos kampány az i5-ön: eredmények és értelmezés ([RESULTS.md](runs/2026-09-28/RESULTS.md), naplók) |
 | [docs/are-we-in-a-black-hole.md](docs/are-we-in-a-black-hole.md) | „Egy fekete lyukban élünk?" — mit mondhat a projekt, mi adat és mi modell |
 | [docs/thesis-plan.md](docs/thesis-plan.md) | tézis-terv: 6 számolás (+ egy új), egyenletek, adatok, előre rögzített kimenetek |
+| [docs/inner-horizon-plan.md](docs/inner-horizon-plan.md) | a belső horizont (S4, Level 1): átjut-e a „szikra”? töltött modell, kvantum-fluxusok, késői becsapódás; előre rögzített kimenetek |
 | [docs/spin-plan.md](docs/spin-plan.md) | a forgó szülő-probléma (WP4b): adatok, két kiút, előre rögzített kimenetek és az eredmények (§9) |
 | [docs/thesis-progress.md](docs/thesis-progress.md) | a tézis-számolások kódja, futtatása és eredményei (pontozólap: `runs/thesis-2026-09-29/`) |
 | [docs/norbi-documentation-summary.md](docs/norbi-documentation-summary.md) | az eredeti `norbi_teljes_dokumentacio.pdf` (v2.0) kivonata és pontonkénti állapota |
